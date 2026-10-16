@@ -349,7 +349,7 @@ window.SQUIGGLE_SHARE_URL='https://jarredksmith.github.io/squiggle/';
 
   <div class="status">
     <div class="msg" id="msg" aria-live="polite"></div>
-    <button class="hint" id="btnHints"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M8.5 14.5A6 6 0 1 1 15.5 14.5c-.6.6-1 1.5-1 2.5h-5c0-1-.4-1.9-1-2.5z"/></svg>Hints</button>
+    <button class="hint" id="btnHints"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M8.5 14.5A6 6 0 1 1 15.5 14.5c-.6.6-1 1.5-1 2.5h-5c0-1-.4-1.9-1-2.5z"/></svg><span>Hints</span></button>
   </div>
 
   <section class="guesses" id="guesses" aria-label="Your guesses"></section>
@@ -432,53 +432,162 @@ async function shareOut(text){
   return false;
 }
 /* ---------- Keyboard geometry ---------- */
-const ROWS=['qwertyuiop','asdfghjkl','zxcvbnm'];
-const OFF=[0,0.5,1.5];
 const U=100;
-const POS={};
-ROWS.forEach((r,ri)=>[...r].forEach((ch,ci)=>{POS[ch]={x:(ci+OFF[ri]+0.5)*U,y:(ri+0.5)*U,row:ri,col:ci};}));
-
-/* ---------- Words ---------- */
-const WEEK=[
-  ['word','finger','keyboard'],
-  ['jump','spiral','squiggle'],
-  ['flow','puzzle','shortcut'],
-  ['maze','sketch','treasure'],
-  ['knot','doodle','mountain'],
-  ['path','zigzag','football'],
-  ['quiz','rhythm','notebook']
-];
-const POOL={
-  4:'home fire moon lamp rope bird frog kite wave rock sand leaf tree bell drum pond snow gold milk wolf bear deer fish ship rain wind star lake road hill barn farm cake soup corn rice pear plum lime salt mint jazz folk ball bike boat coin ring glow dusk dawn echo zone hero king lion duck goat crab hawk swan iron wool silk clay'.split(' '),
-  6:'bridge castle garden forest meadow island planet rocket candle mirror window pillow jacket button zipper pocket ladder hammer anchor pencil marker crayon canvas violin guitar breeze frozen summer winter autumn spring sunset tunnel harbor desert jungle canyon saddle rabbit badger beaver turtle lizard monkey parrot pigeon salmon shrimp walnut peanut cherry banana orange tomato potato carrot pepper butter cheese cookie muffin waffle coffee pickle thread needle basket bucket shovel helmet magnet marble puddle'.split(' '),
-  8:'backpack umbrella sandwich elephant kangaroo scorpion hedgehog squirrel reindeer flamingo pancakes popsicle lollipop cupcakes lemonade broccoli zucchini mushroom cucumber eggplant hazelnut cinnamon backyard driveway sidewalk campfire sailboat airplane elevator snowball rainbows sunshine starfish seashell seahorse dolphins whistles whiskers scissors password lanterns necklace bracelet calendar envelope magazine birdcage hammocks blizzard'.split(' ')
+/* ---------- Languages: each one is a keyboard layout, an alphabet, a dictionary and word pools ---------- */
+const LANGS={
+  en:{name:'English',locale:'en-US',rows:['qwertyuiop','asdfghjkl','zxcvbnm'],off:[0,0.5,1.5],alpha:'abcdefghijklmnopqrstuvwxyz',
+    week:[['word','finger','keyboard'],['jump','spiral','squiggle'],['flow','puzzle','shortcut'],['maze','sketch','treasure'],['knot','doodle','mountain'],['path','zigzag','football'],['quiz','rhythm','notebook']],
+    drawWeek:['planet','guitar','rocket','castle','bridge','garden','pillow'],
+    tutorial:[{word:'pen',placed:true},{word:'cat',placed:false}],
+    pool:{4:'home fire moon lamp rope bird frog kite wave rock sand leaf tree bell drum pond snow gold milk wolf bear deer fish ship rain wind star lake road hill barn farm cake soup corn rice pear plum lime salt mint jazz folk ball bike boat coin ring glow dusk dawn echo zone hero king lion duck goat crab hawk swan iron wool silk clay'.split(' '),
+      6:'bridge castle garden forest meadow island planet rocket candle mirror window pillow jacket button zipper pocket ladder hammer anchor pencil marker crayon canvas violin guitar breeze frozen summer winter autumn spring sunset tunnel harbor desert jungle canyon saddle rabbit badger beaver turtle lizard monkey parrot pigeon salmon shrimp walnut peanut cherry banana orange tomato potato carrot pepper butter cheese cookie muffin waffle coffee pickle thread needle basket bucket shovel helmet magnet marble puddle'.split(' '),
+      8:'backpack umbrella sandwich elephant kangaroo scorpion hedgehog squirrel reindeer flamingo pancakes popsicle lollipop cupcakes lemonade broccoli zucchini mushroom cucumber eggplant hazelnut cinnamon backyard driveway sidewalk campfire sailboat airplane elevator snowball rainbows sunshine starfish seashell seahorse dolphins whistles whiskers scissors password lanterns necklace bracelet calendar envelope magazine birdcage hammocks blizzard'.split(' ')},
+    dict:"__VALID__"},
+  es:{name:'Español',locale:'es',rows:['qwertyuiop','asdfghjklñ','zxcvbnm'],off:[0,0,1.5],alpha:'abcdefghijklmnopqrstuvwxyzñ',
+    week:null,drawWeek:null,
+    tutorial:[{word:'pan',placed:true},{word:'sol',placed:false}],
+    pool:{4:'casa vida agua mano cara cama café ropa boca baño aire foto pelo mesa cena caja luna rosa lago isla gato pato nube miel vino risa nido lobo rama hoja piso tren rayo remo sapo toro vaca mapa pino puma sofá niño año'.split(' '),
+      6:'tiempo hombre dinero mañana nombre camino puerta semana ciudad equipo tierra cuerpo fiesta comida música tienda centro blanco bonito fuerza futuro pueblo cuarto planta jardín bosque cocina zapato camisa cabeza abuelo tomate pájaro piedra verano sábado espejo puente ventas cuento sueños'.split(' '),
+      8:'problema personas historia teléfono pregunta hospital película palabras programa edificio estación estrella hermanos animales cuchillo universo proyecto invierno elefante mariposa sombrero ventanas caballos camiseta aventura princesa ciudades semillas escalera guitarra paraguas'.split(' ')},
+    dict:"__VALID_ES__"},
+  pt:{name:'Português',locale:'pt-BR',rows:['qwertyuiop','asdfghjkl','zxcvbnm'],off:[0,0.5,1.5],alpha:'abcdefghijklmnopqrstuvwxyz',
+    week:null,drawWeek:null,
+    tutorial:[{word:'pão',placed:true},{word:'sol',placed:false}],
+    pool:{4:'casa vida água mesa café cama boca foto bebê jogo fogo sala loja chão olho nome medo amor rosa lago gato pato lobo rato sapo vaca bolo mapa pipa cubo rede faca sofá ilha nave vela moto'.split(' '),
+      6:'cidade cabeça amigos mulher garota pessoa semana quarto escola guerra música número equipe comida médico cabelo futuro viagem espaço menino menina doutor janela sapato camisa tomate abelha árvore jardim sábado banana cavalo girafa baleia bonito cinema dentro'.split(' '),
+      8:'trabalho dinheiro problema primeiro história crianças mulheres telefone pergunta hospital palavras mensagem programa surpresa resposta conversa notícias cachorro floresta montanha estrelas vermelho natureza universo caminhão detalhes paciente parceiro elefante aventura princesa guitarra presente girassol'.split(' ')},
+    dict:"__VALID_PT__"}
 };
-const VALID=new Set("__VALID__".split('|'));
-WEEK.flat().forEach(w=>VALID.add(w)); Object.values(POOL).flat().forEach(w=>VALID.add(w));
+let LANG='en',L=LANGS.en,ROWS=L.rows,OFF=L.off,POS={},DICT=new Map(),PREF_LANG='en';
+/* Display form → the keys a finger would swipe: accents fall away, ñ stays a key in Spanish, ç traces through c */
+function norm(w){let out='';for(const ch of String(w).toLowerCase()){if(LANG==='es'&&ch==='ñ'){out+='ñ';continue;}out+=ch.normalize('NFD').replace(/[\u0300-\u036f]/g,'');}return out;}
+const disp=w=>DICT.get(w)||w;
+function buildDict(){DICT=new Map();const extra=[...(L.week||[]).flat(),...Object.values(L.pool).flat(),...(L.drawWeek||[]),...L.tutorial.map(t=>t.word)];
+  for(const w of L.dict.split('|').concat(extra)){if(!w)continue;const n=norm(w);if(!DICT.has(n)&&n.length>=3&&[...n].every(c=>L.alpha.includes(c)))DICT.set(n,w);}
+  extra.forEach(w=>DICT.set(norm(w),w));}
+function setLang(code,persist){
+  LANG=LANGS[code]?code:'en';L=LANGS[LANG];ROWS=L.rows;OFF=L.off;POS={};
+  ROWS.forEach((r,ri)=>[...r].forEach((ch,ci)=>{POS[ch]={x:(ci+OFF[ri]+0.5)*U,y:(ri+0.5)*U,row:ri,col:ci};}));
+  buildDict();document.documentElement.lang=LANG;
+  if(persist){PREF_LANG=LANG;store('sq.lang',LANG);}
+  const kb=document.getElementById('kb');if(kb){delete kb.dataset.built;kb.innerHTML='';}
+}
+PREF_LANG=store('sq.lang')||(['es','pt'].find(c=>(navigator.language||'').toLowerCase().startsWith(c))||'en');
+setLang(PREF_LANG,false);
+
+/* ---------- Strings ---------- */
+const STR={en:{
+  appTag:'Daily word trace',play:'Play',cont:'Continue',threeOne:'Three to read, one to draw',toGo:'{n} to go · {next}',nextDraw:'draw round next',nextRead:'{n}-letter squiggle next',
+  shareToday:'Share today',shareSub:'{s} of 3 read{d} · {ink} ink',drawnAt:', drawn at {a}%',review:'Review today',reviewSub:'See the traces and your guesses',
+  practice:'Practice',practiceSub:'Read or draw',challenge:'Challenge',challengeSub:'Beat a trace',send:'Send a squiggle',sendSub:'Trace a word or name, text the link',
+  stats:'Stats',how:'How to play',settings:'Settings',chipDone:'Done · new squiggles in ',chipProgress:'{d} of {n} done',
+  mPractice:'Practice',mFriend:'From a friend',mDuel:'Duel',mLearn:'Learn',learnStep:'Learn · step {i} of {n}',letters:'{n} letters',skip:'Skip',home:'Home',now:'now',missed:'missed',finishFirst:'Finish the current squiggle first',
+  stDrawDone:'<b>Blue</b> is the real trace, <b>pink</b> is yours',stDraw:'Draw it in <b>one stroke</b>, then lift',hard:'hard',inkPlus:' · +{n} ink',solvedIn:'Solved in <b>{n}</b>',wordWas:'The word was <b>{w}</b>.',outOf:'<b>Out of guesses.</b> Buy one more, or reveal.',guessOf:'<b>{n} letters</b> · guess {g} of {a}',
+  oneMore:'One more?',hints:'Hints',subPractice:'Practice · as many as you like',subDuel:'Beat their trace · they scored {a}%',subTutorial:'Two quick ones to learn the trick',subFriend:'Someone traced this one for you',
+  drawReject:'Draw the whole word in one stroke, finger down to finger up',drawThis:'Draw this word',drawHelp:'The blank keyboard at the bottom is where you draw. Finger down on the first letter, glide through the rest, lift on the last.',drawHelpHard:' No key grid on hard: the keys are where you remember them.',onKey:'{on} of {n} letters on the key',
+  needs:'Needs {n} letters',notInList:'Not in the word list',extraTitle:'Out of guesses',extraBody:"The squiggle's still there. One more guess costs <b>{p} ink</b>; you have <b>{i}</b>.",extraBuy:'One more guess · {p}',giveUp:'Give up and reveal',notEnough:'Not enough ink',
+  hFirst:'First letter',hFirstD:'Marks where the finger landed and which key it was.',hLast:'Last letter',hLastD:'Marks where the finger lifted.',hMid:'A middle letter',hMidD:'Reveals one of the letters between the ends, on the squiggle and in the row above your guesses.',hPlace:'Place it on the keys',hPlaceD:'Drops the squiggle onto the real keyboard grid. The big one.',hPlaceLocked:'Locked in hard mode.',used:'Used',locked:'Locked',earnHow:'Earn ink by solving: longer words and fewer guesses pay more, hard mode pays 1.5×, finishing the day adds a bonus.',
+  d95:'Pixel perfect.',d85:'Clean trace.',d70:'Close. Readable.',d50:"Rough, but it's in there.",d0:"That's a different word.",drawBody:'You drew <b>{w}</b> at <b>{a}%</b>: {on} of {n} letters landed on the key{hard}. Blue is the real trace.',onHard:', on hard',earnDraw:'{n} letters × 2 × {a}%',perfectBonus:' + 5 perfect',hardMult:' × 1.5 hard',halfOutside:' · half outside the daily',
+  win1:'Read it in one.',win2:'Two. Sharp.',win3:'Three. Nice trace.',win4:'Four. Just made it.',winX:'Got there, with a little ink.',lost:'That one got away.',readBody:'You traced <b>{w}</b> in {g} {gw}{h}{hard}.',guess1:'guess',guessN:'guesses',withHints:' with {h} {hw}',hint1:'hint',hintN:'hints',onHard2:' on hard',lostBody:"It was <b>{w}</b>. Here's where it really sat on the keys.",earnRead:'{n} letters × {m} for speed',dayBonus:'day bonus',allThree:' · all three solved',streakN:' · streak {s}',
+  nextDrawBtn:'Next: draw one',nextBtn:'Next squiggle · {n} letters',another:'Another one',makeOne:'Make one for them',
+  tutIdea:"That's the idea.",tutReady:"You're ready.",tutWas:'It was {w}.',tutBody1:'The squiggle sat right on the keys that time. In the real game you only get the shape, so the next one floats free.',tutBody2:'Three squiggles a day to read, one word to draw. Solving earns ink, ink buys hints. Settings has practice, hard mode and a way to send squiggles to friends.',tutPlaySent:'Play the one you were sent',tutPlayToday:"Play today's squiggles",next:'Next',
+  tut1:'This is the line a finger drew swipe-typing a 3-letter word. The dot is where it landed: on <b>{a}</b>. It slid to <b>{b}</b>, then to <b>{c}</b>. Type <b>{w}</b> and press Enter.',tut1b:'Green means on the key, amber means next door, grey means cold. Try <b>{w}</b>.',tut2:'Now the real thing. Same idea, but you only see the <b>shape</b>, not where it sat. Slide it around the keyboard in your head: which three keys make this shape?',tut2b:'Each corner reports how far it landed from the real key. Look at the keyboard and try again.',
+  duelWin:'You win.',duelLose:'They win.',duelTie:'Dead heat.',duelBody:'You traced <b>{w}</b> at <b>{me}%</b>, they traced it at <b>{them}%</b>. Blue is the real trace, pink is yours, amber is theirs.',sendBack:'Send your trace back',
+  friendWin:'You read it.',friendBodyWin:'A friend traced <b>{w}</b> for you and you got it in {g}. Send one back.',friendBodyLose:'They traced <b>{w}</b>. Send one back and even the score.',sendOneBack:'Send one back',challengeFriend:'Challenge a friend',
+  recap:'<b>{s} of 3</b> solved in {t} guesses{d}, <b>{ink} ink</b> earned.',recapDraw:', <b>{w}</b> drawn at <b>{a}%</b>',ink:'ink',
+  shareTitle:"Share today's trace",shareAlt:"Share card: today's three squiggles and your results",sharePic:'Share the picture',shareText:'Share text',copyText:'Copy text',longPress:'Long-press the picture to save it',copied:'Copied',selectCopy:'Select and copy the text',
+  beatTitle:'Beat my trace',beatBody:"They get the word <b>{w}</b>, draw it blind, and see both traces side by side with the real one. Winner is whoever's line runs closer.",beatMsg:'I drew {w} at {a}%. Beat my trace: {link}',sendChallenge:'Send the challenge',copy:'Copy',
+  canRead:'Can you read them?',lettersUp:'{n} LETTERS',drew:'Drew {w} at {a}%',
+  howTitle:'How to play',how1:'Each squiggle is the line a finger draws when it <b>swipe-types a word</b> on a phone keyboard. The dot is where the finger lands; the arrowhead is where it lifts.',how2:"You see the shape at <b>true size</b> but not where it sat. A sweep that's five keys wide on the keyboard below is five keys wide here. Slide it around the keyboard in your head until the corners land on letters that make a word.",how3:'Type a word of the right length. As you type, your trace draws across the keys in pink, so you can compare its shape to the squiggle before you commit.',how4:'Feedback is <b>distance, not letters</b>. Each corner of your guess reports how far it landed from the real key. Nothing tells you whether a letter is "in the word somewhere". Only the shape does.',how5:"<b>Round four flips it.</b> You get the word and draw its squiggle from memory, one stroke on the blank keys. You're scored on how close your line runs to the real trace.",howP1:'Three squiggles to read (4, 6 and 8 letters, <b>four guesses</b> each) and one to draw. Solving earns <b>ink</b>: more for longer words and fewer guesses, 1.5× on hard, plus a bonus for finishing the day.',howP2:'Ink buys hints (first letter, last letter, a middle letter, or <b>Place it</b>, which drops the squiggle onto the real keys) and one more guess when you run out. Hints show on your share.',howP3:'<b>Hard mode</b> (in Settings): three guesses, no start or end marker, and Place it is locked.',startTracing:'Start tracing',legendOn:'On the key',legendNear:'Next door (a touching key)',legendCold:'Cold',
+  statsTitle:'Your traces',inkAll:'{n} ink earned all time',days:'Days',solvePct:'Solve %',streakL:'Streak',best:'Best',guessesPer:'Guesses per squiggle',drawnTitle:'Drawn squiggles',traces:'Traces',avg:'Avg %',bestPct:'Best %',perfectDays:'{n} perfect {dw} (all three read). Streak counts days you finished the ladder, draw included.',day1:'day',dayN:'days',
+  settingsTitle:'Settings',settingsBody:'Practice from the word pool, trace a word for a friend, or change how the game plays.',appearance:'Appearance',system:'System',light:'Light',dark:'Dark',language:'Language',sound:'Sound',soundD:'Taps, reveals and a little fanfare. Haptics stay on either way.',hardMode:'Hard mode',hardD:"Three guesses, no start or end marker, no Place it; the draw round loses its key grid. Pays 1.5× ink. Applies to rounds you haven't started.",hardOn:'Hard mode on',hardOff:'Hard mode off',soundOn:'Sound on',soundOff:'Sound off',
+  practiceTitle:'Practice',practiceBody:"Practice rounds don't touch your streak and pay half ink.",whichWay:'Which way round?',readOne:'Read a squiggle',drawOne:'Draw a squiggle',howLong:'How long?',mix:'Mix',go:'Go',
+  sendTitle:'Send a squiggle',sendBody:"Type any word or name, 3 to 10 letters. We'll trace it and give you a link. They'll see the shape, not the word.",sendPh:'e.g. tacos, Erin, Oklahoma',copyLink:'Copy link',canYouRead:'Can you read my squiggle? {link}',
+  enter:'Enter',del:'Delete'
+},
+es:{
+  appTag:'Trazo de palabras diario',play:'Jugar',cont:'Continuar',threeOne:'Tres para leer, una para dibujar',toGo:'Faltan {n} · {next}',nextDraw:'sigue la ronda de dibujo',nextRead:'sigue un garabato de {n} letras',
+  shareToday:'Compartir hoy',shareSub:'{s} de 3 leídos{d} · {ink} de tinta',drawnAt:', dibujado al {a}%',review:'Repasar hoy',reviewSub:'Ver los trazos y tus intentos',
+  practice:'Practicar',practiceSub:'Leer o dibujar',challenge:'Reto',challengeSub:'Supera un trazo',send:'Enviar un garabato',sendSub:'Traza una palabra o nombre y manda el enlace',
+  stats:'Estadísticas',how:'Cómo jugar',settings:'Ajustes',chipDone:'Listo · nuevos garabatos en ',chipProgress:'{d} de {n} hechos',
+  mPractice:'Práctica',mFriend:'De un amigo',mDuel:'Duelo',mLearn:'Aprender',learnStep:'Aprender · paso {i} de {n}',letters:'{n} letras',skip:'Saltar',home:'Inicio',now:'ahora',missed:'fallado',finishFirst:'Termina primero el garabato actual',
+  stDrawDone:'<b>Azul</b> es el trazo real, <b>rosa</b> es el tuyo',stDraw:'Dibújalo de <b>un solo trazo</b> y levanta el dedo',hard:'difícil',inkPlus:' · +{n} de tinta',solvedIn:'Resuelto en <b>{n}</b>',wordWas:'La palabra era <b>{w}</b>.',outOf:'<b>Sin intentos.</b> Compra uno más o revela.',guessOf:'<b>{n} letras</b> · intento {g} de {a}',
+  oneMore:'¿Uno más?',hints:'Pistas',subPractice:'Práctica · todas las que quieras',subDuel:'Supera su trazo · sacó {a}%',subTutorial:'Dos rápidos para pillarle el truco',subFriend:'Alguien trazó este para ti',
+  drawReject:'Dibuja toda la palabra de un solo trazo, sin levantar el dedo',drawThis:'Dibuja esta palabra',drawHelp:'El teclado en blanco de abajo es donde dibujas. Apoya el dedo en la primera letra, deslízalo por las demás y levántalo en la última.',drawHelpHard:' En difícil no hay cuadrícula: las teclas están donde las recuerdes.',onKey:'{on} de {n} letras sobre la tecla',
+  needs:'Necesita {n} letras',notInList:'No está en la lista de palabras',extraTitle:'Sin intentos',extraBody:'El garabato sigue ahí. Un intento más cuesta <b>{p} de tinta</b>; tienes <b>{i}</b>.',extraBuy:'Un intento más · {p}',giveUp:'Rendirse y revelar',notEnough:'No hay tinta suficiente',
+  hFirst:'Primera letra',hFirstD:'Marca dónde apoyó el dedo y qué tecla era.',hLast:'Última letra',hLastD:'Marca dónde levantó el dedo.',hMid:'Una letra del medio',hMidD:'Revela una de las letras intermedias, en el garabato y en la fila sobre tus intentos.',hPlace:'Colocar sobre las teclas',hPlaceD:'Pone el garabato sobre el teclado real. La grande.',hPlaceLocked:'Bloqueada en modo difícil.',used:'Usada',locked:'Bloqueada',earnHow:'Gana tinta resolviendo: las palabras largas y los pocos intentos pagan más, el modo difícil paga 1,5× y terminar el día da un bono.',
+  d95:'Perfecto.',d85:'Trazo limpio.',d70:'Cerca. Se lee.',d50:'Tosco, pero ahí está.',d0:'Eso es otra palabra.',drawBody:'Dibujaste <b>{w}</b> al <b>{a}%</b>: {on} de {n} letras cayeron sobre la tecla{hard}. El azul es el trazo real.',onHard:', en difícil',earnDraw:'{n} letras × 2 × {a}%',perfectBonus:' + 5 perfecto',hardMult:' × 1,5 difícil',halfOutside:' · la mitad fuera del diario',
+  win1:'A la primera.',win2:'Dos. Fino.',win3:'Tres. Buen trazo.',win4:'Cuatro. Por los pelos.',winX:'Llegaste, con algo de tinta.',lost:'Ese se escapó.',readBody:'Trazaste <b>{w}</b> en {g} {gw}{h}{hard}.',guess1:'intento',guessN:'intentos',withHints:' con {h} {hw}',hint1:'pista',hintN:'pistas',onHard2:' en difícil',lostBody:'Era <b>{w}</b>. Así estaba sobre las teclas.',earnRead:'{n} letras × {m} por rapidez',dayBonus:'bono del día',allThree:' · los tres resueltos',streakN:' · racha {s}',
+  nextDrawBtn:'Siguiente: dibuja uno',nextBtn:'Siguiente garabato · {n} letras',another:'Otro',makeOne:'Hazle uno',
+  tutIdea:'Esa es la idea.',tutReady:'Ya estás listo.',tutWas:'Era {w}.',tutBody1:'Esa vez el garabato estaba justo sobre las teclas. En el juego real solo tienes la forma, así que el siguiente flota libre.',tutBody2:'Tres garabatos al día para leer y una palabra para dibujar. Resolver da tinta y la tinta compra pistas. En Ajustes hay práctica, modo difícil y una forma de enviar garabatos a tus amigos.',tutPlaySent:'Jugar el que te enviaron',tutPlayToday:'Jugar los de hoy',next:'Siguiente',
+  tut1:'Esta es la línea que dibujó un dedo al escribir deslizando una palabra de 3 letras. El punto es donde apoyó: en la <b>{a}</b>. Se deslizó a la <b>{b}</b> y luego a la <b>{c}</b>. Escribe <b>{w}</b> y pulsa Intro.',tut1b:'Verde es sobre la tecla, ámbar es la de al lado, gris es frío. Prueba <b>{w}</b>.',tut2:'Ahora en serio. La misma idea, pero solo ves la <b>forma</b>, no dónde estaba. Muévela por el teclado en tu cabeza: ¿qué tres teclas forman esta figura?',tut2b:'Cada esquina te dice a qué distancia cayó de la tecla real. Mira el teclado e inténtalo otra vez.',
+  duelWin:'Ganas tú.',duelLose:'Gana el otro.',duelTie:'Empate.',duelBody:'Trazaste <b>{w}</b> al <b>{me}%</b>; el otro al <b>{them}%</b>. Azul es el trazo real, rosa el tuyo, ámbar el suyo.',sendBack:'Devolver tu trazo',
+  friendWin:'Lo leíste.',friendBodyWin:'Un amigo trazó <b>{w}</b> para ti y lo sacaste en {g}. Devuélvele uno.',friendBodyLose:'Trazaron <b>{w}</b>. Devuelve uno y empata.',sendOneBack:'Devolver uno',challengeFriend:'Retar a un amigo',
+  recap:'<b>{s} de 3</b> resueltos en {t} intentos{d}, <b>{ink} de tinta</b> ganada.',recapDraw:', <b>{w}</b> dibujado al <b>{a}%</b>',ink:'tinta',
+  shareTitle:'Compartir el trazo de hoy',shareAlt:'Tarjeta para compartir: los tres garabatos de hoy y tus resultados',sharePic:'Compartir la imagen',shareText:'Compartir texto',copyText:'Copiar texto',longPress:'Mantén pulsada la imagen para guardarla',copied:'Copiado',selectCopy:'Selecciona y copia el texto',
+  beatTitle:'Supera mi trazo',beatBody:'Recibe la palabra <b>{w}</b>, la dibuja a ciegas y ve los dos trazos junto al real. Gana quien pase más cerca.',beatMsg:'Dibujé {w} al {a}%. Supera mi trazo: {link}',sendChallenge:'Enviar el reto',copy:'Copiar',
+  canRead:'¿Puedes leerlos?',lettersUp:'{n} LETRAS',drew:'Dibujé {w} al {a}%',
+  howTitle:'Cómo jugar',how1:'Cada garabato es la línea que dibuja un dedo al <b>escribir deslizando</b> una palabra en el teclado del móvil. El punto es donde apoya; la flecha, donde levanta.',how2:'Ves la forma a <b>tamaño real</b> pero no dónde estaba. Un barrido de cinco teclas en el teclado de abajo mide cinco teclas aquí. Muévela por el teclado en tu cabeza hasta que las esquinas caigan en letras que formen una palabra.',how3:'Escribe una palabra del largo correcto. Mientras escribes, tu trazo se dibuja en rosa sobre las teclas para comparar la forma antes de confirmar.',how4:'La pista es <b>distancia, no letras</b>. Cada esquina de tu intento dice a qué distancia cayó de la tecla real. Nada te dice si una letra está "en algún sitio de la palabra". Solo la forma.',how5:'<b>La cuarta ronda lo invierte.</b> Recibes la palabra y dibujas su garabato de memoria, de un trazo, sobre las teclas en blanco. Se puntúa lo cerca que pasa tu línea del trazo real.',howP1:'Tres garabatos para leer (4, 6 y 8 letras, <b>cuatro intentos</b> cada uno) y uno para dibujar. Resolver da <b>tinta</b>: más por palabras largas y pocos intentos, 1,5× en difícil, y un bono por terminar el día.',howP2:'La tinta compra pistas (primera letra, última letra, una del medio o <b>Colocar</b>, que pone el garabato sobre las teclas reales) y un intento más cuando se acaban. Las pistas se ven al compartir.',howP3:'<b>Modo difícil</b> (en Ajustes): tres intentos, sin marcas de inicio ni fin, y Colocar bloqueado.',startTracing:'Empezar',legendOn:'Sobre la tecla',legendNear:'Al lado (una tecla que la toca)',legendCold:'Frío',
+  statsTitle:'Tus trazos',inkAll:'{n} de tinta ganada en total',days:'Días',solvePct:'% resueltos',streakL:'Racha',best:'Mejor',guessesPer:'Intentos por garabato',drawnTitle:'Garabatos dibujados',traces:'Trazos',avg:'Media %',bestPct:'Mejor %',perfectDays:'{n} {dw} perfectos (los tres leídos). La racha cuenta los días que terminaste todo, dibujo incluido.',day1:'día',dayN:'días',
+  settingsTitle:'Ajustes',settingsBody:'Practica con el banco de palabras, traza una palabra para un amigo o cambia cómo se juega.',appearance:'Aspecto',system:'Sistema',light:'Claro',dark:'Oscuro',language:'Idioma',sound:'Sonido',soundD:'Toques, revelaciones y una pequeña fanfarria. La vibración sigue igual.',hardMode:'Modo difícil',hardD:'Tres intentos, sin marcas de inicio ni fin, sin Colocar; la ronda de dibujo pierde la cuadrícula. Paga 1,5× de tinta. Se aplica a las rondas que no hayas empezado.',hardOn:'Modo difícil activado',hardOff:'Modo difícil desactivado',soundOn:'Sonido activado',soundOff:'Sonido desactivado',
+  practiceTitle:'Práctica',practiceBody:'La práctica no toca tu racha y paga la mitad de tinta.',whichWay:'¿En qué sentido?',readOne:'Leer un garabato',drawOne:'Dibujar un garabato',howLong:'¿Qué largo?',mix:'Mezcla',go:'Vamos',
+  sendTitle:'Enviar un garabato',sendBody:'Escribe cualquier palabra o nombre, de 3 a 10 letras. Lo trazamos y te damos un enlace. Verán la forma, no la palabra.',sendPh:'p. ej. tacos, Lucía, Madrid',copyLink:'Copiar enlace',canYouRead:'¿Puedes leer mi garabato? {link}',
+  enter:'Intro',del:'Borrar'
+},
+pt:{
+  appTag:'Traço de palavras diário',play:'Jogar',cont:'Continuar',threeOne:'Três para ler, uma para desenhar',toGo:'Faltam {n} · {next}',nextDraw:'rodada de desenho a seguir',nextRead:'rabisco de {n} letras a seguir',
+  shareToday:'Compartilhar hoje',shareSub:'{s} de 3 lidos{d} · {ink} de tinta',drawnAt:', desenhado em {a}%',review:'Rever hoje',reviewSub:'Ver os traços e seus palpites',
+  practice:'Praticar',practiceSub:'Ler ou desenhar',challenge:'Desafio',challengeSub:'Supere um traço',send:'Enviar um rabisco',sendSub:'Trace uma palavra ou nome e mande o link',
+  stats:'Estatísticas',how:'Como jogar',settings:'Ajustes',chipDone:'Feito · novos rabiscos em ',chipProgress:'{d} de {n} feitos',
+  mPractice:'Prática',mFriend:'De um amigo',mDuel:'Duelo',mLearn:'Aprender',learnStep:'Aprender · passo {i} de {n}',letters:'{n} letras',skip:'Pular',home:'Início',now:'agora',missed:'errou',finishFirst:'Termine o rabisco atual primeiro',
+  stDrawDone:'<b>Azul</b> é o traço real, <b>rosa</b> é o seu',stDraw:'Desenhe em <b>um traço só</b> e levante o dedo',hard:'difícil',inkPlus:' · +{n} de tinta',solvedIn:'Resolvido em <b>{n}</b>',wordWas:'A palavra era <b>{w}</b>.',outOf:'<b>Sem palpites.</b> Compre mais um ou revele.',guessOf:'<b>{n} letras</b> · palpite {g} de {a}',
+  oneMore:'Mais um?',hints:'Dicas',subPractice:'Prática · quantas quiser',subDuel:'Supere o traço · fizeram {a}%',subTutorial:'Dois rápidos para pegar o jeito',subFriend:'Alguém traçou este para você',
+  drawReject:'Desenhe a palavra inteira em um traço só, sem levantar o dedo',drawThis:'Desenhe esta palavra',drawHelp:'O teclado em branco embaixo é onde você desenha. Encoste o dedo na primeira letra, deslize pelas outras e levante na última.',drawHelpHard:' No difícil não há grade: as teclas ficam onde você lembra.',onKey:'{on} de {n} letras na tecla',
+  needs:'Precisa de {n} letras',notInList:'Não está na lista de palavras',extraTitle:'Sem palpites',extraBody:'O rabisco ainda está aí. Mais um palpite custa <b>{p} de tinta</b>; você tem <b>{i}</b>.',extraBuy:'Mais um palpite · {p}',giveUp:'Desistir e revelar',notEnough:'Tinta insuficiente',
+  hFirst:'Primeira letra',hFirstD:'Marca onde o dedo encostou e qual tecla era.',hLast:'Última letra',hLastD:'Marca onde o dedo levantou.',hMid:'Uma letra do meio',hMidD:'Revela uma das letras do meio, no rabisco e na linha acima dos seus palpites.',hPlace:'Colocar nas teclas',hPlaceD:'Põe o rabisco sobre o teclado real. A grande.',hPlaceLocked:'Bloqueada no modo difícil.',used:'Usada',locked:'Bloqueada',earnHow:'Ganhe tinta resolvendo: palavras longas e poucos palpites pagam mais, o modo difícil paga 1,5× e terminar o dia dá um bônus.',
+  d95:'Perfeito.',d85:'Traço limpo.',d70:'Perto. Dá para ler.',d50:'Tosco, mas está aí.',d0:'Isso é outra palavra.',drawBody:'Você desenhou <b>{w}</b> em <b>{a}%</b>: {on} de {n} letras caíram na tecla{hard}. O azul é o traço real.',onHard:', no difícil',earnDraw:'{n} letras × 2 × {a}%',perfectBonus:' + 5 perfeito',hardMult:' × 1,5 difícil',halfOutside:' · metade fora do diário',
+  win1:'De primeira.',win2:'Dois. Afiado.',win3:'Três. Belo traço.',win4:'Quatro. Por pouco.',winX:'Chegou lá, com um pouco de tinta.',lost:'Esse escapou.',readBody:'Você traçou <b>{w}</b> em {g} {gw}{h}{hard}.',guess1:'palpite',guessN:'palpites',withHints:' com {h} {hw}',hint1:'dica',hintN:'dicas',onHard2:' no difícil',lostBody:'Era <b>{w}</b>. Veja onde estava nas teclas.',earnRead:'{n} letras × {m} por rapidez',dayBonus:'bônus do dia',allThree:' · os três resolvidos',streakN:' · sequência {s}',
+  nextDrawBtn:'Próximo: desenhe um',nextBtn:'Próximo rabisco · {n} letras',another:'Outro',makeOne:'Faça um para ele',
+  tutIdea:'É essa a ideia.',tutReady:'Você está pronto.',tutWas:'Era {w}.',tutBody1:'Dessa vez o rabisco estava bem em cima das teclas. No jogo de verdade você só tem a forma, então o próximo flutua solto.',tutBody2:'Três rabiscos por dia para ler e uma palavra para desenhar. Resolver dá tinta e a tinta compra dicas. Em Ajustes há prática, modo difícil e um jeito de enviar rabiscos aos amigos.',tutPlaySent:'Jogar o que te enviaram',tutPlayToday:'Jogar os de hoje',next:'Próximo',
+  tut1:'Esta é a linha que um dedo desenhou digitando por deslize uma palavra de 3 letras. O ponto é onde encostou: no <b>{a}</b>. Deslizou até o <b>{b}</b> e depois até o <b>{c}</b>. Digite <b>{w}</b> e aperte Enter.',tut1b:'Verde é na tecla, âmbar é a do lado, cinza é frio. Tente <b>{w}</b>.',tut2:'Agora pra valer. A mesma ideia, mas você só vê a <b>forma</b>, não onde estava. Mova-a pelo teclado na sua cabeça: que três teclas formam este desenho?',tut2b:'Cada canto diz a que distância caiu da tecla real. Olhe o teclado e tente de novo.',
+  duelWin:'Você venceu.',duelLose:'Venceram você.',duelTie:'Empate.',duelBody:'Você traçou <b>{w}</b> em <b>{me}%</b>; o outro em <b>{them}%</b>. Azul é o traço real, rosa o seu, âmbar o dele.',sendBack:'Devolver seu traço',
+  friendWin:'Você leu.',friendBodyWin:'Um amigo traçou <b>{w}</b> para você e você acertou em {g}. Devolva um.',friendBodyLose:'Traçaram <b>{w}</b>. Devolva um e empate.',sendOneBack:'Devolver um',challengeFriend:'Desafiar um amigo',
+  recap:'<b>{s} de 3</b> resolvidos em {t} palpites{d}, <b>{ink} de tinta</b> ganha.',recapDraw:', <b>{w}</b> desenhado em <b>{a}%</b>',ink:'tinta',
+  shareTitle:'Compartilhar o traço de hoje',shareAlt:'Cartão de compartilhamento: os três rabiscos de hoje e seus resultados',sharePic:'Compartilhar a imagem',shareText:'Compartilhar texto',copyText:'Copiar texto',longPress:'Segure a imagem para salvar',copied:'Copiado',selectCopy:'Selecione e copie o texto',
+  beatTitle:'Supere meu traço',beatBody:'Ele recebe a palavra <b>{w}</b>, desenha às cegas e vê os dois traços lado a lado com o real. Ganha quem passar mais perto.',beatMsg:'Desenhei {w} em {a}%. Supere meu traço: {link}',sendChallenge:'Enviar o desafio',copy:'Copiar',
+  canRead:'Consegue ler?',lettersUp:'{n} LETRAS',drew:'Desenhei {w} em {a}%',
+  howTitle:'Como jogar',how1:'Cada rabisco é a linha que um dedo desenha ao <b>digitar por deslize</b> uma palavra no teclado do celular. O ponto é onde encosta; a seta, onde levanta.',how2:'Você vê a forma em <b>tamanho real</b>, mas não onde estava. Um movimento de cinco teclas no teclado abaixo mede cinco teclas aqui. Mova-a pelo teclado na sua cabeça até os cantos caírem em letras que formem uma palavra.',how3:'Digite uma palavra do tamanho certo. Enquanto digita, seu traço aparece em rosa sobre as teclas para comparar a forma antes de confirmar.',how4:'A resposta é <b>distância, não letras</b>. Cada canto do seu palpite diz a que distância caiu da tecla real. Nada diz se uma letra está "em algum lugar da palavra". Só a forma.',how5:'<b>A quarta rodada inverte tudo.</b> Você recebe a palavra e desenha o rabisco de memória, em um traço, sobre as teclas em branco. A nota é o quanto sua linha passa perto do traço real.',howP1:'Três rabiscos para ler (4, 6 e 8 letras, <b>quatro palpites</b> cada) e um para desenhar. Resolver dá <b>tinta</b>: mais por palavras longas e poucos palpites, 1,5× no difícil, e um bônus por terminar o dia.',howP2:'A tinta compra dicas (primeira letra, última letra, uma do meio ou <b>Colocar</b>, que põe o rabisco sobre as teclas reais) e mais um palpite quando acabam. As dicas aparecem ao compartilhar.',howP3:'<b>Modo difícil</b> (em Ajustes): três palpites, sem marcas de início e fim, e Colocar bloqueado.',startTracing:'Começar',legendOn:'Na tecla',legendNear:'Ao lado (uma tecla encostada)',legendCold:'Frio',
+  statsTitle:'Seus traços',inkAll:'{n} de tinta ganha no total',days:'Dias',solvePct:'% resolvidos',streakL:'Sequência',best:'Melhor',guessesPer:'Palpites por rabisco',drawnTitle:'Rabiscos desenhados',traces:'Traços',avg:'Média %',bestPct:'Melhor %',perfectDays:'{n} {dw} perfeitos (os três lidos). A sequência conta os dias em que você terminou tudo, desenho incluído.',day1:'dia',dayN:'dias',
+  settingsTitle:'Ajustes',settingsBody:'Pratique com o banco de palavras, trace uma palavra para um amigo ou mude como o jogo funciona.',appearance:'Aparência',system:'Sistema',light:'Claro',dark:'Escuro',language:'Idioma',sound:'Som',soundD:'Toques, revelações e uma pequena fanfarra. A vibração continua igual.',hardMode:'Modo difícil',hardD:'Três palpites, sem marcas de início e fim, sem Colocar; a rodada de desenho perde a grade. Paga 1,5× de tinta. Vale para rodadas que você ainda não começou.',hardOn:'Modo difícil ligado',hardOff:'Modo difícil desligado',soundOn:'Som ligado',soundOff:'Som desligado',
+  practiceTitle:'Prática',practiceBody:'A prática não mexe na sua sequência e paga metade da tinta.',whichWay:'Em que sentido?',readOne:'Ler um rabisco',drawOne:'Desenhar um rabisco',howLong:'Que tamanho?',mix:'Misto',go:'Vamos',
+  sendTitle:'Enviar um rabisco',sendBody:'Digite qualquer palavra ou nome, de 3 a 10 letras. Nós traçamos e te damos um link. Verão a forma, não a palavra.',sendPh:'ex.: tacos, Ana, Brasil',copyLink:'Copiar link',canYouRead:'Consegue ler meu rabisco? {link}',
+  enter:'Enter',del:'Apagar'
+}};
+function t(k,v){let str=(STR[LANG]&&STR[LANG][k]!==undefined)?STR[LANG][k]:(STR.en[k]!==undefined?STR.en[k]:k);if(v)for(const x in v)str=str.split('{'+x+'}').join(v[x]);return str;}
 
 /* ---------- Utils ---------- */
 function hash(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return h>>>0;}
 function rng(seed){let a=seed>>>0;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 const EPOCH=new Date(2026,9,15);
 function todayIndex(){const n=new Date();const d0=new Date(n.getFullYear(),n.getMonth(),n.getDate());return Math.max(0,Math.round((d0-EPOCH)/864e5));}
-function fmtDate(d){return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});}
+function fmtDate(d){return d.toLocaleDateString(L.locale,{weekday:'short',month:'short',day:'numeric'});}
 function store(k,v){try{if(v===undefined){const s=localStorage.getItem(k);return s?JSON.parse(s):null;}localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}}
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function dailyWords(day){
-  if(day<WEEK.length) return WEEK[day];
-  const r=rng(hash('day'+day)*7+day);
-  return [4,6,8].map(L=>POOL[L][Math.floor(r()*POOL[L].length)]);
+  if(L.week&&day<L.week.length) return L.week[day].map(norm);
+  const r=rng(hash('day'+day+':'+LANG)*7+day);
+  return [4,6,8].map(n=>norm(L.pool[n][Math.floor(r()*L.pool[n].length)]));
 }
-function randomWord(len){const Ls=len?[len]:[4,6,8];const L=Ls[Math.floor(Math.random()*Ls.length)];const p=POOL[L];return p[Math.floor(Math.random()*p.length)];}
-const DRAW_WEEK=['planet','guitar','rocket','castle','bridge','garden','pillow'];
+function randomWord(len){const Ls=len?[len]:[4,6,8];const n=Ls[Math.floor(Math.random()*Ls.length)];const p=L.pool[n];return norm(p[Math.floor(Math.random()*p.length)]);}
 function dailyDrawWord(day){
-  if(day<DRAW_WEEK.length) return DRAW_WEEK[day];
-  const r=rng(hash('draw'+day)*3+day);const p=POOL[6];return p[Math.floor(r()*p.length)];
+  if(L.drawWeek&&day<L.drawWeek.length) return norm(L.drawWeek[day]);
+  const r=rng(hash('draw'+day+':'+LANG)*3+day);const p=L.pool[6];return norm(p[Math.floor(r()*p.length)]);
 }
 
 /* Link code for send-a-squiggle: a light scramble so the word isn't readable in the URL */
-function encodeWord(w){return 'c-'+[...w].map((c,i)=>String.fromCharCode(97+((c.charCodeAt(0)-97+7*i+11)%26))).join('');}
-function decodeWord(code){return [...code].map((c,i)=>String.fromCharCode(97+(((c.charCodeAt(0)-97-7*i-11)%26)+26)%26)).join('');}
+const CODE='abcdefghijklmnopqrstuvwxyz0';
+function encodeWord(w){const A=L.alpha,n=A.length;return 'c-'+LANG+'-'+[...w].map((c,i)=>CODE[(A.indexOf(c)+7*i+11)%n]).join('');}
+function decodeWord(code){const A=L.alpha,n=A.length;return [...code].map((c,i)=>A[(((CODE.indexOf(c)-7*i-11)%n)+n)%n]).join('');}
 
 /* ---------- Glyph geometry ---------- */
 function points(word,seed,jit){
@@ -584,7 +693,7 @@ const BASE_GUESSES=4, HARD_GUESSES=3;
 const PRICE={first:10,last:10,letter:15,place:25,extra:[20,35]};
 const START_INK=30, DAY_BONUS=20;
 const S={mode:'daily',day:todayIndex(),round:0,rounds:[],cur:'',practiceLen:null,customCode:null,hard:!!store('sq.hard'),rival:null,after:null,view:'game'};
-const MODE_LABEL={practice:'Practice',custom:'From a friend',duel:'Duel',tutorial:'Learn'};
+const MODE_LABEL=()=>({practice:t('mPractice'),custom:t('mFriend'),duel:t('mDuel'),tutorial:t('mLearn')});
 const el=id=>document.getElementById(id);
 
 function makeRound(word){return {type:'read',word,g:[],ev:[],rev:[],placed:false,hard:S.hard,extra:0,done:false,won:false,ink:0};}
@@ -598,12 +707,12 @@ const reads=()=>S.rounds.filter(r=>!isDraw(r));
 const drawRound=()=>S.rounds.find(isDraw);
 
 function loadDaily(){
-  const saved=store('sq.daily.v5');
+  const saved=store('sq.daily.v6.'+LANG);
   S.mode='daily'; S.day=todayIndex(); S.cur=''; S.rival=null;
   if(saved&&saved.day===S.day&&Array.isArray(saved.rounds)&&saved.rounds.length===4){S.rounds=saved.rounds;S.round=Math.min(saved.round,3);}
   else{S.rounds=[...dailyWords(S.day).map(makeRound),makeDraw(dailyDrawWord(S.day))];S.round=0;}
 }
-function saveDaily(){if(S.mode==='daily')store('sq.daily.v5',{day:S.day,round:S.round,rounds:S.rounds});}
+function saveDaily(){if(S.mode==='daily')store('sq.daily.v6.'+LANG,{day:S.day,round:S.round,rounds:S.rounds});}
 
 /* ---------- Ink economy ---------- */
 function inkFor(r){
@@ -624,11 +733,8 @@ function decStroke(str){try{const bin=atob(str.replace(/-/g,'+').replace(/_/g,'/
 function duelLink(r){return SHARE_URL+'#d-'+encodeWord(r.word).slice(2)+'-'+r.acc+'-'+encStroke(r.stroke);}
 function startDuel(word,acc,stroke){S.mode='duel';S.rival={acc,stroke};const r=makeDraw(word);r.hard=false;S.rounds=[r];S.round=0;S.cur='';render();}
 /* Guided first run: two read rounds with a coach line. The first sits on the keys; the second floats like the real game. */
-const TUTORIAL=[
-  {word:'pen',placed:true,coach:'This is the line a finger drew swipe-typing a 3-letter word. The dot is where it landed: on <b>P</b>. It slid left to <b>E</b>, then down to <b>N</b>. Type <b>PEN</b> and press Enter.',coach2:'Green means on the key, amber means next door, grey means cold. Try <b>P E N</b>.'},
-  {word:'cat',placed:false,coach:'Now the real thing. Same idea, but you only see the <b>shape</b>, not where it sat. Slide it around the keyboard in your head: which three keys make this V?',coach2:'Each corner reports how far it landed from the real key. The V opens to the right and the tip is a key on the middle row. Look at the keyboard and try again.'}
-];
-function startTutorial(){S.mode='tutorial';S.rival=null;S.rounds=TUTORIAL.map(t=>{const r=makeRound(t.word);r.hard=false;r.placed=t.placed;r.tut=t;return r;});S.round=0;S.cur='';render();}
+function startTutorial(){S.mode='tutorial';S.rival=null;S.rounds=L.tutorial.map((tt,i)=>{const w=norm(tt.word),U=c=>c.toUpperCase();const r=makeRound(w);r.hard=false;r.placed=tt.placed;
+  r.tut=i===0?{coach:t('tut1',{a:U(w[0]),b:U(w[1]),c:U(w[2]),w:U(disp(w))}),coach2:t('tut1b',{w:[...w].map(U).join(' ')})}:{coach:t('tut2'),coach2:t('tut2b')};return r;});S.round=0;S.cur='';render();}
 
 /* ---------- Stats ---------- */
 function getStats(){const st=store('sq.stats.v2')||{days:0,perfect:0,streak:0,maxStreak:0,lastDay:null,rounds:0,solved:0,dist:{1:0,2:0,3:0,4:0,5:0,x:0}};
@@ -654,27 +760,28 @@ function renderGlyph(){
 }
 function renderRounds(){
   const host=el('rounds');
-  if(S.mode!=='daily'){const tag=S.mode==='tutorial'?`Learn · step ${S.round+1} of ${S.rounds.length}`:`${MODE_LABEL[S.mode]||S.mode} · ${cur().word.length} letters`;
-    host.innerHTML=`<div class="modetag">${tag}</div><button class="pill" id="backDaily" style="flex:0 0 auto;padding:0 14px"><small>${S.mode==='tutorial'?'Skip':'Home'}</small></button>`;
+  if(S.mode!=='daily'){const tag=S.mode==='tutorial'?t('learnStep',{i:S.round+1,n:S.rounds.length}):`${MODE_LABEL()[S.mode]||S.mode} · ${t('letters',{n:cur().word.length})}`;
+    host.innerHTML=`<div class="modetag">${tag}</div><button class="pill" id="backDaily" style="flex:0 0 auto;padding:0 14px"><small>${S.mode==='tutorial'?t('skip'):t('home')}</small></button>`;
     el('backDaily').onclick=()=>{if(S.mode==='tutorial'){finishTutorialIfAny();}else goHome();};return;}
   host.innerHTML=S.rounds.map((r,i)=>{const st=r.done?(r.won?'won':'lost'):(i===S.round?'cur':'');
-    if(isDraw(r)){const tag=r.done?`<small>${r.acc}%</small>`:(i===S.round?'<small>now</small>':'');
+    if(isDraw(r)){const tag=r.done?`<small>${r.acc}%</small>`:(i===S.round?`<small>${t('now')}</small>`:'');
       return `<button class="pill ${st}" data-i="${i}" aria-label="Round ${i+1}, draw the squiggle">${penIcon()}${tag}</button>`;}
-    const tag=r.done?(r.won?`<small>${r.g.length}/${baseGuesses(r)}</small>`:'<small>missed</small>'):(i===S.round?'<small>now</small>':'');
+    const tag=r.done?(r.won?`<small>${r.g.length}/${baseGuesses(r)}</small>`:`<small>${t('missed')}</small>`):(i===S.round?`<small>${t('now')}</small>`:'');
     return `<button class="pill ${st}" data-i="${i}" aria-label="Squiggle ${i+1}, ${r.word.length} letters">${r.word.length}${tag}</button>`;}).join('');
-  host.querySelectorAll('.pill').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(i<=S.round||S.rounds[i].done){S.round=i;S.cur='';render();}else toast('Finish the current squiggle first');});
+  host.querySelectorAll('.pill').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(i<=S.round||S.rounds[i].done){S.round=i;S.cur='';render();}else toast(t('finishFirst'));});
 }
 function renderStatus(msg,err){
   const r=cur(),m=el('msg'),hb=el('btnHints');
   if(msg!==undefined){m.textContent=msg;m.classList.toggle('err',!!err);}
   else{m.classList.remove('err');
-    if(isDraw(r)) m.innerHTML=r.done?`<b>Blue</b> is the real trace, <b>pink</b> is yours${r.ink?` · +${r.ink} ink`:''}.`:`Draw it in <b>one stroke</b>, then lift${r.hard?' · <b>hard</b>':''}`;
-    else if(r.done) m.innerHTML=r.won?`Solved in <b>${r.g.length}</b>${r.ink?` · +${r.ink} ink`:''}.`:`The word was <b>${r.word.toUpperCase()}</b>.`;
-    else if(limbo(r)) m.innerHTML=`<b>Out of guesses.</b> Buy one more, or reveal.`;
-    else m.innerHTML=`<b>${r.word.length} letters</b> · guess ${r.g.length+1} of ${allowed(r)}${r.hard?' · <b>hard</b>':''}`;}
+    const hardTag=r.hard?` · <b>${t('hard')}</b>`:'';
+    if(isDraw(r)) m.innerHTML=r.done?t('stDrawDone')+(r.ink?t('inkPlus',{n:r.ink}):'')+'.':t('stDraw')+hardTag;
+    else if(r.done) m.innerHTML=r.won?t('solvedIn',{n:r.g.length})+(r.ink?t('inkPlus',{n:r.ink}):'')+'.':t('wordWas',{w:disp(r.word).toUpperCase()});
+    else if(limbo(r)) m.innerHTML=t('outOf');
+    else m.innerHTML=t('guessOf',{n:r.word.length,g:r.g.length+1,a:allowed(r)})+hardTag;}
   hb.hidden=isDraw(r)||!!r.tut;
   hb.disabled=r.done;hb.classList.toggle('used',r.rev.length>0||r.placed);
-  hb.lastChild.textContent=limbo(r)?'One more?':'Hints';
+  hb.lastChild.textContent=limbo(r)?t('oneMore'):t('hints');
 }
 function limbo(r){return !isDraw(r)&&!r.done&&r.g.length>=allowed(r);}
 function resolveLimbo(r){const price=PRICE.extra[r.extra];if(price!==undefined&&getStats().ink>=price)extraSheet(r,price);else finishRound(r,false);}
@@ -698,9 +805,9 @@ function renderKeyboard(){
   r.g.forEach((g,gi)=>[...g].forEach((c,i)=>{const e=r.ev[gi][i];if(e==='ok')hit.add(c);else if(e==='near')warm.add(c);}));
   const kb=el('kb');
   if(!kb.dataset.built){
-    kb.innerHTML=ROWS.map((row,ri)=>`<div class="kbrow r${ri}">`+(ri===2?`<button class="key wide" data-k="enter">Enter</button>`:'')+[...row].map(c=>`<button class="key" data-k="${c}">${c}</button>`).join('')+(ri===2?`<button class="key wide" data-k="back" aria-label="Delete"><svg viewBox="0 0 24 24"><path d="M21 5H8l-5 7 5 7h13z"/><path d="m12 9 6 6M18 9l-6 6"/></svg></button>`:'')+'</div>').join('')+`<svg class="kbtrace" id="kbtrace" aria-hidden="true"></svg>`;
+    kb.innerHTML=ROWS.map((row,ri)=>`<div class="kbrow r${ri}"${ri===1&&row.length>=10?' style="padding:0 2px"':''}>`+(ri===2?`<button class="key wide" data-k="enter">${t('enter')}</button>`:'')+[...row].map(c=>`<button class="key" data-k="${c}">${c}</button>`).join('')+(ri===2?`<button class="key wide" data-k="back" aria-label="${t('del')}"><svg viewBox="0 0 24 24"><path d="M21 5H8l-5 7 5 7h13z"/><path d="m12 9 6 6M18 9l-6 6"/></svg></button>`:'')+'</div>').join('')+`<svg class="kbtrace" id="kbtrace" aria-hidden="true"></svg>`;
     kb.dataset.built='1';
-    kb.addEventListener('click',e=>{const b=e.target.closest('.key');if(b)onKey(b.dataset.k);});
+    kb.onclick=e=>{const b=e.target.closest('.key');if(b)onKey(b.dataset.k);};
   }
   kb.hidden=isDraw(r);
   const known=new Set(r.rev.map(i=>r.word[i]));
@@ -730,10 +837,10 @@ function renderTrace(){
 window.addEventListener('resize',()=>{if(el('kbtrace'))renderTrace();});
 function renderSub(){
   if(S.mode==='daily'){const d=new Date(EPOCH);d.setDate(d.getDate()+S.day);el('sub').textContent=`#${S.day+1} · ${fmtDate(d)}${S.hard?' · hard':''}`;}
-  else if(S.mode==='practice') el('sub').textContent='Practice · as many as you like';
-  else if(S.mode==='duel') el('sub').textContent=`Beat their trace · they scored ${S.rival?S.rival.acc:0}%`;
-  else if(S.mode==='tutorial') el('sub').textContent='Two quick ones to learn the trick';
-  else el('sub').textContent='Someone traced this one for you';
+  else if(S.mode==='practice') el('sub').textContent=t('subPractice');
+  else if(S.mode==='duel') el('sub').textContent=t('subDuel',{a:S.rival?S.rival.acc:0});
+  else if(S.mode==='tutorial') el('sub').textContent=t('subTutorial');
+  else el('sub').textContent=t('subFriend');
 }
 function render(opts){opts=opts||{};showGame();el('app').classList.toggle('drawmode',isDraw(cur()));renderSub();renderInk();renderRounds();renderGlyph();renderStatus();renderGuesses(opts.fresh,opts.shake);renderKeyboard();}
 
@@ -742,10 +849,11 @@ let homeTimer=null;
 function showGame(){S.view='game';el('app').classList.remove('onhome');el('home').hidden=true;el('game').hidden=false;el('btnHome').hidden=false;clearInterval(homeTimer);homeTimer=null;}
 function goHome(){
   closeSheet();
-  if(S.mode!=='daily'){if(S.mode==='tutorial'){S.after=null;}loadDaily();}
+  if(S.mode!=='daily'){if(S.mode==='tutorial'){S.after=null;}if(LANG!==PREF_LANG)setLang(PREF_LANG,false);loadDaily();}
+  else if(LANG!==PREF_LANG){setLang(PREF_LANG,false);loadDaily();}
   S.view='home';S.cur='';
   el('app').classList.remove('drawmode');el('app').classList.add('onhome');el('game').hidden=true;el('home').hidden=false;el('btnHome').hidden=true;
-  renderInk();el('sub').textContent='Daily word trace';
+  renderInk();el('sub').textContent=t('appTag');
   renderHome();el('home').scrollTop=0;
   clearInterval(homeTimer);homeTimer=setInterval(()=>{const c=el('countdown');if(c)c.textContent=untilTomorrow();},30000);
 }
@@ -753,25 +861,26 @@ function untilTomorrow(){const n=new Date(),t=new Date(n.getFullYear(),n.getMont
 function renderHome(){
   const st=getStats(),d=new Date(EPOCH);d.setDate(d.getDate()+S.day);
   const doneN=S.rounds.filter(r=>r.done).length,all=doneN===S.rounds.length,next=S.rounds.findIndex(r=>!r.done);
-  const chip=all?`<i></i>Done · new squiggles in <span id="countdown">${untilTomorrow()}</span>`:doneN?`<i class="todo"></i>${doneN} of ${S.rounds.length} done`:`<i class="fresh"></i>#${S.day+1} · ${fmtDate(d)}`;
+  const chip=all?`<i></i>${t('chipDone')}<span id="countdown">${untilTomorrow()}</span>`:doneN?`<i class="todo"></i>${t('chipProgress',{d:doneN,n:S.rounds.length})}`:`<i class="fresh"></i>#${S.day+1} · ${fmtDate(d)}`;
+  const dr=drawRound();
   const play=all
-    ?`<button class="mbtn primary" id="hShare"><span class="mi">${ic('share')}</span><span class="mt"><b>Share today</b><small>${reads().filter(r=>r.won).length} of 3 read${drawRound()&&drawRound().done?`, drawn at ${drawRound().acc}%`:''} · ${dayInk()} ink</small></span>${chev()}</button>
-       <button class="mbtn" id="hReview"><span class="mi"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></span><span class="mt"><b>Review today</b><small>See the traces and your guesses</small></span>${chev()}</button>`
-    :`<button class="mbtn primary" id="hPlay"><span class="mi"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span><span class="mt"><b>${doneN?'Continue':'Play'}</b><small>${doneN?`${S.rounds.length-doneN} to go · ${isDraw(S.rounds[next])?'draw round next':S.rounds[next].word.length+'-letter squiggle next'}`:'Three to read, one to draw'}</small></span>${chev()}</button>`;
+    ?`<button class="mbtn primary" id="hShare"><span class="mi">${ic('share')}</span><span class="mt"><b>${t('shareToday')}</b><small>${t('shareSub',{s:reads().filter(r=>r.won).length,d:dr&&dr.done?t('drawnAt',{a:dr.acc}):'',ink:dayInk()})}</small></span>${chev()}</button>
+       <button class="mbtn" id="hReview"><span class="mi"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></span><span class="mt"><b>${t('review')}</b><small>${t('reviewSub')}</small></span>${chev()}</button>`
+    :`<button class="mbtn primary" id="hPlay"><span class="mi"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span><span class="mt"><b>${doneN?t('cont'):t('play')}</b><small>${doneN?t('toGo',{n:S.rounds.length-doneN,next:isDraw(S.rounds[next])?t('nextDraw'):t('nextRead',{n:S.rounds[next].word.length})}):t('threeOne')}</small></span>${chev()}</button>`;
   el('home').innerHTML=`
   <svg class="bigmark" viewBox="30 40 920 320" aria-hidden="true"><path d="M80 300 C230 60, 330 60, 480 210 S730 360, 880 120"/><path d="M890.4 193.3 L880 120 L809.6 142.7"/><circle cx="80" cy="300" r="26"/></svg>
   <div class="wordmark">Squiggle</div>
-  <div class="tag">Daily word trace</div>
+  <div class="tag">${t('appTag')}</div>
   <div class="daychip">${chip}</div>
   <div class="menu">
     ${play}
     <div class="mrow">
-      <button class="mbtn" id="hPractice"><span class="mi mint"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8a2 2 0 0 0-3-3L5 16z"/><path d="M14 6l3 3"/></svg></span><span class="mt"><b>Practice</b><small>Read or draw</small></span></button>
-      <button class="mbtn" id="hDuel"><span class="mi gold"><svg viewBox="0 0 24 24"><path d="M14 4l6 6-9 9H5v-6z"/><path d="M12 6l6 6"/></svg></span><span class="mt"><b>Challenge</b><small>Beat a trace</small></span></button>
+      <button class="mbtn" id="hPractice"><span class="mi mint"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8a2 2 0 0 0-3-3L5 16z"/><path d="M14 6l3 3"/></svg></span><span class="mt"><b>${t('practice')}</b><small>${t('practiceSub')}</small></span></button>
+      <button class="mbtn" id="hDuel"><span class="mi gold"><svg viewBox="0 0 24 24"><path d="M14 4l6 6-9 9H5v-6z"/><path d="M12 6l6 6"/></svg></span><span class="mt"><b>${t('challenge')}</b><small>${t('challengeSub')}</small></span></button>
     </div>
-    <button class="mbtn" id="hSend"><span class="mi pink">${ic('link')}</span><span class="mt"><b>Send a squiggle</b><small>Trace a word or name, text the link</small></span>${chev()}</button>
+    <button class="mbtn" id="hSend"><span class="mi pink">${ic('link')}</span><span class="mt"><b>${t('send')}</b><small>${t('sendSub')}</small></span>${chev()}</button>
   </div>
-  <div class="homefoot"><span class="chip">🔥 ${st.streak}</span><button class="chip link" id="hStats">Stats</button><button class="chip link" id="hHow">How to play</button><button class="chip link" id="hMore">Settings</button></div>`;
+  <div class="homefoot"><span class="chip">🔥 ${st.streak}</span><button class="chip link" id="hStats">${t('stats')}</button><button class="chip link" id="hHow">${t('how')}</button><button class="chip link" id="hMore">${t('settings')}</button></div>`;
   const q=id=>document.getElementById(id);
   if(q('hPlay'))q('hPlay').onclick=()=>{sfx('open');S.round=next;S.cur='';render();};
   if(q('hShare'))q('hShare').onclick=()=>shareSheet();
@@ -842,7 +951,7 @@ function bindDraw(){
   g.addEventListener('pointerdown',e=>{const r=cur();if(!isDraw(r)||r.done)return;e.preventDefault();stroke.on=true;stroke.pts=[toSvg(e)];try{g.setPointerCapture(e.pointerId);}catch(x){}renderStatus();liveStroke();sfx('draw');});
   g.addEventListener('pointermove',e=>{if(!stroke.on)return;e.preventDefault();const p=toSvg(e),last=stroke.pts[stroke.pts.length-1];if(dist2(p,last)>=3){stroke.pts.push(p);liveStroke();}});
   const end=e=>{if(!stroke.on)return;stroke.on=false;const r=cur();
-    if(stroke.pts.length<4||pathLen(stroke.pts)<80){stroke.pts=[];renderGlyph();renderStatus('Draw the whole word in one stroke, finger down to finger up',true);return;}
+    if(stroke.pts.length<4||pathLen(stroke.pts)<80){stroke.pts=[];renderGlyph();renderStatus(t('drawReject'),true);return;}
     finishDraw(r,stroke.pts);stroke.pts=[];};
   g.addEventListener('pointerup',end);g.addEventListener('pointercancel',end);
 }
@@ -880,10 +989,11 @@ function revealDraw(r){
 }
 function drawPanel(r){
   const word=[...r.word].map((c,i)=>`<span class="dl ${r.done?(r.hits[i]||{}).tier||'':''}">${c}</span>`).join('');
-  if(!r.done) return `<div class="drawpanel"><div class="eyebrow">Draw this word</div><div class="drawword" aria-label="Word to draw: ${r.word}">${word}</div>
-    <p>The blank keyboard at the bottom is where you draw. Finger down on the first letter, glide through the rest, lift on the last.${r.hard?' No key grid on hard: the keys are where you remember them.':''}</p></div>`;
+  const shown=disp(r.word),eyebrow=t('drawThis')+(shown!==r.word?` · ${shown.toUpperCase()}`:'');
+  if(!r.done) return `<div class="drawpanel"><div class="eyebrow">${eyebrow}</div><div class="drawword" aria-label="${shown}">${word}</div>
+    <p>${t('drawHelp')}${r.hard?t('drawHelpHard'):''}</p></div>`;
   const on=r.hits.filter(h=>h.tier==='ok').length;
-  return `<div class="drawpanel"><div class="drawword">${word}</div><div class="acc"><b>${r.acc}%</b><span>${on} of ${r.word.length} letters on the key</span></div></div>`;
+  return `<div class="drawpanel"><div class="drawword">${word}</div><div class="acc"><b>${r.acc}%</b><span>${t('onKey',{on,n:r.word.length})}</span></div></div>`;
 }
 function startDrawPractice(len){S.mode='practice';S.practiceLen=len;S.practiceType='draw';S.rounds=[makeDraw(randomWord(len||6))];S.round=0;S.cur='';render();}
 
@@ -893,17 +1003,17 @@ function onKey(k){
   if(limbo(r)) return resolveLimbo(r);
   if(k==='enter') return submit();
   if(k==='back'){S.cur=S.cur.slice(0,-1);renderGuesses();renderTrace();haptic('light');sfx('back');return;}
-  if(/^[a-z]$/.test(k)&&S.cur.length<r.word.length){S.cur+=k;renderGuesses();renderTrace();haptic('light');sfx('tap');}
+  if(k.length===1&&L.alpha.includes(k)&&S.cur.length<r.word.length){S.cur+=k;renderGuesses();renderTrace();haptic('light');sfx('tap');}
 }
 document.addEventListener('keydown',e=>{
   if(e.metaKey||e.ctrlKey||e.altKey) return;
   if(S.view!=='game'||document.querySelector('.scrim')) return;
-  if(e.key==='Enter') onKey('enter'); else if(e.key==='Backspace') onKey('back'); else if(/^[a-zA-Z]$/.test(e.key)) onKey(e.key.toLowerCase());
+  if(e.key==='Enter') onKey('enter'); else if(e.key==='Backspace') onKey('back'); else if(e.key.length===1){const k=norm(e.key);if(k.length===1&&L.alpha.includes(k))onKey(k);}
 });
 function submit(){
   const r=cur(),n=r.word.length;
-  if(S.cur.length<n){renderStatus(`Needs ${n} letters`,true);renderGuesses(false,true);sfx('bad');return;}
-  if(S.mode!=='custom'&&!VALID.has(S.cur)){renderStatus('Not in the word list',true);renderGuesses(false,true);haptic('error');sfx('bad');return;}
+  if(S.cur.length<n){renderStatus(t('needs',{n}),true);renderGuesses(false,true);sfx('bad');return;}
+  if(S.mode!=='custom'&&!DICT.has(S.cur)){renderStatus(t('notInList'),true);renderGuesses(false,true);haptic('error');sfx('bad');return;}
   const ev=evaluate(S.cur,r.word);
   r.g.push(S.cur);r.ev.push(ev);S.cur='';
   const won=ev.every(e=>e==='ok');
@@ -928,9 +1038,9 @@ function finishRound(r,won){
   setTimeout(()=>{reveal(r);},n*70+450);
 }
 function extraSheet(r,price){
-  openSheet(`<h2>Out of guesses</h2><p>The squiggle's still there. One more guess costs <b>${price} ink</b>; you have <b>${getStats().ink}</b>.</p>
-  <div class="btns"><button class="btn primary" id="xBuy">${inkIcon()}One more guess · ${price}</button><button class="btn" id="xGive">Give up and reveal</button></div>`);
-  document.getElementById('xBuy').onclick=()=>{if(!spend(price)){toast('Not enough ink');return;}r.extra++;closeSheet();saveDaily();render();};
+  openSheet(`<h2>${t('extraTitle')}</h2><p>${t('extraBody',{p:price,i:getStats().ink})}</p>
+  <div class="btns"><button class="btn primary" id="xBuy">${inkIcon()}${t('extraBuy',{p:price})}</button><button class="btn" id="xGive">${t('giveUp')}</button></div>`);
+  document.getElementById('xBuy').onclick=()=>{if(!spend(price)){toast(t('notEnough'));return;}r.extra++;closeSheet();saveDaily();render();};
   document.getElementById('xGive').onclick=()=>{closeSheet();finishRound(r,false);};
 }
 function inkIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true" style="fill:currentColor;stroke:none"><path d="M12 2.5c3.5 4.8 6 8 6 11.5a6 6 0 0 1-12 0c0-3.5 2.5-6.7 6-11.5z"/></svg>`;}
@@ -941,19 +1051,19 @@ function hintsSheet(){
   const st=getStats(),n=r.word.length;
   const middle=[];for(let i=1;i<n-1;i++)if(!r.rev.includes(i))middle.push(i);
   const items=[
-    {k:'first',t:'First letter',d:'Marks where the finger landed and which key it was.',p:PRICE.first,used:r.rev.includes(0),ok:true,
+    {k:'first',t:t('hFirst'),d:t('hFirstD'),p:PRICE.first,used:r.rev.includes(0),ok:true,
       ic:'<path d="M4 20 20 4M4 12V4h8"/>'},
-    {k:'last',t:'Last letter',d:'Marks where the finger lifted.',p:PRICE.last,used:r.rev.includes(n-1),ok:true,
+    {k:'last',t:t('hLast'),d:t('hLastD'),p:PRICE.last,used:r.rev.includes(n-1),ok:true,
       ic:'<path d="M20 4 4 20M20 12V4h-8"/>'},
-    {k:'letter',t:'A middle letter',d:'Reveals one of the letters between the ends, on the squiggle and in the row above your guesses.',p:PRICE.letter,used:middle.length===0,ok:middle.length>0,
+    {k:'letter',t:t('hMid'),d:t('hMidD'),p:PRICE.letter,used:middle.length===0,ok:middle.length>0,
       ic:'<circle cx="12" cy="12" r="3"/><path d="M3 12h4M17 12h4"/>'},
-    {k:'place',t:'Place it on the keys',d:r.hard?'Locked in hard mode.':'Drops the squiggle onto the real keyboard grid. The big one.',p:PRICE.place,used:r.placed,ok:!r.hard,
+    {k:'place',t:t('hPlace'),d:r.hard?t('hPlaceLocked'):t('hPlaceD'),p:PRICE.place,used:r.placed,ok:!r.hard,
       ic:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8"/>'}
   ];
   const cards=items.map(it=>{const poor=!it.used&&st.ink<it.p;const dis=it.used||!it.ok||poor;
-    return `<button class="hintcard${it.used?' used':''}${poor?' poor':''}" data-k="${it.k}" ${dis?'disabled':''}><span class="ic"><svg viewBox="0 0 24 24">${it.ic}</svg></span><span class="t"><b>${it.t}</b><small>${it.d}</small></span><span class="price">${it.used?'Used':(it.ok?inkIcon()+it.p:'Locked')}</span></button>`;}).join('');
-  openSheet(`<h2>Hints</h2>
-  <div class="balance"><b>${inkIcon()}${st.ink}</b><span>Earn ink by solving: longer words and fewer guesses pay more, hard mode pays 1.5×, finishing the day adds a bonus.</span></div>
+    return `<button class="hintcard${it.used?' used':''}${poor?' poor':''}" data-k="${it.k}" ${dis?'disabled':''}><span class="ic"><svg viewBox="0 0 24 24">${it.ic}</svg></span><span class="t"><b>${it.t}</b><small>${it.d}</small></span><span class="price">${it.used?t('used'):(it.ok?inkIcon()+it.p:t('locked'))}</span></button>`;}).join('');
+  openSheet(`<h2>${t('hints')}</h2>
+  <div class="balance"><b>${inkIcon()}${st.ink}</b><span>${t('earnHow')}</span></div>
   <div class="hints">${cards}</div>`,true);
   document.querySelectorAll('.hintcard').forEach(b=>b.onclick=()=>buyHint(b.dataset.k));
 }
@@ -977,49 +1087,50 @@ function reveal(r){
 function resultSheet(r){
   const n=r.word.length;
   let title,body,earn;
+  const W=disp(r.word).toUpperCase(),INK=t('ink');
   if(isDraw(r)){
-    const a=r.acc;title=a>=95?'Pixel perfect.':a>=85?'Clean trace.':a>=70?'Close. Readable.':a>=50?'Rough, but it\'s in there.':'That\'s a different word.';
+    const a=r.acc;title=a>=95?t('d95'):a>=85?t('d85'):a>=70?t('d70'):a>=50?t('d50'):t('d0');
     const on=r.hits.filter(h=>h.tier==='ok').length;
-    body=`You drew <b>${r.word.toUpperCase()}</b> at <b>${a}%</b>: ${on} of ${n} letters landed on the key${r.hard?', on hard':''}. Blue is the real trace.`;
-    earn=r.ink?`<div class="earn">${inkIcon()}+${r.ink} ink<small>${n} letters × 2 × ${a}%${a>=95?' + 5 perfect':''}${r.hard?' × 1.5 hard':''}${S.mode!=='daily'?' · half outside the daily':''}</small></div>`:'';
+    body=t('drawBody',{w:W,a,on,n,hard:r.hard?t('onHard'):''});
+    earn=r.ink?`<div class="earn">${inkIcon()}+${r.ink} ${INK}<small>${t('earnDraw',{n,a})}${a>=95?t('perfectBonus'):''}${r.hard?t('hardMult'):''}${S.mode!=='daily'?t('halfOutside'):''}</small></div>`:'';
   } else {
-    if(r.won){title=['','Read it in one.','Two. Sharp.','Three. Nice trace.','Four. Just made it.'][r.g.length]||'Got there, with a little ink.';}
-    else title='That one got away.';
+    if(r.won){title=['',t('win1'),t('win2'),t('win3'),t('win4')][r.g.length]||t('winX');}
+    else title=t('lost');
     const hints=r.rev.length+(r.placed?1:0);
-    body=r.won?`You traced <b>${r.word.toUpperCase()}</b> in ${r.g.length} ${r.g.length===1?'guess':'guesses'}${hints?` with ${hints} ${hints===1?'hint':'hints'}`:''}${r.hard?' on hard':''}.`:`It was <b>${r.word.toUpperCase()}</b>. Here's where it really sat on the keys.`;
-    earn=r.won?`<div class="earn">${inkIcon()}+${r.ink} ink<small>${r.word.length} letters × ${Math.max(1,BASE_GUESSES+1-r.g.length)} for speed${r.hard?' × 1.5 hard':''}${S.mode!=='daily'?' · half outside the daily':''}</small></div>`:'';
+    body=r.won?t('readBody',{w:W,g:r.g.length,gw:r.g.length===1?t('guess1'):t('guessN'),h:hints?t('withHints',{h:hints,hw:hints===1?t('hint1'):t('hintN')}):'',hard:r.hard?t('onHard2'):''}):t('lostBody',{w:W});
+    earn=r.won?`<div class="earn">${inkIcon()}+${r.ink} ${INK}<small>${t('earnRead',{n:r.word.length,m:Math.max(1,BASE_GUESSES+1-r.g.length)})}${r.hard?t('hardMult'):''}${S.mode!=='daily'?t('halfOutside'):''}</small></div>`:'';
   }
-  const bonus=r.bonus?`<div class="earn">${inkIcon()}+${r.bonus} ink<small>day bonus${reads().every(x=>x.won)?' · all three solved':''} · streak ${getStats().streak}</small></div>`:'';
+  const bonus=r.bonus?`<div class="earn">${inkIcon()}+${r.bonus} ${INK}<small>${t('dayBonus')}${reads().every(x=>x.won)?t('allThree'):''}${t('streakN',{s:getStats().streak})}</small></div>`:'';
   let btns='';
   if(S.mode==='daily'){
     const next=S.rounds.findIndex(x=>!x.done);
-    if(next>=0) btns=`<button class="btn primary" id="sNext">${isDraw(S.rounds[next])?'Next: draw one':`Next squiggle · ${S.rounds[next].word.length} letters`}</button>`;
-    else btns=`<button class="btn primary" id="sShare">${ic('share')}Share today</button><button class="btn" id="sHome">Home</button>`;
+    if(next>=0) btns=`<button class="btn primary" id="sNext">${isDraw(S.rounds[next])?t('nextDrawBtn'):t('nextBtn',{n:S.rounds[next].word.length})}</button>`;
+    else btns=`<button class="btn primary" id="sShare">${ic('share')}${t('shareToday')}</button><button class="btn" id="sHome">${t('home')}</button>`;
   } else if(S.mode==='practice'){
-    btns=`<button class="btn primary" id="sAnother">Another one</button><button class="btn" id="sHome">Home</button>`;
+    btns=`<button class="btn primary" id="sAnother">${t('another')}</button><button class="btn" id="sHome">${t('home')}</button>`;
   } else {
-    btns=`<button class="btn primary" id="sMake">Make one for them</button><button class="btn" id="sHome">Home</button>`;
+    btns=`<button class="btn primary" id="sMake">${t('makeOne')}</button><button class="btn" id="sHome">${t('home')}</button>`;
   }
   if(S.mode==='tutorial'){
     const last=S.round===S.rounds.length-1;
-    title=r.won?(S.round===0?'That\'s the idea.':'You\'re ready.'):(S.round===0?'It was PEN.':'It was CAT.');
-    body=S.round===0?'The squiggle sat right on the keys that time. In the real game you only get the shape, so the next one floats free.':'Three squiggles a day to read, one word to draw. Solving earns ink, ink buys hints. The ⋯ menu has practice, hard mode and a way to send squiggles to friends.';
+    title=r.won?(S.round===0?t('tutIdea'):t('tutReady')):t('tutWas',{w:W});
+    body=S.round===0?t('tutBody1'):t('tutBody2');
     earn='';
-    btns=`<button class="btn primary" id="sTut">${last?(S.after?'Play the one you were sent':'Play today\'s squiggles'):'Next'}</button>`;
+    btns=`<button class="btn primary" id="sTut">${last?(S.after?t('tutPlaySent'):t('tutPlayToday')):t('next')}</button>`;
   } else if(S.mode==='duel'&&S.rival){
     const me=r.acc,them=S.rival.acc;
-    title=me>them?'You win.':me<them?'They win.':'Dead heat.';
-    body=`You traced <b>${r.word.toUpperCase()}</b> at <b>${me}%</b>, they traced it at <b>${them}%</b>. Blue is the real trace, pink is yours, amber is theirs.`;
-    btns=`<button class="btn primary" id="sDuelBack">${ic('share')}Send your trace back</button><button class="btn" id="sHome">Home</button>`;
+    title=me>them?t('duelWin'):me<them?t('duelLose'):t('duelTie');
+    body=t('duelBody',{w:W,me,them});
+    btns=`<button class="btn primary" id="sDuelBack">${ic('share')}${t('sendBack')}</button><button class="btn" id="sHome">${t('home')}</button>`;
   } else if(S.mode==='custom'){
-    title=r.won?'You read it.':'That one got away.';
-    body=r.won?`A friend traced <b>${r.word.toUpperCase()}</b> for you and you got it in ${r.g.length}. Send one back.`:`They traced <b>${r.word.toUpperCase()}</b>. Send one back and even the score.`;
-    btns=`<button class="btn primary" id="sMake">${ic('link')}Send one back</button><button class="btn" id="sHome">Home</button>`;
+    title=r.won?t('friendWin'):t('lost');
+    body=r.won?t('friendBodyWin',{w:W,g:r.g.length}):t('friendBodyLose',{w:W});
+    btns=`<button class="btn primary" id="sMake">${ic('link')}${t('sendOneBack')}</button><button class="btn" id="sHome">${t('home')}</button>`;
   } else if(isDraw(r)&&!r.tut){
-    btns+=`<button class="btn" id="sDuel">${ic('link')}Challenge a friend</button>`;
+    btns+=`<button class="btn" id="sDuel">${ic('link')}${t('challengeFriend')}</button>`;
   }
   const done=S.mode==='daily'&&S.rounds.every(x=>x.done);
-  openSheet(`<h2>${title}</h2><div class="answer">${r.word}</div><p>${body}</p>${earn}${bonus}${done?dayRecap():''}<div class="btns">${btns}</div>`);
+  openSheet(`<h2>${title}</h2><div class="answer">${disp(r.word)}</div><p>${body}</p>${earn}${bonus}${done?dayRecap():''}<div class="btns">${btns}</div>`);
   const q=id=>document.getElementById(id);
   if(q('sTut')) q('sTut').onclick=()=>{closeSheet();if(S.round<S.rounds.length-1){S.round++;S.cur='';render();}else{finishTutorialIfAny();}};
   if(q('sDuel')) q('sDuel').onclick=()=>{closeSheet();duelSheet(r);};
@@ -1033,35 +1144,35 @@ function resultSheet(r){
 }
 function dayRecap(){
   const rs=reads(),solved=rs.filter(r=>r.won).length,total=rs.reduce((a,r)=>a+r.g.length,0),ink=dayInk(),dr=drawRound();
-  return `<p><b>${solved} of 3</b> solved in ${total} guesses${dr&&dr.done?`, <b>${dr.word.toUpperCase()}</b> drawn at <b>${dr.acc}%</b>`:''}, <b>${ink} ink</b> earned.</p>`;
+  return `<p>${t('recap',{s:solved,t:total,d:dr&&dr.done?t('recapDraw',{w:disp(dr.word).toUpperCase(),a:dr.acc}):'',ink})}</p>`;
 }
 function dayInk(){return S.rounds.reduce((a,r)=>a+(r.ink||0)+(r.bonus||0),0);}
 function shareText(){
   const rs=reads(),dr=drawRound();
-  const lines=[`Squiggle #${S.day+1} · ${rs.map(r=>r.won?r.g.length:'X').join('/')}${dr&&dr.done?` · ✎${dr.acc}%`:''}${S.rounds.every(r=>r.hard)?' · hard':''} · ${dayInk()} ink`];
+  const lines=[`Squiggle #${S.day+1}${LANG!=='en'?' · '+LANG.toUpperCase():''} · ${rs.map(r=>r.won?r.g.length:'X').join('/')}${dr&&dr.done?` · ✎${dr.acc}%`:''}${S.rounds.every(r=>r.hard)?' · '+t('hard'):''} · ${dayInk()} ${t('ink')}`];
   rs.forEach(r=>{let row='';for(let i=0;i<r.g.length;i++){row+=(i===r.g.length-1&&r.won)?'🟩':'⬜';}if(!r.won)row+='🟥';const h=r.rev.length+(r.placed?1:0);if(h)row+=' '+'💡'.repeat(Math.min(h,4));if(r.hard&&!S.rounds.every(x=>x.hard))row+=' ★';lines.push(`${r.word.length}  ${row}`);});
   if(dr&&dr.done) lines.push(`✎  ${dr.hits.map(h=>h.tier==='ok'?'🟩':h.tier==='near'?'🟨':'⬜').join('')} ${dr.acc}%${dr.hard&&!S.rounds.every(x=>x.hard)?' ★':''}`);
   lines.push(SHARE_URL);
   return lines.join('\n');
 }
 function shareSheet(){
-  const t=shareText();
+  const txt=shareText();
   let canvas=null;try{canvas=shareCard();}catch(e){canvas=null;}
-  const img=canvas?`<img class="cardpreview" alt="Share card: today's three squiggles and your results" src="${canvas.toDataURL('image/png')}">`:'';
-  openSheet(`<h2>Share today's trace</h2>${img}<textarea class="share" id="shareBox" rows="5" readonly>${esc(t)}</textarea>
-  <div class="btns">${canvas?`<button class="btn primary" id="shareImg">${ic('share')}Share the picture</button>`:''}<button class="btn${canvas?'':' primary'}" id="shareNow">${ic('share')}Share text</button></div>
-  <div class="btns"><button class="btn" id="copyShare">${ic('copy')}Copy text</button><button class="btn" id="sHome2">Home</button></div>`);
-  if(canvas) document.getElementById('shareImg').onclick=async()=>{const ok=await sharePng(canvas,t);if(!ok){toast('Long-press the picture to save it');}};
-  document.getElementById('shareNow').onclick=async()=>{if(!(await shareOut(t)))copy(t,'shareBox');};
-  document.getElementById('copyShare').onclick=()=>copy(t,'shareBox');
+  const img=canvas?`<img class="cardpreview" alt="${t('shareAlt')}" src="${canvas.toDataURL('image/png')}">`:'';
+  openSheet(`<h2>${t('shareTitle')}</h2>${img}<textarea class="share" id="shareBox" rows="5" readonly>${esc(txt)}</textarea>
+  <div class="btns">${canvas?`<button class="btn primary" id="shareImg">${ic('share')}${t('sharePic')}</button>`:''}<button class="btn${canvas?'':' primary'}" id="shareNow">${ic('share')}${t('shareText')}</button></div>
+  <div class="btns"><button class="btn" id="copyShare">${ic('copy')}${t('copyText')}</button><button class="btn" id="sHome2">${t('home')}</button></div>`);
+  if(canvas) document.getElementById('shareImg').onclick=async()=>{const ok=await sharePng(canvas,txt);if(!ok){toast(t('longPress'));}};
+  document.getElementById('shareNow').onclick=async()=>{if(!(await shareOut(txt)))copy(txt,'shareBox');};
+  document.getElementById('copyShare').onclick=()=>copy(txt,'shareBox');
   document.getElementById('sHome2').onclick=goHome;
 }
 function duelSheet(r){
-  const link=duelLink(r),msg=`I drew ${r.word.toUpperCase()} at ${r.acc}%. Beat my trace: ${link}`;
-  openSheet(`<h2>Beat my trace</h2><p>They get the word <b>${r.word.toUpperCase()}</b>, draw it blind, and see both traces side by side with the real one. Winner is whoever's line runs closer.</p>
+  const link=duelLink(r),msg=t('beatMsg',{w:disp(r.word).toUpperCase(),a:r.acc,link});
+  openSheet(`<h2>${t('beatTitle')}</h2><p>${t('beatBody',{w:disp(r.word).toUpperCase()})}</p>
   <svg class="glyph" viewBox="-20 -20 1040 340" aria-hidden="true" style="background:var(--bg);border-radius:12px">${cells(false)}<path class="stroke" d="${strokePath(r.stroke)}"/></svg>
   <textarea class="share" id="duelBox" rows="3" readonly>${esc(msg)}</textarea>
-  <div class="btns"><button class="btn primary" id="duelShare">${ic('share')}Send the challenge</button><button class="btn" id="duelCopy">${ic('copy')}Copy</button></div>`,true);
+  <div class="btns"><button class="btn primary" id="duelShare">${ic('share')}${t('sendChallenge')}</button><button class="btn" id="duelCopy">${ic('copy')}${t('copy')}</button></div>`,true);
   document.getElementById('duelShare').onclick=async()=>{if(!(await shareOut(msg)))copy(msg,'duelBox');};
   document.getElementById('duelCopy').onclick=()=>copy(msg,'duelBox');
 }
@@ -1073,9 +1184,9 @@ function shareCard(){
   const C={bg:'#EDF0F6',card:'#FFFFFF',fg:'#151D33',muted:'#66718C',ink:'#2A3FC9',halo:'rgba(42,63,201,.14)',ok:'#15915F',near:'#DC8E00',cell:'#DFE5F0',miss:'#D9534F'};
   x.fillStyle=C.bg;x.fillRect(0,0,W,H);
   x.save();x.translate(56,78);x.scale(0.1,0.1);x.lineWidth=52;x.lineCap='round';x.lineJoin='round';x.strokeStyle=C.ink;x.stroke(new Path2D('M80 300 C230 60, 330 60, 480 210 S730 360, 880 120'));x.stroke(new Path2D('M890.4 193.3 L880 120 L809.6 142.7'));x.fillStyle='#E63E95';x.beginPath();x.arc(80,300,28,0,Math.PI*2);x.fill();x.restore();
-  x.fillStyle=C.fg;x.font=`700 66px ${F}`;x.fillText(`Squiggle #${S.day+1}`,165,118);
+  x.fillStyle=C.fg;x.font=`700 66px ${F}`;x.fillText(`Squiggle #${S.day+1}${LANG!=='en'?' · '+LANG.toUpperCase():''}`,165,118);
   const d=new Date(EPOCH);d.setDate(d.getDate()+S.day);
-  x.fillStyle=C.muted;x.font=`400 34px ${B}`;x.fillText(fmtDate(d)+(S.rounds.every(r=>r.hard)?' · hard':''),168,166);
+  x.fillStyle=C.muted;x.font=`400 34px ${B}`;x.fillText(fmtDate(d)+(S.rounds.every(r=>r.hard)?' · '+t('hard'):''),168,166);
   const rs=reads(),dr=drawRound(),top=220,gap=24,footer=(dr&&dr.done)?330:210,cardH=(H-top-footer-gap*2)/3;
   rs.forEach((r,i)=>{
     const y=top+i*(cardH+gap),cw=W-120;
@@ -1089,17 +1200,17 @@ function shareCard(){
     if(!r.hard){x.fillStyle=C.ink;x.beginPath();x.arc(pts[0].x,pts[0].y,17,0,Math.PI*2);x.fill();x.lineWidth=13;x.stroke(new Path2D(endChevron(pts)));}
     x.restore();
     const cx=60+cw*0.72;
-    x.fillStyle=C.muted;x.font=`700 26px ${B}`;x.fillText(`${r.word.length} LETTERS`,cx,y+60);
+    x.fillStyle=C.muted;x.font=`700 26px ${B}`;x.fillText(t('lettersUp',{n:r.word.length}),cx,y+60);
     x.fillStyle=r.won?C.fg:C.miss;x.font=`700 74px ${F}`;x.fillText(r.won?`${r.g.length}/${baseGuesses(r)}`:'✕',cx,y+cardH/2+30);
     let sx=cx;const sy=y+cardH-66;
     for(let g=0;g<r.g.length;g++){x.fillStyle=(g===r.g.length-1&&r.won)?C.ok:C.cell;roundRect(x,sx,sy,30,30,7);x.fill();sx+=38;}
     if(!r.won){x.fillStyle=C.miss;roundRect(x,sx,sy,30,30,7);x.fill();sx+=38;}
-    const hn=r.rev.length+(r.placed?1:0);if(hn){x.fillStyle=C.near;x.font=`700 24px ${B}`;x.fillText('hint'+(hn>1?'s':''),sx+6,sy+24);}
+    const hn=r.rev.length+(r.placed?1:0);if(hn){x.fillStyle=C.near;x.font=`700 24px ${B}`;x.fillText(hn>1?t('hintN'):t('hint1'),sx+6,sy+24);}
   });
   if(dr&&dr.done){const fy=H-270;x.fillStyle=C.card;roundRect(x,60,fy,W-120,110,36);x.fill();
-    x.fillStyle=C.fg;x.font=`700 40px ${F}`;x.fillText(`Drew ${dr.word.toUpperCase()} at ${dr.acc}%`,100,fy+68);
+    x.fillStyle=C.fg;x.font=`700 40px ${F}`;x.fillText(t('drew',{w:disp(dr.word).toUpperCase(),a:dr.acc}),100,fy+68);
     let sx=W-60-40-dr.word.length*38;dr.hits.forEach((h,k)=>{x.fillStyle=h.tier==='ok'?C.ok:h.tier==='near'?C.near:C.cell;roundRect(x,sx+k*38,fy+40,30,30,7);x.fill();});}
-  x.fillStyle=C.fg;x.font=`700 46px ${F}`;x.fillText('Can you read them?',60,H-74);
+  x.fillStyle=C.fg;x.font=`700 46px ${F}`;x.fillText(t('canRead'),60,H-74);
   x.fillStyle=C.muted;x.font=`400 30px ${B}`;x.textAlign='right';x.fillText(SHARE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W-60,H-74);x.textAlign='left';
   return c;
 }
@@ -1114,11 +1225,11 @@ async function sharePng(canvas,text){
   return false;
 }
 function copy(text,boxId){
-  const done=()=>toast('Copied');
+  const done=()=>toast(t('copied'));
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>selectBox(boxId));}
   else selectBox(boxId);
 }
-function selectBox(id){const b=document.getElementById(id);if(b){b.focus();b.select();toast('Select and copy the text');}}
+function selectBox(id){const b=document.getElementById(id);if(b){b.focus();b.select();toast(t('selectCopy'));}}
 
 /* ---------- Modals ---------- */
 function ic(n){const d={share:'<path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M12 15V3m0 0L8 7m4-4 4 4"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/>',link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5"/>'}[n];return `<svg viewBox="0 0 24 24">${d}</svg>`;}
@@ -1134,19 +1245,19 @@ function closeSheet(){el('overlay').innerHTML='';}
 function toast(t){const h=el('toastHost');h.innerHTML=`<div class="toast">${esc(t)}</div>`;clearTimeout(h._t);h._t=setTimeout(()=>h.innerHTML='',1800);}
 
 function howSheet(){
-  openSheet(`<h2>How to play</h2>
+  openSheet(`<h2>${t('howTitle')}</h2>
   <div class="how">
-    <div class="step"><div class="num">1</div><div>Each squiggle is the line a finger draws when it <b>swipe-types a word</b> on a phone keyboard. The dot is where the finger lands; the chevron is where it lifts.</div></div>
-    <div class="step"><div class="num">2</div><div>You see the shape at <b>true size</b> but not where it sat. A sweep that's five keys wide on the keyboard below is five keys wide here. Slide it around the keyboard in your head until the corners land on letters that make a word.</div></div>
-    <div class="step"><div class="num">3</div><div>Type a word of the right length. As you type, your trace draws across the keys in pink, so you can compare its shape to the squiggle before you commit.</div></div>
-    <div class="step"><div class="num">4</div><div>Feedback is <b>distance, not letters</b>. Each corner of your guess reports how far it landed from the real key. Nothing tells you whether a letter is "in the word somewhere". Only the shape does.</div></div>
-    <div class="legend"><span><i style="background:var(--ok)"></i>On the key</span><span><i style="background:var(--near)"></i>Next door (a touching key)</span><span><i style="background:var(--absent)"></i>Cold</span></div>
-    <div class="step"><div class="num">5</div><div><b>Round four flips it.</b> You get the word and draw its squiggle from memory, one stroke on the blank keys. You're scored on how close your line runs to the real trace.</div></div>
-    <p>Three squiggles to read (4, 6 and 8 letters, <b>four guesses</b> each) and one to draw. Solving earns <b>ink</b>: more for longer words and fewer guesses, 1.5× on hard, plus a bonus for finishing the day.</p>
-    <p>Ink buys hints (first letter, last letter, a middle letter, or <b>Place it</b>, which drops the squiggle onto the real keys) and one more guess when you run out. Hints show on your share.</p>
-    <p><b>Hard mode</b> (in the ⋯ menu): three guesses, no start or end marker, and Place it is locked.</p>
+    <div class="step"><div class="num">1</div><div>${t('how1')}</div></div>
+    <div class="step"><div class="num">2</div><div>${t('how2')}</div></div>
+    <div class="step"><div class="num">3</div><div>${t('how3')}</div></div>
+    <div class="step"><div class="num">4</div><div>${t('how4')}</div></div>
+    <div class="legend"><span><i style="background:var(--ok)"></i>${t('legendOn')}</span><span><i style="background:var(--near)"></i>${t('legendNear')}</span><span><i style="background:var(--absent)"></i>${t('legendCold')}</span></div>
+    <div class="step"><div class="num">5</div><div>${t('how5')}</div></div>
+    <p>${t('howP1')}</p>
+    <p>${t('howP2')}</p>
+    <p>${t('howP3')}</p>
   </div>
-  <div class="btns"><button class="btn primary" id="howGo">Start tracing</button></div>`,true);
+  <div class="btns"><button class="btn primary" id="howGo">${t('startTracing')}</button></div>`,true);
   document.getElementById('howGo').onclick=closeSheet;
 }
 function statsSheet(){
@@ -1154,65 +1265,69 @@ function statsSheet(){
   const max=Math.max(1,...Object.values(st.dist));
   const r=cur();const curN=(S.mode==='daily'&&r.done&&r.won)?r.g.length:null;
   const dist=['1','2','3','4','5','x'].map(k=>`<div class="d"><span>${k==='x'?'✕':(k==='5'?'5+':k)}</span><div class="bar${(curN!==null&&String(curN)===k)?' top':''}" style="width:${Math.max(8,100*st.dist[k]/max)}%">${st.dist[k]}</div></div>`).join('');
-  openSheet(`<h2>Your traces</h2>
-  <div class="balance"><b>${inkIcon()}${st.ink}</b><span>${st.inkEarned} ink earned all time</span></div>
-  <div class="stats"><div class="stat"><b>${st.days}</b><span>Days</span></div><div class="stat"><b>${pct}</b><span>Solve %</span></div><div class="stat"><b>${st.streak}</b><span>Streak</span></div><div class="stat"><b>${st.maxStreak}</b><span>Best</span></div></div>
-  <h3>Guesses per squiggle</h3><div class="dist">${dist}</div>
-  <h3>Drawn squiggles</h3>
-  <div class="stats three"><div class="stat"><b>${st.traces||0}</b><span>Traces</span></div><div class="stat"><b>${st.traces?Math.round(st.traceSum/st.traces):0}</b><span>Avg %</span></div><div class="stat"><b>${st.traceBest||0}</b><span>Best %</span></div></div>
-  <p>${st.perfect} perfect ${st.perfect===1?'day':'days'} (all three read). Streak counts days you finished the ladder, draw included.</p>
-  ${S.mode==='daily'&&S.rounds.every(x=>x.done)?`<div class="btns"><button class="btn primary" id="stShare">${ic('share')}Share today</button></div>`:''}`,true);
+  openSheet(`<h2>${t('statsTitle')}</h2>
+  <div class="balance"><b>${inkIcon()}${st.ink}</b><span>${t('inkAll',{n:st.inkEarned})}</span></div>
+  <div class="stats"><div class="stat"><b>${st.days}</b><span>${t('days')}</span></div><div class="stat"><b>${pct}</b><span>${t('solvePct')}</span></div><div class="stat"><b>${st.streak}</b><span>${t('streakL')}</span></div><div class="stat"><b>${st.maxStreak}</b><span>${t('best')}</span></div></div>
+  <h3>${t('guessesPer')}</h3><div class="dist">${dist}</div>
+  <h3>${t('drawnTitle')}</h3>
+  <div class="stats three"><div class="stat"><b>${st.traces||0}</b><span>${t('traces')}</span></div><div class="stat"><b>${st.traces?Math.round(st.traceSum/st.traces):0}</b><span>${t('avg')}</span></div><div class="stat"><b>${st.traceBest||0}</b><span>${t('bestPct')}</span></div></div>
+  <p>${t('perfectDays',{n:st.perfect,dw:st.perfect===1?t('day1'):t('dayN')})}</p>
+  ${S.mode==='daily'&&S.rounds.every(x=>x.done)?`<div class="btns"><button class="btn primary" id="stShare">${ic('share')}${t('shareToday')}</button></div>`:''}`,true);
   const b=document.getElementById('stShare');if(b)b.onclick=()=>{closeSheet();shareSheet();};
 }
 function moreSheet(){
-  openSheet(`<h2>Settings</h2>
-  <p>Practice from the word pool, trace a word for a friend, or change how the game plays.</p>
-  <div class="btns"><button class="btn primary" id="mPractice">Practice</button><button class="btn" id="mSend">${ic('link')}Send a squiggle</button></div>
-  <h3>Appearance</h3>
-  <div class="minilist three" id="mTheme"><button data-t="system" class="${THEME.mode==='system'?'on':''}">System</button><button data-t="light" class="${THEME.mode==='light'?'on':''}">Light</button><button data-t="dark" class="${THEME.mode==='dark'?'on':''}">Dark</button></div>
-  <button class="switch" id="mSound" role="switch" aria-checked="${SFX.on}"><span class="sw"><span class="knob"></span></span><span class="swtext"><b>Sound</b><small>Taps, reveals and a little fanfare. Haptics stay on either way.</small></span></button>
-  <button class="switch" id="mHard" role="switch" aria-checked="${S.hard}"><span class="sw"><span class="knob"></span></span><span class="swtext"><b>Hard mode</b><small>Three guesses, no start or end marker, no Place it; the draw round loses its key grid. Pays 1.5× ink. Applies to rounds you haven't started.</small></span></button>
-  <div class="btns"><button class="btn" id="mHow">How to play</button><button class="btn" id="mStats">Your traces</button></div>`,true);
+  openSheet(`<h2>${t('settingsTitle')}</h2>
+  <p>${t('settingsBody')}</p>
+  <div class="btns"><button class="btn primary" id="mPractice">${t('practice')}</button><button class="btn" id="mSend">${ic('link')}${t('send')}</button></div>
+  <h3>${t('language')}</h3>
+  <div class="minilist three" id="mLang">${Object.keys(LANGS).map(c=>`<button data-l="${c}" class="${PREF_LANG===c?'on':''}">${LANGS[c].name}</button>`).join('')}</div>
+  <h3>${t('appearance')}</h3>
+  <div class="minilist three" id="mTheme"><button data-t="system" class="${THEME.mode==='system'?'on':''}">${t('system')}</button><button data-t="light" class="${THEME.mode==='light'?'on':''}">${t('light')}</button><button data-t="dark" class="${THEME.mode==='dark'?'on':''}">${t('dark')}</button></div>
+  <button class="switch" id="mSound" role="switch" aria-checked="${SFX.on}"><span class="sw"><span class="knob"></span></span><span class="swtext"><b>${t('sound')}</b><small>${t('soundD')}</small></span></button>
+  <button class="switch" id="mHard" role="switch" aria-checked="${S.hard}"><span class="sw"><span class="knob"></span></span><span class="swtext"><b>${t('hardMode')}</b><small>${t('hardD')}</small></span></button>
+  <div class="btns"><button class="btn" id="mHow">${t('how')}</button><button class="btn" id="mStats">${t('statsTitle')}</button></div>`,true);
+  document.getElementById('mLang').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;setLang(b.dataset.l,true);closeSheet();loadDaily();if(S.view==='home')goHome();else render();});
   document.getElementById('mPractice').onclick=()=>{closeSheet();practiceSheet();};
   document.getElementById('mSend').onclick=()=>{closeSheet();sendSheet();};
   document.getElementById('mHow').onclick=()=>{closeSheet();howSheet();};
   document.getElementById('mStats').onclick=()=>{closeSheet();statsSheet();};
-  const sw=document.getElementById('mHard');sw.onclick=()=>{setHard(!S.hard);sw.setAttribute('aria-checked',S.hard);toast(S.hard?'Hard mode on':'Hard mode off');};
+  const sw=document.getElementById('mHard');sw.onclick=()=>{setHard(!S.hard);sw.setAttribute('aria-checked',S.hard);toast(S.hard?t('hardOn'):t('hardOff'));};
   const th=document.getElementById('mTheme');th.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;setTheme(b.dataset.t);th.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));});
-  const ss=document.getElementById('mSound');ss.onclick=()=>{SFX.on=!SFX.on;store('sq.sound',SFX.on);ss.setAttribute('aria-checked',SFX.on);if(SFX.on){audioCtx();sfx('win');}toast(SFX.on?'Sound on':'Sound off');};
+  const ss=document.getElementById('mSound');ss.onclick=()=>{SFX.on=!SFX.on;store('sq.sound',SFX.on);ss.setAttribute('aria-checked',SFX.on);if(SFX.on){audioCtx();sfx('win');}toast(SFX.on?t('soundOn'):t('soundOff'));};
 }
 function practiceSheet(){
-  openSheet(`<h2>Practice</h2><p>Practice rounds don't touch your streak and pay half ink.</p>
-  <h3>Which way round?</h3>
-  <div class="minilist two" id="pType"><button data-t="read" class="on">Read a squiggle</button><button data-t="draw">Draw a squiggle</button></div>
-  <h3>How long?</h3>
-  <div class="minilist" id="pLen"><button data-l="4">4</button><button data-l="6">6</button><button data-l="8">8</button><button data-l="0" class="on">Mix</button></div>
-  <div class="btns"><button class="btn primary" id="pGo">Go</button></div>`,true);
+  openSheet(`<h2>${t('practiceTitle')}</h2><p>${t('practiceBody')}</p>
+  <h3>${t('whichWay')}</h3>
+  <div class="minilist two" id="pType"><button data-t="read" class="on">${t('readOne')}</button><button data-t="draw">${t('drawOne')}</button></div>
+  <h3>${t('howLong')}</h3>
+  <div class="minilist" id="pLen"><button data-l="4">4</button><button data-l="6">6</button><button data-l="8">8</button><button data-l="0" class="on">${t('mix')}</button></div>
+  <div class="btns"><button class="btn primary" id="pGo">${t('go')}</button></div>`,true);
   let len=0,type='read';const list=document.getElementById('pLen'),types=document.getElementById('pType');
   list.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;len=+b.dataset.l;list.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));});
   types.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;type=b.dataset.t;types.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));});
   document.getElementById('pGo').onclick=()=>{closeSheet();if(type==='draw')startDrawPractice(len||null);else{S.practiceType='read';startPractice(len||null);}};
 }
 function sendSheet(){
-  openSheet(`<h2>Send a squiggle</h2><p>Type any word or name, 3 to 10 letters. We'll trace it and give you a link. They'll see the shape, not the word.</p>
-  <div class="field"><input id="sendWord" maxlength="10" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. tacos, Erin, Oklahoma"></div>
+  openSheet(`<h2>${t('sendTitle')}</h2><p>${t('sendBody')}</p>
+  <div class="field"><input id="sendWord" maxlength="10" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="${t('sendPh')}"></div>
   <svg class="glyph" id="sendPreview" viewBox="-20 -20 1040 340" aria-hidden="true" style="background:var(--bg);border-radius:12px"></svg>
-  <div class="btns"><button class="btn primary" id="sendCopy">${ic('link')}Copy link</button></div>
+  <div class="btns"><button class="btn primary" id="sendCopy">${ic('link')}${t('copyLink')}</button></div>
   <textarea class="share visually-hidden" id="sendBox" rows="2" readonly></textarea>`,true);
   const inp=document.getElementById('sendWord'),pv=document.getElementById('sendPreview'),cp=document.getElementById('sendCopy');
-  const draw=()=>{const w=inp.value.toLowerCase().replace(/[^a-z]/g,'');inp.value=w;pv.innerHTML=lattice()+(w.length>=2?targetGlyph(w,'send:'+w,false,false,false):'');cp.disabled=w.length<3;};
+  const draw=()=>{const w=[...norm(inp.value)].filter(c=>L.alpha.includes(c)).join('');inp.value=w;pv.innerHTML=lattice()+(w.length>=2?targetGlyph(w,'send:'+w,false,false,false):'');cp.disabled=w.length<3;};
   inp.addEventListener('input',draw);draw();inp.focus();
   cp.onclick=()=>{const w=inp.value;if(w.length<3)return;const link=SHARE_URL+'#'+encodeWord(w);document.getElementById('sendBox').value=link;
-    document.getElementById('sendBox').classList.remove('visually-hidden');const msg=`Can you read my squiggle? ${link}`;shareOut(msg).then(ok=>{if(!ok)copy(msg,'sendBox');});};
+    document.getElementById('sendBox').classList.remove('visually-hidden');const msg=t('canYouRead',{link});shareOut(msg).then(ok=>{if(!ok)copy(msg,'sendBox');});};
 }
 el('btnHow').onclick=howSheet; el('btnStats').onclick=statsSheet; el('btnMore').onclick=moreSheet;
 
 /* ---------- Boot ---------- */
 function openLink(h){
-  let m=/^#c-([a-z]{3,10})$/.exec(h||'');
-  if(m){closeSheet();startCustom(decodeWord(m[1]),m[1]);return true;}
-  m=/^#d-([a-z]{3,10})-(\d{1,3})-([A-Za-z0-9_-]{8,})$/.exec(h||'');
-  if(m){const stroke=decStroke(m[3]);if(stroke){closeSheet();startDuel(decodeWord(m[1]),Math.min(100,+m[2]),stroke);return true;}}
+  h=h||'';
+  let m=/^#c-(?:(en|es|pt)-)?([a-z0]{3,10})$/.exec(h);
+  if(m){setLang(m[1]||'en',false);const w=decodeWord(m[2]);if(![...w].every(c=>L.alpha.includes(c)))return false;closeSheet();startCustom(w,m[2]);return true;}
+  m=/^#d-(?:(en|es|pt)-)?([a-z0]{3,10})-(\d{1,3})-([A-Za-z0-9_-]{8,})$/.exec(h);
+  if(m){setLang(m[1]||'en',false);const stroke=decStroke(m[4]);const w=decodeWord(m[2]);if(stroke&&[...w].every(c=>L.alpha.includes(c))){closeSheet();startDuel(w,Math.min(100,+m[3]),stroke);return true;}}
   return false;
 }
 function finishTutorialIfAny(){

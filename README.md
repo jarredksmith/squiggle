@@ -9,7 +9,7 @@ The whole game is one HTML file. It runs as a web page, as a home-screen app, an
 | Path | What it does |
 | --- | --- |
 | `src/squiggle.template.html` | The game. **Edit this**, never `index.html`. |
-| `src/words.txt` | The guess dictionary (32,000 common English words, one per line) |
+| `src/words.txt`, `src/words-es.txt`, `src/words-pt.txt` | Guess dictionaries: 32,000 English, 20,000 Spanish and 20,000 Brazilian Portuguese words, one per line, from the hermitdave/FrequencyWords lists |
 | `scripts/build.mjs` | Builds `index.html` (web + app) and `dist/artifact.html` (for a Claude artifact) from `src/` |
 | `index.html` | The built game. GitHub Pages serves it; the iPhone app bundles it |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Make the web copy installable and playable offline |
@@ -68,3 +68,9 @@ The game's growth engine is the share card and the friend links, so nothing may 
 4. **Never**: pay for extra daily rounds, pay to skip the draw round, or sell anything that changes the day's share line.
 
 Code hooks to add when this starts: an `economy` object in the template holding prices and a `premium` flag read from the store; `hintsSheet` gets a "Get ink" row; `recordDay` becomes the one place an interstitial may fire.
+
+## Languages
+
+English, Spanish and Portuguese ship today. Each language in `LANGS` (top of the template) is a keyboard layout (rows and row offsets, as the iOS keyboard lays them out: Spanish has Ñ on a ten-key middle row), an alphabet, word pools for the daily ladder, a two-word tutorial and a dictionary. Words are stored in their written form and traced through their base keys, so CAFÉ traces C-A-F-E and the reveal still shows the accent; ñ is its own key in Spanish, ç traces through C in Portuguese. UI strings live in `STR`. Friend and duel links carry a language tag (`#c-es-…`) so a Spanish squiggle opens on the Spanish keyboard wherever it lands. The first run picks the device language when it is one of the three; Settings changes it any time, and each language keeps its own daily state.
+
+To add a language: a layout, an alphabet, pools (about 40 words each of 4, 6 and 8 letters), two tutorial words, a strings block, and a `words-xx.txt` wired into `scripts/build.mjs`.
