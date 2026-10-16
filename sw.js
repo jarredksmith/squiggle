@@ -1,6 +1,6 @@
 // Squiggle service worker: keeps the web copy of the game playable offline.
 // Bump VERSION whenever index.html changes so phones pick up the update.
-const VERSION = 'squiggle-v1';
+const VERSION = 'squiggle-v2';
 const SHELL = [
   './',
   './index.html',

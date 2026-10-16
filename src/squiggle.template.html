@@ -101,6 +101,10 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .glyph .lab text{fill:var(--fg);font-family:var(--display);font-weight:700;font-size:44px;text-anchor:middle;dominant-baseline:central}
 .glyph .lab.hit circle{fill:var(--ok);stroke:var(--ok)} .glyph .lab.hit text{fill:var(--onstatus)}
 .glyph.draw{touch-action:none;cursor:crosshair}
+.glyph .rival{fill:none;stroke:var(--near);stroke-width:9;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:18 14;opacity:.9}
+.coach{background:var(--surface);border-left:4px solid var(--ink);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.45;color:var(--fg);box-shadow:var(--shadow);max-width:56ch;margin:0 auto 4px}
+.coach b{color:var(--ink)}
+.cardpreview{width:100%;max-width:260px;height:auto;border-radius:14px;box-shadow:var(--shadow);align-self:center;display:block}
 /* Draw round reads top-down: prompt, canvas, result */
 .app.drawmode .top{order:0} .app.drawmode .rounds{order:1} .app.drawmode .guesses{order:2;min-height:0} .app.drawmode .card{order:3} .app.drawmode .status{order:4} .app.drawmode .kb{order:5}
 .glyph .live,.glyph .stroke{fill:none;stroke:var(--guess);stroke-width:12;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
@@ -472,7 +476,8 @@ function evaluate(guess,target){
 const BASE_GUESSES=4, HARD_GUESSES=3;
 const PRICE={first:10,last:10,letter:15,place:25,extra:[20,35]};
 const START_INK=30, DAY_BONUS=20;
-const S={mode:'daily',day:todayIndex(),round:0,rounds:[],cur:'',practiceLen:null,customCode:null,hard:!!store('sq.hard')};
+const S={mode:'daily',day:todayIndex(),round:0,rounds:[],cur:'',practiceLen:null,customCode:null,hard:!!store('sq.hard'),rival:null,after:null};
+const MODE_LABEL={practice:'Practice',custom:'From a friend',duel:'Duel',tutorial:'Learn'};
 const el=id=>document.getElementById(id);
 
 function makeRound(word){return {type:'read',word,g:[],ev:[],rev:[],placed:false,hard:S.hard,extra:0,done:false,won:false,ink:0};}
@@ -487,7 +492,7 @@ const drawRound=()=>S.rounds.find(isDraw);
 
 function loadDaily(){
   const saved=store('sq.daily.v5');
-  S.mode='daily'; S.day=todayIndex(); S.cur='';
+  S.mode='daily'; S.day=todayIndex(); S.cur=''; S.rival=null;
   if(saved&&saved.day===S.day&&Array.isArray(saved.rounds)&&saved.rounds.length===4){S.rounds=saved.rounds;S.round=Math.min(saved.round,3);}
   else{S.rounds=[...dailyWords(S.day).map(makeRound),makeDraw(dailyDrawWord(S.day))];S.round=0;}
 }
@@ -495,6 +500,7 @@ function saveDaily(){if(S.mode==='daily')store('sq.daily.v5',{day:S.day,round:S.
 
 /* ---------- Ink economy ---------- */
 function inkFor(r){
+  if(S.mode==='tutorial') return 0;
   let base=r.word.length*Math.max(1,BASE_GUESSES+1-r.g.length);
   if(r.hard) base=Math.round(base*1.5);
   if(S.mode!=='daily') base=Math.floor(base/2);
@@ -504,7 +510,18 @@ function addInk(n){const st=getStats();st.ink+=n;if(n>0)st.inkEarned+=n;store('s
 function spend(cost){const st=getStats();if(st.ink<cost)return false;st.ink-=cost;store('sq.stats.v2',st);renderInk(true);return true;}
 function renderInk(pop){const st=getStats();el('inkVal').textContent=st.ink;if(pop){const p=el('inkPill');p.classList.remove('pop');void p.offsetWidth;p.classList.add('pop');}}
 function startPractice(len){S.mode='practice';S.practiceLen=len;S.rounds=[makeRound(randomWord(len))];S.round=0;S.cur='';render();}
-function startCustom(word,code){S.mode='custom';S.customCode=code;S.rounds=[makeRound(word)];S.round=0;S.cur='';render();}
+function startCustom(word,code){S.mode='custom';S.customCode=code;S.rival=null;S.rounds=[makeRound(word)];S.round=0;S.cur='';render();}
+/* Draw duel links carry the challenger's stroke: 48 points quantised to a byte per axis, base64url. */
+function encStroke(pts){const b=new Uint8Array(pts.length*2);pts.forEach((p,i)=>{b[i*2]=Math.max(0,Math.min(255,Math.round((p.x+20)/4.2)));b[i*2+1]=Math.max(0,Math.min(255,Math.round((p.y+20)/1.4)));});let bin='';b.forEach(v=>bin+=String.fromCharCode(v));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function decStroke(str){try{const bin=atob(str.replace(/-/g,'+').replace(/_/g,'/'));const pts=[];for(let i=0;i+1<bin.length;i+=2)pts.push({x:Math.round(bin.charCodeAt(i)*4.2-20),y:Math.round(bin.charCodeAt(i+1)*1.4-20)});return pts.length>=4?pts:null;}catch(e){return null;}}
+function duelLink(r){return SHARE_URL+'#d-'+encodeWord(r.word).slice(2)+'-'+r.acc+'-'+encStroke(r.stroke);}
+function startDuel(word,acc,stroke){S.mode='duel';S.rival={acc,stroke};const r=makeDraw(word);r.hard=false;S.rounds=[r];S.round=0;S.cur='';render();}
+/* Guided first run: two read rounds with a coach line. The first sits on the keys; the second floats like the real game. */
+const TUTORIAL=[
+  {word:'pen',placed:true,coach:'This is the line a finger drew swipe-typing a 3-letter word. The dot is where it landed: on <b>P</b>. It slid left to <b>E</b>, then down to <b>N</b>. Type <b>PEN</b> and press Enter.',coach2:'Green means on the key, amber means next door, grey means cold. Try <b>P E N</b>.'},
+  {word:'cat',placed:false,coach:'Now the real thing. Same idea, but you only see the <b>shape</b>, not where it sat. Slide it around the keyboard in your head: which three keys make this V?',coach2:'Each corner reports how far it landed from the real key. The V opens to the right and the tip is a key on the middle row. Look at the keyboard and try again.'}
+];
+function startTutorial(){S.mode='tutorial';S.rival=null;S.rounds=TUTORIAL.map(t=>{const r=makeRound(t.word);r.hard=false;r.placed=t.placed;r.tut=t;return r;});S.round=0;S.cur='';render();}
 
 /* ---------- Stats ---------- */
 function getStats(){const st=store('sq.stats.v2')||{days:0,perfect:0,streak:0,maxStreak:0,lastDay:null,rounds:0,solved:0,dist:{1:0,2:0,3:0,4:0,5:0,x:0}};
@@ -530,8 +547,9 @@ function renderGlyph(){
 }
 function renderRounds(){
   const host=el('rounds');
-  if(S.mode!=='daily'){host.innerHTML=`<div class="modetag">${S.mode==='practice'?'Practice':'From a friend'} · ${cur().word.length} letters</div><button class="pill" id="backDaily" style="flex:0 0 auto;padding:0 14px"><small>Today's puzzle</small></button>`;
-    el('backDaily').onclick=()=>{loadDaily();render();};return;}
+  if(S.mode!=='daily'){const tag=S.mode==='tutorial'?`Learn · step ${S.round+1} of ${S.rounds.length}`:`${MODE_LABEL[S.mode]||S.mode} · ${cur().word.length} letters`;
+    host.innerHTML=`<div class="modetag">${tag}</div><button class="pill" id="backDaily" style="flex:0 0 auto;padding:0 14px"><small>${S.mode==='tutorial'?'Skip':"Today's puzzle"}</small></button>`;
+    el('backDaily').onclick=()=>{finishTutorialIfAny();loadDaily();render();};return;}
   host.innerHTML=S.rounds.map((r,i)=>{const st=r.done?(r.won?'won':'lost'):(i===S.round?'cur':'');
     if(isDraw(r)){const tag=r.done?`<small>${r.acc}%</small>`:(i===S.round?'<small>now</small>':'');
       return `<button class="pill ${st}" data-i="${i}" aria-label="Round ${i+1}, draw the squiggle">${penIcon()}${tag}</button>`;}
@@ -547,7 +565,7 @@ function renderStatus(msg,err){
     else if(r.done) m.innerHTML=r.won?`Solved in <b>${r.g.length}</b>${r.ink?` · +${r.ink} ink`:''}.`:`The word was <b>${r.word.toUpperCase()}</b>.`;
     else if(limbo(r)) m.innerHTML=`<b>Out of guesses.</b> Buy one more, or reveal.`;
     else m.innerHTML=`<b>${r.word.length} letters</b> · guess ${r.g.length+1} of ${allowed(r)}${r.hard?' · <b>hard</b>':''}`;}
-  hb.hidden=isDraw(r);
+  hb.hidden=isDraw(r)||!!r.tut;
   hb.disabled=r.done;hb.classList.toggle('used',r.rev.length>0||r.placed);
   hb.lastChild.textContent=limbo(r)?'One more?':'Hints';
 }
@@ -556,6 +574,7 @@ function resolveLimbo(r){const price=PRICE.extra[r.extra];if(price!==undefined&&
 function renderGuesses(fresh,shake){
   const r=cur(),n=r.word.length,host=el('guesses');let s='';
   if(isDraw(r)){host.innerHTML=drawPanel(r);return;}
+  if(r.tut&&!r.done){s+=`<div class="coach">${r.g.length?r.tut.coach2:r.tut.coach}</div>`;}
   if(r.rev.length&&!r.done){s+=`<div class="row known" style="--n:${n}" aria-label="Revealed letters">`+Array.from({length:n},(_,i)=>r.rev.includes(i)?`<div class="tile rev">${r.word[i]}</div>`:`<div class="tile slot">·</div>`).join('')+'</div>';}
   for(let gi=0;gi<allowed(r);gi++){
     if(gi<r.g.length){s+=`<div class="row${fresh&&gi===r.g.length-1?' fresh':''}" style="--n:${n}">`+[...r.g[gi]].map((c,i)=>`<div class="tile ${r.ev[gi][i]}" style="--i:${i}">${c}</div>`).join('')+'</div>';}
@@ -605,6 +624,8 @@ window.addEventListener('resize',()=>{if(el('kbtrace'))renderTrace();});
 function renderSub(){
   if(S.mode==='daily'){const d=new Date(EPOCH);d.setDate(d.getDate()+S.day);el('sub').textContent=`#${S.day+1} · ${fmtDate(d)}${S.hard?' · hard':''}`;}
   else if(S.mode==='practice') el('sub').textContent='Practice · as many as you like';
+  else if(S.mode==='duel') el('sub').textContent=`Beat their trace · they scored ${S.rival?S.rival.acc:0}%`;
+  else if(S.mode==='tutorial') el('sub').textContent='Two quick ones to learn the trick';
   else el('sub').textContent='Someone traced this one for you';
 }
 function render(opts){opts=opts||{};el('app').classList.toggle('drawmode',isDraw(cur()));renderSub();renderInk();renderRounds();renderGlyph();renderStatus();renderGuesses(opts.fresh,opts.shake);renderKeyboard();}
@@ -651,7 +672,7 @@ function scoreStroke(raw,word){
   return {acc,hits,dev:Math.round(dev)};
 }
 window.__squiggle={scoreStroke,resampleN,POS};
-function inkForDraw(r){let base=Math.round(r.word.length*2*r.acc/100);if(r.acc>=95)base+=5;if(r.hard)base=Math.round(base*1.5);if(S.mode!=='daily')base=Math.floor(base/2);return base;}
+function inkForDraw(r){if(S.mode==='tutorial')return 0;let base=Math.round(r.word.length*2*r.acc/100);if(r.acc>=95)base+=5;if(r.hard)base=Math.round(base*1.5);if(S.mode!=='daily')base=Math.floor(base/2);return base;}
 function recordDraw(r){const st=getStats();st.traces=(st.traces||0)+1;st.traceSum=(st.traceSum||0)+r.acc;st.traceBest=Math.max(st.traceBest||0,r.acc);store('sq.stats.v2',st);}
 
 const stroke={on:false,pts:[]};
@@ -682,7 +703,9 @@ function finishDraw(r,pts){
   revealDraw(r);
 }
 function drawGlyphMarkup(r,anim){
-  let s=`<path class="stroke" d="${strokePath(r.stroke)}"/>`;
+  let s='';
+  if(S.mode==='duel'&&S.rival&&S.rival.stroke) s+=`<path class="rival" d="${strokePath(S.rival.stroke)}"/>`;
+  s+=`<path class="stroke" d="${strokePath(r.stroke)}"/>`;
   if(r.stroke.length)s+=`<circle class="livestart" cx="${r.stroke[0].x}" cy="${r.stroke[0].y}" r="14"/>`;
   s+=cleanGlyph(r.word,anim);
   r.hits.forEach((h,i)=>{s+=`<circle class="mark ${h.tier}" cx="${h.x}" cy="${h.y}" r="13" style="${anim?`opacity:0;animation:fadein .3s ${(.4+i*.12).toFixed(2)}s forwards`:''}"/>`;});
@@ -819,9 +842,30 @@ function resultSheet(r){
   } else {
     btns=`<button class="btn primary" id="sMake">Make one for them</button><button class="btn" id="sDaily">Today's puzzle</button>`;
   }
+  if(S.mode==='tutorial'){
+    const last=S.round===S.rounds.length-1;
+    title=r.won?(S.round===0?'That\'s the idea.':'You\'re ready.'):(S.round===0?'It was PEN.':'It was CAT.');
+    body=S.round===0?'The squiggle sat right on the keys that time. In the real game you only get the shape, so the next one floats free.':'Three squiggles a day to read, one word to draw. Solving earns ink, ink buys hints. The ⋯ menu has practice, hard mode and a way to send squiggles to friends.';
+    earn='';
+    btns=`<button class="btn primary" id="sTut">${last?(S.after?'Play the one you were sent':'Play today\'s squiggles'):'Next'}</button>`;
+  } else if(S.mode==='duel'&&S.rival){
+    const me=r.acc,them=S.rival.acc;
+    title=me>them?'You win.':me<them?'They win.':'Dead heat.';
+    body=`You traced <b>${r.word.toUpperCase()}</b> at <b>${me}%</b>, they traced it at <b>${them}%</b>. Blue is the real trace, pink is yours, amber is theirs.`;
+    btns=`<button class="btn primary" id="sDuelBack">${ic('share')}Send your trace back</button><button class="btn" id="sDaily">Today's puzzle</button>`;
+  } else if(S.mode==='custom'){
+    title=r.won?'You read it.':'That one got away.';
+    body=r.won?`A friend traced <b>${r.word.toUpperCase()}</b> for you and you got it in ${r.g.length}. Send one back.`:`They traced <b>${r.word.toUpperCase()}</b>. Send one back and even the score.`;
+    btns=`<button class="btn primary" id="sMake">${ic('link')}Send one back</button><button class="btn" id="sDaily">Today's puzzle</button>`;
+  } else if(isDraw(r)&&!r.tut){
+    btns+=`<button class="btn" id="sDuel">${ic('link')}Challenge a friend</button>`;
+  }
   const done=S.mode==='daily'&&S.rounds.every(x=>x.done);
   openSheet(`<h2>${title}</h2><div class="answer">${r.word}</div><p>${body}</p>${earn}${bonus}${done?dayRecap():''}<div class="btns">${btns}</div>`);
   const q=id=>document.getElementById(id);
+  if(q('sTut')) q('sTut').onclick=()=>{closeSheet();if(S.round<S.rounds.length-1){S.round++;S.cur='';render();}else{finishTutorialIfAny();}};
+  if(q('sDuel')) q('sDuel').onclick=()=>{closeSheet();duelSheet(r);};
+  if(q('sDuelBack')) q('sDuelBack').onclick=()=>{closeSheet();duelSheet(r);};
   if(q('sNext')) q('sNext').onclick=()=>{closeSheet();S.round=S.rounds.findIndex(x=>!x.done);S.cur='';render();};
   if(q('sShare')) q('sShare').onclick=()=>{closeSheet();shareSheet();};
   if(q('sPractice')) q('sPractice').onclick=()=>{closeSheet();practiceSheet();};
@@ -844,10 +888,72 @@ function shareText(){
 }
 function shareSheet(){
   const t=shareText();
-  openSheet(`<h2>Share today's trace</h2><textarea class="share" id="shareBox" rows="6" readonly>${esc(t)}</textarea><div class="btns"><button class="btn primary" id="shareNow">${ic('share')}Share</button><button class="btn" id="copyShare">${ic('copy')}Copy</button></div><div class="btns"><button class="btn" id="sPractice2">Practice more</button></div>`);
+  let canvas=null;try{canvas=shareCard();}catch(e){canvas=null;}
+  const img=canvas?`<img class="cardpreview" alt="Share card: today's three squiggles and your results" src="${canvas.toDataURL('image/png')}">`:'';
+  openSheet(`<h2>Share today's trace</h2>${img}<textarea class="share" id="shareBox" rows="5" readonly>${esc(t)}</textarea>
+  <div class="btns">${canvas?`<button class="btn primary" id="shareImg">${ic('share')}Share the picture</button>`:''}<button class="btn${canvas?'':' primary'}" id="shareNow">${ic('share')}Share text</button></div>
+  <div class="btns"><button class="btn" id="copyShare">${ic('copy')}Copy text</button><button class="btn" id="sPractice2">Practice more</button></div>`);
+  if(canvas) document.getElementById('shareImg').onclick=async()=>{const ok=await sharePng(canvas,t);if(!ok){toast('Long-press the picture to save it');}};
   document.getElementById('shareNow').onclick=async()=>{if(!(await shareOut(t)))copy(t,'shareBox');};
   document.getElementById('copyShare').onclick=()=>copy(t,'shareBox');
   document.getElementById('sPractice2').onclick=()=>{closeSheet();practiceSheet();};
+}
+function duelSheet(r){
+  const link=duelLink(r),msg=`I drew ${r.word.toUpperCase()} at ${r.acc}%. Beat my trace: ${link}`;
+  openSheet(`<h2>Beat my trace</h2><p>They get the word <b>${r.word.toUpperCase()}</b>, draw it blind, and see both traces side by side with the real one. Winner is whoever's line runs closer.</p>
+  <svg class="glyph" viewBox="-20 -20 1040 340" aria-hidden="true" style="background:var(--bg);border-radius:12px">${cells(false)}<path class="stroke" d="${strokePath(r.stroke)}"/></svg>
+  <textarea class="share" id="duelBox" rows="3" readonly>${esc(msg)}</textarea>
+  <div class="btns"><button class="btn primary" id="duelShare">${ic('share')}Send the challenge</button><button class="btn" id="duelCopy">${ic('copy')}Copy</button></div>`,true);
+  document.getElementById('duelShare').onclick=async()=>{if(!(await shareOut(msg)))copy(msg,'duelBox');};
+  document.getElementById('duelCopy').onclick=()=>copy(msg,'duelBox');
+}
+/* ---------- Share card: the day's three squiggles as a picture, letters withheld ---------- */
+function roundRect(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();}
+function shareCard(){
+  const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const F=(document.fonts&&document.fonts.check&&document.fonts.check('700 40px Fredoka'))?'Fredoka':'system-ui',B="'Atkinson Hyperlegible',system-ui,sans-serif";
+  const C={bg:'#EDF0F6',card:'#FFFFFF',fg:'#151D33',muted:'#66718C',ink:'#2A3FC9',halo:'rgba(42,63,201,.14)',ok:'#15915F',near:'#DC8E00',cell:'#DFE5F0',miss:'#D9534F'};
+  x.fillStyle=C.bg;x.fillRect(0,0,W,H);
+  x.save();x.translate(60,70);x.scale(2.6,2.6);x.lineWidth=4;x.lineCap='round';x.lineJoin='round';x.strokeStyle=C.ink;x.stroke(new Path2D('M2 16 C8 2, 12 2, 16 10 S24 18, 32 4'));x.restore();
+  x.fillStyle=C.fg;x.font=`700 66px ${F}`;x.fillText(`Squiggle #${S.day+1}`,165,118);
+  const d=new Date(EPOCH);d.setDate(d.getDate()+S.day);
+  x.fillStyle=C.muted;x.font=`400 34px ${B}`;x.fillText(fmtDate(d)+(S.rounds.every(r=>r.hard)?' · hard':''),168,166);
+  const rs=reads(),dr=drawRound(),top=220,gap=24,footer=(dr&&dr.done)?330:210,cardH=(H-top-footer-gap*2)/3;
+  rs.forEach((r,i)=>{
+    const y=top+i*(cardH+gap),cw=W-120;
+    x.fillStyle=C.card;roundRect(x,60,y,cw,cardH,36);x.fill();
+    const gw=cw*0.66,gh=cardH-44,k=Math.min(gw/1040,gh/340);
+    const {pts,loops}=points(r.word,seedFor(r),0.27),b=bbox(pts,loops);
+    x.save();x.translate(60+22+gw/2,y+cardH/2);x.scale(k,k);x.translate(-(b.x0+b.x1)/2,-(b.y0+b.y1)/2);
+    x.lineCap='round';x.lineJoin='round';const p=new Path2D(curve(pts));
+    x.lineWidth=34;x.strokeStyle=C.halo;x.stroke(p);x.lineWidth=15;x.strokeStyle=C.ink;x.stroke(p);
+    loops.forEach(li=>{const q=pts[li];x.beginPath();x.arc(q.x+14,q.y-12,22,0,Math.PI*2);x.lineWidth=11;x.stroke();});
+    if(!r.hard){x.fillStyle=C.ink;x.beginPath();x.arc(pts[0].x,pts[0].y,17,0,Math.PI*2);x.fill();x.lineWidth=13;x.stroke(new Path2D(endChevron(pts)));}
+    x.restore();
+    const cx=60+cw*0.72;
+    x.fillStyle=C.muted;x.font=`700 26px ${B}`;x.fillText(`${r.word.length} LETTERS`,cx,y+60);
+    x.fillStyle=r.won?C.fg:C.miss;x.font=`700 74px ${F}`;x.fillText(r.won?`${r.g.length}/${baseGuesses(r)}`:'✕',cx,y+cardH/2+30);
+    let sx=cx;const sy=y+cardH-66;
+    for(let g=0;g<r.g.length;g++){x.fillStyle=(g===r.g.length-1&&r.won)?C.ok:C.cell;roundRect(x,sx,sy,30,30,7);x.fill();sx+=38;}
+    if(!r.won){x.fillStyle=C.miss;roundRect(x,sx,sy,30,30,7);x.fill();sx+=38;}
+    const hn=r.rev.length+(r.placed?1:0);if(hn){x.fillStyle=C.near;x.font=`700 24px ${B}`;x.fillText('hint'+(hn>1?'s':''),sx+6,sy+24);}
+  });
+  if(dr&&dr.done){const fy=H-270;x.fillStyle=C.card;roundRect(x,60,fy,W-120,110,36);x.fill();
+    x.fillStyle=C.fg;x.font=`700 40px ${F}`;x.fillText(`Drew ${dr.word.toUpperCase()} at ${dr.acc}%`,100,fy+68);
+    let sx=W-60-40-dr.word.length*38;dr.hits.forEach((h,k)=>{x.fillStyle=h.tier==='ok'?C.ok:h.tier==='near'?C.near:C.cell;roundRect(x,sx+k*38,fy+40,30,30,7);x.fill();});}
+  x.fillStyle=C.fg;x.font=`700 46px ${F}`;x.fillText('Can you read them?',60,H-74);
+  x.fillStyle=C.muted;x.font=`400 30px ${B}`;x.textAlign='right';x.fillText(SHARE_URL.replace(/^https?:\/\//,'').replace(/\/$/,''),W-60,H-74);x.textAlign='left';
+  return c;
+}
+function blobToBase64(blob){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(',')[1]);fr.onerror=rej;fr.readAsDataURL(blob);});}
+async function sharePng(canvas,text){
+  const blob=await new Promise(res=>canvas.toBlob(res,'image/png'));if(!blob)return false;
+  if(NATIVE&&NP.Share&&NP.Filesystem){
+    try{const data=await blobToBase64(blob);const f=await NP.Filesystem.writeFile({path:'squiggle-share.png',data,directory:'CACHE'});await NP.Share.share({text,files:[f.uri]});return true;}catch(e){return false;}
+  }
+  if(navigator.canShare&&typeof File==='function'){const file=new File([blob],'squiggle.png',{type:'image/png'});
+    if(navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text});return true;}catch(e){return false;}}}
+  return false;
 }
 function copy(text,boxId){
   const done=()=>toast('Copied');
@@ -938,14 +1044,27 @@ function sendSheet(){
 el('btnHow').onclick=howSheet; el('btnStats').onclick=statsSheet; el('btnMore').onclick=moreSheet;
 
 /* ---------- Boot ---------- */
+function openLink(h){
+  let m=/^#c-([a-z]{3,10})$/.exec(h||'');
+  if(m){closeSheet();startCustom(decodeWord(m[1]),m[1]);return true;}
+  m=/^#d-([a-z]{3,10})-(\d{1,3})-([A-Za-z0-9_-]{8,})$/.exec(h||'');
+  if(m){const stroke=decStroke(m[3]);if(stroke){closeSheet();startDuel(decodeWord(m[1]),Math.min(100,+m[2]),stroke);return true;}}
+  return false;
+}
+function finishTutorialIfAny(){
+  if(S.mode!=='tutorial')return;
+  const after=S.after;S.after=null;
+  if(after&&openLink(after))return;
+  loadDaily();render();
+}
 function start(){
   bindDraw();
-  const m=/^#c-([a-z]{3,10})$/.exec(location.hash||'');
-  if(m){startCustom(decodeWord(m[1]),m[1]);}
-  else{loadDaily();render();}
-  if(!store('sq.seen')){store('sq.seen',1);setTimeout(howSheet,300);}
+  const h=location.hash||'';
+  if(!store('sq.seen')){store('sq.seen',1);S.after=openLinkable(h)?h:null;startTutorial();return;}
+  if(!openLink(h)){loadDaily();render();}
 }
-window.addEventListener('hashchange',()=>{const m=/^#c-([a-z]{3,10})$/.exec(location.hash||'');if(m)startCustom(decodeWord(m[1]),m[1]);});
+function openLinkable(h){return /^#(c|d)-/.test(h||'');}
+window.addEventListener('hashchange',()=>{openLink(location.hash||'');});
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){window.claude.hot.snapshot(()=>({cur:S.cur}));}
 const boot=()=>{start();try{const d=window.claude&&window.claude.hot&&window.claude.hot.data;if(d&&d.cur){S.cur=d.cur;renderGuesses();}}catch(e){}};
 if(window.claude&&window.claude.hot&&window.claude.hot.ready) window.claude.hot.ready(boot); else boot();
