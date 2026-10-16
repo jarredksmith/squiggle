@@ -53,13 +53,14 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html{height:100%}
-body{margin:0;min-height:100%;background:var(--bg);background-image:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);background-attachment:fixed;color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.4;
+/* The document never scrolls (so iOS shows no page indicator); each view scrolls inside itself with hidden indicators. */
+html,body{height:100%;overflow:hidden}
+body{margin:0;background:var(--bg);background-image:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);background-attachment:fixed;color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.4;
   -webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
 .top,.rounds,.card,.status{flex-shrink:0}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.app{max-width:540px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
+.app{max-width:540px;margin:0 auto;height:100%;display:flex;flex-direction:column;overflow:hidden;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   padding-block:10px 12px;gap:10px}
 
@@ -73,10 +74,12 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .app:not(.onhome) .brand svg{width:36px;height:14px}
 .app:not(.onhome) .sub{margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
 .app:not(.onhome) #btnHow,.app:not(.onhome) #btnStats{display:none}
-.game{display:flex;flex-direction:column;gap:10px;flex:1}
+.game{display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.game::-webkit-scrollbar,.home::-webkit-scrollbar{display:none}
 /* Home: logo, date, a few buttons */
-.home{display:flex;flex-direction:column;align-items:center;gap:18px;flex:1;padding-block:8px 10px;position:relative;text-align:center}
-.home .bigmark{width:min(80vw,320px);height:auto;overflow:visible;margin-top:min(6vh,40px)}
+.home{display:flex;flex-direction:column;align-items:center;gap:16px;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-block:4px 6px;position:relative;text-align:center}
+@media (max-height:740px){.home{gap:12px} .home .bigmark{width:min(64vw,250px);margin-top:8px} .home .wordmark{font-size:clamp(38px,11vw,50px)} .mbtn{min-height:58px} .mrow .mbtn{min-height:52px}}
+.home .bigmark{width:min(76vw,300px);height:auto;overflow:visible;margin-top:min(4vh,28px);flex-shrink:0}
 .home .bigmark path{fill:none;stroke:var(--ink);stroke-width:46;stroke-linecap:round;stroke-linejoin:round}
 .home .bigmark circle{fill:var(--guess)}
 .home .wordmark{font-family:var(--display);font-weight:700;font-size:clamp(44px,13vw,60px);letter-spacing:-.02em;line-height:1;background:linear-gradient(135deg,var(--ink),var(--ink2));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -97,7 +100,9 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .mbtn .mi.pink{background:rgba(230,62,149,.14);color:var(--guess)} .mbtn .mi.gold{background:var(--goldsoft);color:var(--near)} .mbtn .mi.mint{background:rgba(22,165,113,.14);color:var(--ok)}
 .mrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mrow .mbtn{min-height:58px;padding:10px 12px;gap:10px} .mrow .mbtn .mt b{font-size:16px}
-.homefoot{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:auto;padding-top:6px}
+.homefoot{display:flex;gap:8px;flex-wrap:nowrap;justify-content:center;margin-top:auto;padding-top:6px;flex-shrink:0}
+.homefoot .chip{height:28px;padding:0 10px;font-size:12px}
+.menu,.hero,.daychip,.wordmark,.tag{flex-shrink:0}
 .chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
 .chip svg{width:14px;height:14px;fill:var(--gold)}
 .chip.link{font-weight:600;color:var(--muted)}
@@ -728,7 +733,7 @@ function goHome(){
   S.view='home';S.cur='';
   el('app').classList.remove('drawmode');el('app').classList.add('onhome');el('game').hidden=true;el('home').hidden=false;el('btnHome').hidden=true;
   renderInk();el('sub').textContent='Daily word trace';
-  renderHome();el('home').scrollIntoView?.({block:'start'});
+  renderHome();el('home').scrollTop=0;
   clearInterval(homeTimer);homeTimer=setInterval(()=>{const c=el('countdown');if(c)c.textContent=untilTomorrow();},30000);
 }
 function untilTomorrow(){const n=new Date(),t=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1);const m=Math.max(0,Math.round((t-n)/60000));const h=Math.floor(m/60);return h?`${h}h ${String(m%60).padStart(2,'0')}m`:`${m}m`;}
@@ -753,7 +758,7 @@ function renderHome(){
     </div>
     <button class="mbtn" id="hSend"><span class="mi pink">${ic('link')}</span><span class="mt"><b>Send a squiggle</b><small>Trace a word or name, text the link</small></span>${chev()}</button>
   </div>
-  <div class="homefoot"><span class="chip">${inkIcon()}${st.ink}</span><span class="chip">🔥 ${st.streak}</span><button class="chip link" id="hStats">Stats</button><button class="chip link" id="hHow">How to play</button><button class="chip link" id="hMore">Settings</button></div>`;
+  <div class="homefoot"><span class="chip">🔥 ${st.streak}</span><button class="chip link" id="hStats">Stats</button><button class="chip link" id="hHow">How to play</button><button class="chip link" id="hMore">Settings</button></div>`;
   const q=id=>document.getElementById(id);
   if(q('hPlay'))q('hPlay').onclick=()=>{sfx('open');S.round=next;S.cur='';render();};
   if(q('hShare'))q('hShare').onclick=()=>shareSheet();
