@@ -64,6 +64,47 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 
 /* Header */
 .top{display:flex;align-items:center;gap:10px}
+.brandbtn{text-align:left;min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+.game{display:flex;flex-direction:column;gap:10px;flex:1}
+/* Home: the day at a glance */
+.home{display:flex;flex-direction:column;gap:14px;flex:1;padding-block:6px 10px}
+.hero{display:flex;flex-direction:column;gap:6px}
+.hero .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.hero h1{font-family:var(--display);font-weight:700;font-size:34px;line-height:1.05;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.hero p{margin:0;color:var(--muted);font-size:15px;max-width:40ch}
+.ladder{display:flex;flex-direction:column;gap:8px}
+.lcard{display:grid;grid-template-columns:1fr 92px;align-items:center;gap:10px;background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:8px 12px 8px 8px;text-align:left;width:100%;border:2px solid transparent}
+.lcard.cur{border-color:var(--ink)}
+.lcard:disabled{opacity:.55;cursor:default}
+.lcard .mini{display:block;width:100%;height:auto;aspect-ratio:1040/340;max-width:100%}
+.lcard .mini .cellrect{fill:var(--cell);stroke:var(--cellline);stroke-width:2}
+.lcard .mini .dot{fill:var(--cellline)}
+.lcard .mini .ink{fill:none;stroke:var(--ink);stroke-width:18;stroke-linecap:round;stroke-linejoin:round}
+.lcard .mini .inkhalo{display:none}
+.lcard .mini .start{fill:var(--ink)} .lcard .mini .end{fill:none;stroke:var(--ink);stroke-width:14;stroke-linecap:round;stroke-linejoin:round} .lcard .mini .loop{fill:none;stroke:var(--ink);stroke-width:12}
+.lcard .mini .clean{fill:none;stroke:var(--ink);stroke-width:12;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+.lcard .mini .lab circle{fill:var(--surface);stroke:var(--ink);stroke-width:6} .lcard .mini .lab text{fill:var(--fg);font-family:var(--display);font-weight:700;font-size:56px;text-anchor:middle;dominant-baseline:central}
+.lcard .mini .lab{animation:none}
+.lcard .mini .stroke{fill:none;stroke:var(--guess);stroke-width:14;stroke-linecap:round;stroke-linejoin:round;opacity:.85} .lcard .mini .livestart{fill:var(--guess)} .lcard .mini .mark{display:none}
+.lcard .side{display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right}
+.lcard .side b{font-family:var(--display);font-weight:700;font-size:22px;line-height:1;font-variant-numeric:tabular-nums}
+.lcard .side small{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.lcard .side .tagx{display:inline-flex;align-items:center;justify-content:center;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:700;background:var(--bg);color:var(--muted)}
+.lcard .side .tagx.won{background:var(--ok);color:var(--onstatus)} .lcard .side .tagx.lost{background:var(--absent);color:var(--onstatus)} .lcard .side .tagx.now{background:var(--ink);color:var(--onaccent)}
+.drawmini{display:grid;place-items:center;height:100%;color:var(--ink)}
+.drawmini svg{width:34px;height:34px}
+.cta{display:flex;flex-direction:column;gap:8px}
+.cta .btn.big{height:56px;font-size:19px;flex:1 1 auto}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile2{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:14px;text-align:left;min-height:96px}
+.tile2 .ic{width:34px;height:34px;border-radius:10px;background:var(--bg);display:grid;place-items:center;color:var(--ink)}
+.tile2 .ic svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.tile2 b{font-family:var(--display);font-weight:600;font-size:16px}
+.tile2 small{color:var(--muted);font-size:12px;line-height:1.35}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.chip svg{width:14px;height:14px;fill:var(--ink)}
+.chip.muted{font-weight:400;color:var(--muted)}
 .brand{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:-.01em;line-height:1;display:flex;align-items:center;gap:8px}
 .brand svg{width:34px;height:20px;overflow:visible}
 .sub{color:var(--muted);font-size:13px;margin-top:3px;font-variant-numeric:tabular-nums}
@@ -106,7 +147,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .coach b{color:var(--ink)}
 .cardpreview{width:100%;max-width:260px;height:auto;border-radius:14px;box-shadow:var(--shadow);align-self:center;display:block}
 /* Draw round reads top-down: prompt, canvas, result */
-.app.drawmode .top{order:0} .app.drawmode .rounds{order:1} .app.drawmode .guesses{order:2;min-height:0} .app.drawmode .card{order:3} .app.drawmode .status{order:4} .app.drawmode .kb{order:5}
+.app.drawmode .rounds{order:1} .app.drawmode .guesses{order:2;min-height:0} .app.drawmode .card{order:3} .app.drawmode .status{order:4} .app.drawmode .kb{order:5}
 .glyph .live,.glyph .stroke{fill:none;stroke:var(--guess);stroke-width:12;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
 .glyph .livestart{fill:var(--guess)}
 @keyframes fadein{to{opacity:1}}
@@ -274,16 +315,20 @@ window.SQUIGGLE_SHARE_URL='https://jarredksmith.github.io/squiggle/';
 <body>
 <!--/STANDALONE--><div class="app" id="app">
   <header class="top">
-    <div class="grow">
+    <button class="iconbtn" id="btnHome" aria-label="Home" hidden><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10"/></svg></button>
+    <button class="grow brandbtn" id="brandBtn" aria-label="Squiggle home">
       <div class="brand"><svg viewBox="0 0 34 20" aria-hidden="true"><path d="M2 16 C8 2, 12 2, 16 10 S24 18, 32 4" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/></svg>Squiggle</div>
       <div class="sub" id="sub"></div>
-    </div>
+    </button>
     <button class="ink" id="inkPill" aria-label="Ink balance, opens hints"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c3.5 4.8 6 8 6 11.5a6 6 0 0 1-12 0c0-3.5 2.5-6.7 6-11.5z"/></svg><span id="inkVal">0</span></button>
     <button class="iconbtn" id="btnHow" aria-label="How to play"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg></button>
     <button class="iconbtn" id="btnStats" aria-label="Statistics"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></button>
     <button class="iconbtn" id="btnMore" aria-label="More: practice and send a squiggle"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/></svg></button>
   </header>
 
+  <section id="home" class="home" hidden></section>
+
+  <div id="game" class="game">
   <nav class="rounds" id="rounds" aria-label="Today's three squiggles"></nav>
 
   <section class="card">
@@ -298,6 +343,7 @@ window.SQUIGGLE_SHARE_URL='https://jarredksmith.github.io/squiggle/';
   <section class="guesses" id="guesses" aria-label="Your guesses"></section>
 
   <section class="kb" id="kb" aria-label="Keyboard"></section>
+  </div>
 </div>
 
 <div id="overlay"></div>
@@ -476,7 +522,7 @@ function evaluate(guess,target){
 const BASE_GUESSES=4, HARD_GUESSES=3;
 const PRICE={first:10,last:10,letter:15,place:25,extra:[20,35]};
 const START_INK=30, DAY_BONUS=20;
-const S={mode:'daily',day:todayIndex(),round:0,rounds:[],cur:'',practiceLen:null,customCode:null,hard:!!store('sq.hard'),rival:null,after:null};
+const S={mode:'daily',day:todayIndex(),round:0,rounds:[],cur:'',practiceLen:null,customCode:null,hard:!!store('sq.hard'),rival:null,after:null,view:'game'};
 const MODE_LABEL={practice:'Practice',custom:'From a friend',duel:'Duel',tutorial:'Learn'};
 const el=id=>document.getElementById(id);
 
@@ -485,7 +531,7 @@ function makeDraw(word){return {type:'draw',word,g:[],ev:[],rev:[],placed:false,
 const isDraw=r=>r&&r.type==='draw';
 function baseGuesses(r){return r.hard?HARD_GUESSES:BASE_GUESSES;}
 function allowed(r){return baseGuesses(r)+r.extra;}
-function setHard(on){S.hard=on;store('sq.hard',on);S.rounds.forEach(r=>{if(!r.done&&r.g.length===0)r.hard=on;});saveDaily();render();}
+function setHard(on){S.hard=on;store('sq.hard',on);S.rounds.forEach(r=>{if(!r.done&&r.g.length===0)r.hard=on;});saveDaily();if(S.view==='home')renderHome();else render();}
 function cur(){return S.rounds[S.round];}
 const reads=()=>S.rounds.filter(r=>!isDraw(r));
 const drawRound=()=>S.rounds.find(isDraw);
@@ -548,8 +594,8 @@ function renderGlyph(){
 function renderRounds(){
   const host=el('rounds');
   if(S.mode!=='daily'){const tag=S.mode==='tutorial'?`Learn · step ${S.round+1} of ${S.rounds.length}`:`${MODE_LABEL[S.mode]||S.mode} · ${cur().word.length} letters`;
-    host.innerHTML=`<div class="modetag">${tag}</div><button class="pill" id="backDaily" style="flex:0 0 auto;padding:0 14px"><small>${S.mode==='tutorial'?'Skip':"Today's puzzle"}</small></button>`;
-    el('backDaily').onclick=()=>{finishTutorialIfAny();loadDaily();render();};return;}
+    host.innerHTML=`<div class="modetag">${tag}</div><button class="pill" id="backDaily" style="flex:0 0 auto;padding:0 14px"><small>${S.mode==='tutorial'?'Skip':'Home'}</small></button>`;
+    el('backDaily').onclick=()=>{if(S.mode==='tutorial'){finishTutorialIfAny();}else goHome();};return;}
   host.innerHTML=S.rounds.map((r,i)=>{const st=r.done?(r.won?'won':'lost'):(i===S.round?'cur':'');
     if(isDraw(r)){const tag=r.done?`<small>${r.acc}%</small>`:(i===S.round?'<small>now</small>':'');
       return `<button class="pill ${st}" data-i="${i}" aria-label="Round ${i+1}, draw the squiggle">${penIcon()}${tag}</button>`;}
@@ -628,7 +674,64 @@ function renderSub(){
   else if(S.mode==='tutorial') el('sub').textContent='Two quick ones to learn the trick';
   else el('sub').textContent='Someone traced this one for you';
 }
-function render(opts){opts=opts||{};el('app').classList.toggle('drawmode',isDraw(cur()));renderSub();renderInk();renderRounds();renderGlyph();renderStatus();renderGuesses(opts.fresh,opts.shake);renderKeyboard();}
+function render(opts){opts=opts||{};showGame();el('app').classList.toggle('drawmode',isDraw(cur()));renderSub();renderInk();renderRounds();renderGlyph();renderStatus();renderGuesses(opts.fresh,opts.shake);renderKeyboard();}
+
+/* ---------- Home ---------- */
+let homeTimer=null;
+function showGame(){S.view='game';el('home').hidden=true;el('game').hidden=false;el('btnHome').hidden=false;clearInterval(homeTimer);homeTimer=null;}
+function goHome(){
+  closeSheet();
+  if(S.mode!=='daily'){if(S.mode==='tutorial'){S.after=null;}loadDaily();}
+  S.view='home';S.cur='';
+  el('app').classList.remove('drawmode');el('game').hidden=true;el('home').hidden=false;el('btnHome').hidden=true;
+  renderInk();el('sub').textContent='Daily word trace';
+  renderHome();
+  clearInterval(homeTimer);homeTimer=setInterval(()=>{const c=el('countdown');if(c)c.textContent=untilTomorrow();},30000);
+}
+function untilTomorrow(){const n=new Date(),t=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1);const m=Math.max(0,Math.round((t-n)/60000));const h=Math.floor(m/60);return h?`${h}h ${String(m%60).padStart(2,'0')}m`:`${m}m`;}
+function miniGlyph(r){
+  if(isDraw(r)){
+    if(r.done) return `<svg class="mini" viewBox="-20 -20 1040 340" aria-hidden="true">${cells(false)}<path class="stroke" d="${strokePath(r.stroke)}"/>${cleanGlyph(r.word,false)}</svg>`;
+    return `<div class="drawmini">${penIcon().replace('width:18px;height:18px','width:34px;height:34px')}</div>`;
+  }
+  if(r.done) return `<svg class="mini" viewBox="-20 -20 1040 340" aria-hidden="true">${cells(false)}${cleanGlyph(r.word,false)}</svg>`;
+  return `<svg class="mini" viewBox="-20 -20 1040 340" aria-hidden="true">${lattice()}${targetGlyph(r.word,seedFor(r),false,r.hard,[])}</svg>`;
+}
+function renderHome(){
+  const st=getStats(),d=new Date(EPOCH);d.setDate(d.getDate()+S.day);
+  const doneN=S.rounds.filter(r=>r.done).length,all=doneN===S.rounds.length,next=S.rounds.findIndex(r=>!r.done);
+  const title=all?'Done for today.':doneN?'Pick up where you left off.':'Today\'s squiggles';
+  const sub=all?`${reads().filter(r=>r.won).length} of 3 read, ${drawRound()&&drawRound().done?drawRound().word.toUpperCase()+' drawn at '+drawRound().acc+'%':'draw skipped'}, ${dayInk()} ink. New squiggles in <b id="countdown">${untilTomorrow()}</b>.`
+    :doneN?`${doneN} of ${S.rounds.length} done. ${isDraw(S.rounds[next])?'The draw round is up next.':`A ${S.rounds[next].word.length}-letter squiggle is up next.`}`
+    :'Three to read, one to draw. Each squiggle is the line a finger drew swipe-typing a word.';
+  const ladder=S.rounds.map((r,i)=>{
+    const playable=r.done||i<=next;
+    let side;
+    if(isDraw(r)) side=r.done?`<b>${r.acc}%</b><small>drawn</small>`:`<span class="tagx${i===next?' now':''}">${i===next?'Next':'Draw'}</span><small>${r.word.length} letters</small>`;
+    else side=r.done?(r.won?`<b>${r.g.length}/${baseGuesses(r)}</b><small>${r.word.length} letters</small>`:`<span class="tagx lost">Missed</span><small>${r.word.length} letters</small>`):`<span class="tagx${i===next?' now':''}">${i===next?'Next':'Locked'}</span><small>${r.word.length} letters</small>`;
+    return `<button class="lcard${i===next?' cur':''}" data-i="${i}" ${playable?'':'disabled'} aria-label="Round ${i+1}">${miniGlyph(r)}<div class="side">${side}</div></button>`;}).join('');
+  const cta=all?`<button class="btn primary big" id="hShare">${ic('share')}Share today</button>`:`<button class="btn primary big" id="hPlay">${doneN?'Continue':'Play'}</button>`;
+  el('home').innerHTML=`
+  <div class="hero"><div class="eyebrow">#${S.day+1} · ${fmtDate(d)}${S.hard?' · hard':''}</div><h1>${title}</h1><p>${sub}</p></div>
+  <div class="ladder">${ladder}</div>
+  <div class="cta">${cta}</div>
+  <div class="tiles">
+    <button class="tile2" id="hPractice"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8a2 2 0 0 0-3-3L5 16z"/><path d="M14 6l3 3"/></svg></span><b>Practice</b><small>Read or draw, any length. Half ink, no streak.</small></button>
+    <button class="tile2" id="hSend"><span class="ic">${ic('link')}</span><b>Send a squiggle</b><small>Trace any word or name and text the link.</small></button>
+    <button class="tile2" id="hDuel"><span class="ic"><svg viewBox="0 0 24 24"><path d="M14 4l6 6-9 9H5v-6z"/><path d="M12 6l6 6"/></svg></span><b>Challenge</b><small>Draw a word, send your trace, see who's closer.</small></button>
+    <button class="tile2" id="hStats"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><b>Your traces</b><small>Streak ${st.streak}, ${st.days} ${st.days===1?'day':'days'} played.</small></button>
+  </div>
+  <div class="chips"><span class="chip">${inkIcon()}${st.ink} ink</span><span class="chip">🔥 ${st.streak} day streak</span>${st.hardDays?'':''}<span class="chip muted">${S.hard?'Hard mode on':'Normal mode'}</span></div>`;
+  el('home').querySelectorAll('.lcard').forEach(b=>b.onclick=()=>{S.round=+b.dataset.i;S.cur='';render();});
+  const q=id=>document.getElementById(id);
+  if(q('hPlay'))q('hPlay').onclick=()=>{S.round=next;S.cur='';render();};
+  if(q('hShare'))q('hShare').onclick=()=>shareSheet();
+  q('hPractice').onclick=()=>practiceSheet();
+  q('hSend').onclick=()=>sendSheet();
+  q('hDuel').onclick=()=>startDrawPractice(6);
+  q('hStats').onclick=()=>statsSheet();
+}
+el('btnHome').onclick=goHome; el('brandBtn').onclick=goHome;
 
 /* ---------- Draw mode: you get the word, you draw its squiggle from memory ---------- */
 function penIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 20l4-1L19 8a2 2 0 0 0-3-3L5 16z"/><path d="M14 6l3 3"/></svg>`;}
@@ -741,7 +844,7 @@ function onKey(k){
 }
 document.addEventListener('keydown',e=>{
   if(e.metaKey||e.ctrlKey||e.altKey) return;
-  if(document.querySelector('.scrim')) return;
+  if(S.view!=='game'||document.querySelector('.scrim')) return;
   if(e.key==='Enter') onKey('enter'); else if(e.key==='Backspace') onKey('back'); else if(/^[a-zA-Z]$/.test(e.key)) onKey(e.key.toLowerCase());
 });
 function submit(){
@@ -808,7 +911,7 @@ function buyHint(k){
   closeSheet();saveDaily();renderGlyph();renderStatus();renderGuesses();renderKeyboard();
 }
 el('btnHints').onclick=()=>{const r=cur();if(limbo(r))resolveLimbo(r);else hintsSheet();};
-el('inkPill').onclick=()=>{const r=cur();if(r.done)statsSheet();else if(limbo(r))resolveLimbo(r);else hintsSheet();};
+el('inkPill').onclick=()=>{const r=cur();if(S.view!=='game'||!r||r.done)statsSheet();else if(limbo(r))resolveLimbo(r);else hintsSheet();};
 
 /* ---------- Reveal + result sheet ---------- */
 function reveal(r){
@@ -836,11 +939,11 @@ function resultSheet(r){
   if(S.mode==='daily'){
     const next=S.rounds.findIndex(x=>!x.done);
     if(next>=0) btns=`<button class="btn primary" id="sNext">${isDraw(S.rounds[next])?'Next: draw one':`Next squiggle · ${S.rounds[next].word.length} letters`}</button>`;
-    else btns=`<button class="btn primary" id="sShare">${ic('share')}Share today</button><button class="btn" id="sPractice">Practice</button>`;
+    else btns=`<button class="btn primary" id="sShare">${ic('share')}Share today</button><button class="btn" id="sHome">Home</button>`;
   } else if(S.mode==='practice'){
-    btns=`<button class="btn primary" id="sAnother">Another one</button><button class="btn" id="sDaily">Today's puzzle</button>`;
+    btns=`<button class="btn primary" id="sAnother">Another one</button><button class="btn" id="sHome">Home</button>`;
   } else {
-    btns=`<button class="btn primary" id="sMake">Make one for them</button><button class="btn" id="sDaily">Today's puzzle</button>`;
+    btns=`<button class="btn primary" id="sMake">Make one for them</button><button class="btn" id="sHome">Home</button>`;
   }
   if(S.mode==='tutorial'){
     const last=S.round===S.rounds.length-1;
@@ -852,11 +955,11 @@ function resultSheet(r){
     const me=r.acc,them=S.rival.acc;
     title=me>them?'You win.':me<them?'They win.':'Dead heat.';
     body=`You traced <b>${r.word.toUpperCase()}</b> at <b>${me}%</b>, they traced it at <b>${them}%</b>. Blue is the real trace, pink is yours, amber is theirs.`;
-    btns=`<button class="btn primary" id="sDuelBack">${ic('share')}Send your trace back</button><button class="btn" id="sDaily">Today's puzzle</button>`;
+    btns=`<button class="btn primary" id="sDuelBack">${ic('share')}Send your trace back</button><button class="btn" id="sHome">Home</button>`;
   } else if(S.mode==='custom'){
     title=r.won?'You read it.':'That one got away.';
     body=r.won?`A friend traced <b>${r.word.toUpperCase()}</b> for you and you got it in ${r.g.length}. Send one back.`:`They traced <b>${r.word.toUpperCase()}</b>. Send one back and even the score.`;
-    btns=`<button class="btn primary" id="sMake">${ic('link')}Send one back</button><button class="btn" id="sDaily">Today's puzzle</button>`;
+    btns=`<button class="btn primary" id="sMake">${ic('link')}Send one back</button><button class="btn" id="sHome">Home</button>`;
   } else if(isDraw(r)&&!r.tut){
     btns+=`<button class="btn" id="sDuel">${ic('link')}Challenge a friend</button>`;
   }
@@ -870,7 +973,7 @@ function resultSheet(r){
   if(q('sShare')) q('sShare').onclick=()=>{closeSheet();shareSheet();};
   if(q('sPractice')) q('sPractice').onclick=()=>{closeSheet();practiceSheet();};
   if(q('sAnother')) q('sAnother').onclick=()=>{closeSheet();if(S.practiceType==='draw')startDrawPractice(S.practiceLen);else startPractice(S.practiceLen);};
-  if(q('sDaily')) q('sDaily').onclick=()=>{closeSheet();loadDaily();render();};
+  if(q('sHome')) q('sHome').onclick=goHome;
   if(q('sMake')) q('sMake').onclick=()=>{closeSheet();sendSheet();};
 }
 function dayRecap(){
@@ -892,11 +995,11 @@ function shareSheet(){
   const img=canvas?`<img class="cardpreview" alt="Share card: today's three squiggles and your results" src="${canvas.toDataURL('image/png')}">`:'';
   openSheet(`<h2>Share today's trace</h2>${img}<textarea class="share" id="shareBox" rows="5" readonly>${esc(t)}</textarea>
   <div class="btns">${canvas?`<button class="btn primary" id="shareImg">${ic('share')}Share the picture</button>`:''}<button class="btn${canvas?'':' primary'}" id="shareNow">${ic('share')}Share text</button></div>
-  <div class="btns"><button class="btn" id="copyShare">${ic('copy')}Copy text</button><button class="btn" id="sPractice2">Practice more</button></div>`);
+  <div class="btns"><button class="btn" id="copyShare">${ic('copy')}Copy text</button><button class="btn" id="sHome2">Home</button></div>`);
   if(canvas) document.getElementById('shareImg').onclick=async()=>{const ok=await sharePng(canvas,t);if(!ok){toast('Long-press the picture to save it');}};
   document.getElementById('shareNow').onclick=async()=>{if(!(await shareOut(t)))copy(t,'shareBox');};
   document.getElementById('copyShare').onclick=()=>copy(t,'shareBox');
-  document.getElementById('sPractice2').onclick=()=>{closeSheet();practiceSheet();};
+  document.getElementById('sHome2').onclick=goHome;
 }
 function duelSheet(r){
   const link=duelLink(r),msg=`I drew ${r.word.toUpperCase()} at ${r.acc}%. Beat my trace: ${link}`;
@@ -1055,13 +1158,13 @@ function finishTutorialIfAny(){
   if(S.mode!=='tutorial')return;
   const after=S.after;S.after=null;
   if(after&&openLink(after))return;
-  loadDaily();render();
+  loadDaily();goHome();
 }
 function start(){
   bindDraw();
   const h=location.hash||'';
   if(!store('sq.seen')){store('sq.seen',1);S.after=openLinkable(h)?h:null;startTutorial();return;}
-  if(!openLink(h)){loadDaily();render();}
+  if(!openLink(h)){loadDaily();goHome();}
 }
 function openLinkable(h){return /^#(c|d)-/.test(h||'');}
 window.addEventListener('hashchange',()=>{openLink(location.hash||'');});
