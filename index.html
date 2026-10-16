@@ -70,14 +70,14 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 /* In play the header is a toolbar: mark + date only, so the ink pill and icons never crowd the wordmark */
 .app:not(.onhome) .brand .wm{display:none}
 .app:not(.onhome) .brandbtn{flex-direction:row;align-items:center;gap:8px}
-.app:not(.onhome) .brand svg{width:30px;height:18px}
+.app:not(.onhome) .brand svg{width:36px;height:14px}
 .app:not(.onhome) .sub{margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
 .app:not(.onhome) #btnHow,.app:not(.onhome) #btnStats{display:none}
 .game{display:flex;flex-direction:column;gap:10px;flex:1}
 /* Home: logo, date, a few buttons */
 .home{display:flex;flex-direction:column;align-items:center;gap:18px;flex:1;padding-block:8px 10px;position:relative;text-align:center}
-.home .bigmark{width:min(78vw,300px);height:auto;overflow:visible;margin-top:min(5vh,34px)}
-.home .bigmark path{fill:none;stroke:var(--ink);stroke-width:4.6;stroke-linecap:round;stroke-linejoin:round}
+.home .bigmark{width:min(80vw,320px);height:auto;overflow:visible;margin-top:min(6vh,40px)}
+.home .bigmark path{fill:none;stroke:var(--ink);stroke-width:46;stroke-linecap:round;stroke-linejoin:round}
 .home .bigmark circle{fill:var(--guess)}
 .home .wordmark{font-family:var(--display);font-weight:700;font-size:clamp(44px,13vw,60px);letter-spacing:-.02em;line-height:1;background:linear-gradient(135deg,var(--ink),var(--ink2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .home .tag{color:var(--muted);font-size:15px;margin-top:-10px}
@@ -103,7 +103,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .chip.link{font-weight:600;color:var(--muted)}
 .lcard,.lcard .mini{display:none}
 .brand{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:-.01em;line-height:1;display:flex;align-items:center;gap:8px}
-.brand svg{width:34px;height:20px;overflow:visible}
+.brand svg{width:40px;height:16px;overflow:visible}
 .sub{color:var(--muted);font-size:13px;margin-top:3px;font-variant-numeric:tabular-nums}
 .top .grow{flex:1;min-width:0}
 .iconbtn{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--surface);box-shadow:var(--shadow)}
@@ -323,7 +323,7 @@ window.SQUIGGLE_SHARE_URL='https://jarredksmith.github.io/squiggle/';
   <header class="top">
     <button class="iconbtn" id="btnHome" aria-label="Home" hidden><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10"/></svg></button>
     <button class="grow brandbtn" id="brandBtn" aria-label="Squiggle home">
-      <div class="brand"><svg viewBox="0 0 34 20" aria-hidden="true"><path d="M2 16 C8 2, 12 2, 16 10 S24 18, 32 4" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/></svg><span class="wm">Squiggle</span></div>
+      <div class="brand"><svg viewBox="40 40 900 320" aria-hidden="true"><g fill="none" stroke="var(--ink)" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"><path d="M80 300 C230 60, 330 60, 480 210 S730 360, 880 120"/><path d="M890.4 193.3 L880 120 L809.6 142.7"/></g><circle cx="80" cy="300" r="28" fill="var(--guess)"/></svg><span class="wm">Squiggle</span></div>
       <div class="sub" id="sub"></div>
     </button>
     <button class="ink" id="inkPill" aria-label="Ink balance, opens hints"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c3.5 4.8 6 8 6 11.5a6 6 0 0 1-12 0c0-3.5 2.5-6.7 6-11.5z"/></svg><span id="inkVal">0</span></button>
@@ -491,7 +491,7 @@ function curve(pts){
 function endChevron(pts){
   if(pts.length<2) return '';
   const a=pts[pts.length-2],b=pts[pts.length-1];
-  const ang=Math.atan2(b.y-a.y,b.x-a.x),L=30,w=Math.PI*0.78;
+  const ang=Math.atan2(b.y-a.y,b.x-a.x),L=30,w=0.7;
   const p1={x:b.x-L*Math.cos(ang-w),y:b.y-L*Math.sin(ang-w)},p2={x:b.x-L*Math.cos(ang+w),y:b.y-L*Math.sin(ang+w)};
   const f=n=>Math.round(n*10)/10;
   return `M${f(p1.x)} ${f(p1.y)}L${f(b.x)} ${f(b.y)}L${f(p2.x)} ${f(p2.y)}`;
@@ -741,7 +741,7 @@ function renderHome(){
        <button class="mbtn" id="hReview"><span class="mi"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></span><span class="mt"><b>Review today</b><small>See the traces and your guesses</small></span>${chev()}</button>`
     :`<button class="mbtn primary" id="hPlay"><span class="mi"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span><span class="mt"><b>${doneN?'Continue':'Play'}</b><small>${doneN?`${S.rounds.length-doneN} to go · ${isDraw(S.rounds[next])?'draw round next':S.rounds[next].word.length+'-letter squiggle next'}`:'Three to read, one to draw'}</small></span>${chev()}</button>`;
   el('home').innerHTML=`
-  <svg class="bigmark" viewBox="-2 -4 38 28" aria-hidden="true"><path d="M2 16 C8 2, 12 2, 16 10 S24 18, 32 4"/><circle cx="2" cy="16" r="2.4"/></svg>
+  <svg class="bigmark" viewBox="30 40 920 320" aria-hidden="true"><path d="M80 300 C230 60, 330 60, 480 210 S730 360, 880 120"/><path d="M890.4 193.3 L880 120 L809.6 142.7"/><circle cx="80" cy="300" r="26"/></svg>
   <div class="wordmark">Squiggle</div>
   <div class="tag">Daily word trace</div>
   <div class="daychip">${chip}</div>
@@ -1054,7 +1054,7 @@ function shareCard(){
   const F=(document.fonts&&document.fonts.check&&document.fonts.check('700 40px Fredoka'))?'Fredoka':'system-ui',B="'Atkinson Hyperlegible',system-ui,sans-serif";
   const C={bg:'#EDF0F6',card:'#FFFFFF',fg:'#151D33',muted:'#66718C',ink:'#2A3FC9',halo:'rgba(42,63,201,.14)',ok:'#15915F',near:'#DC8E00',cell:'#DFE5F0',miss:'#D9534F'};
   x.fillStyle=C.bg;x.fillRect(0,0,W,H);
-  x.save();x.translate(60,70);x.scale(2.6,2.6);x.lineWidth=4;x.lineCap='round';x.lineJoin='round';x.strokeStyle=C.ink;x.stroke(new Path2D('M2 16 C8 2, 12 2, 16 10 S24 18, 32 4'));x.restore();
+  x.save();x.translate(56,78);x.scale(0.1,0.1);x.lineWidth=52;x.lineCap='round';x.lineJoin='round';x.strokeStyle=C.ink;x.stroke(new Path2D('M80 300 C230 60, 330 60, 480 210 S730 360, 880 120'));x.stroke(new Path2D('M890.4 193.3 L880 120 L809.6 142.7'));x.fillStyle='#E63E95';x.beginPath();x.arc(80,300,28,0,Math.PI*2);x.fill();x.restore();
   x.fillStyle=C.fg;x.font=`700 66px ${F}`;x.fillText(`Squiggle #${S.day+1}`,165,118);
   const d=new Date(EPOCH);d.setDate(d.getDate()+S.day);
   x.fillStyle=C.muted;x.font=`400 34px ${B}`;x.fillText(fmtDate(d)+(S.rounds.every(r=>r.hard)?' · hard':''),168,166);
