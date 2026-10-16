@@ -128,7 +128,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 
 /* Glyph card */
 .card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px}
-.glyph{display:block;width:100%;height:auto;aspect-ratio:1040/340;max-width:100%}
+.glyph{display:block;width:100%;height:auto;aspect-ratio:1040/340;max-width:100%;overflow:visible}
 .glyph .cellrect{fill:var(--cell);stroke:var(--cellline);stroke-width:2}
 .glyph .ghost{fill:var(--muted);font-family:var(--display);font-weight:600;font-size:40px;text-anchor:middle;dominant-baseline:central;opacity:.55}
 .glyph .ink{fill:none;stroke:var(--ink);stroke-width:15;stroke-linecap:round;stroke-linejoin:round}
@@ -136,9 +136,12 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .glyph .start{fill:var(--ink)}
 .glyph .end{fill:none;stroke:var(--ink);stroke-width:13;stroke-linecap:round;stroke-linejoin:round}
 .glyph .loop{fill:none;stroke:var(--ink);stroke-width:11;stroke-linecap:round}
-.glyph .gpath{fill:none;stroke:var(--guess);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:14 12;opacity:.9}
 .glyph .mark{stroke:var(--surface);stroke-width:4}
 .glyph .mark.ok{fill:var(--ok)} .glyph .mark.near{fill:var(--near)} .glyph .mark.no{fill:var(--absent)}
+.glyph .pin circle,.glyph .pin rect{stroke:var(--surface);stroke-width:5}
+.glyph .pin.ok circle,.glyph .pin.ok rect{fill:var(--ok)} .glyph .pin.near circle,.glyph .pin.near rect{fill:var(--near)}
+.glyph .pin text{fill:var(--onstatus);font-family:var(--display);font-weight:700;font-size:38px;text-anchor:middle;dominant-baseline:central}
+.glyph .pin.anim{transform-box:fill-box;transform-origin:center;animation:pop .36s cubic-bezier(.2,1.4,.4,1) both}
 .glyph .clean{fill:none;stroke:var(--ink);stroke-width:9;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
 .glyph .lab circle{fill:var(--surface);stroke:var(--ink);stroke-width:5}
 .glyph .lab text{fill:var(--fg);font-family:var(--display);font-weight:700;font-size:44px;text-anchor:middle;dominant-baseline:central}
@@ -168,14 +171,12 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .minilist.two{grid-template-columns:1fr 1fr} .minilist.two button{font-size:14px}
 .minilist.three{grid-template-columns:1fr 1fr 1fr} .minilist.three button{font-size:14px}
 .stats.three{grid-template-columns:repeat(3,1fr)}
-.glyph .firstmark{fill:none;stroke:var(--near);stroke-width:6;stroke-dasharray:10 8}
-.glyph .firstlab{fill:var(--near);font-family:var(--display);font-weight:700;font-size:40px;text-anchor:middle;dominant-baseline:central}
 .glyph .dot{fill:var(--cellline)}
 @keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 .glyph .lab{transform-box:fill-box;transform-origin:center;animation:pop .32s cubic-bezier(.2,1.4,.4,1) both}
 @keyframes draw{to{stroke-dashoffset:0}}
 .glyph .clean.anim{stroke-dasharray:4000;stroke-dashoffset:4000;animation:draw 1.1s ease-out forwards}
-@media (prefers-reduced-motion: reduce){.glyph .lab,.glyph .clean.anim{animation:none;stroke-dashoffset:0}}
+@media (prefers-reduced-motion: reduce){.glyph .lab,.glyph .pin.anim,.glyph .clean.anim{animation:none;stroke-dashoffset:0}}
 
 /* Status + hints */
 .status{display:flex;align-items:center;gap:8px;min-height:36px}
@@ -208,6 +209,8 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .kbtrace .tr{fill:none;stroke:var(--guess);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
 .kbtrace .trloop{fill:none;stroke:var(--guess);stroke-width:4;opacity:.9}
 .kbtrace .trstart{fill:var(--guess)}
+/* After a guess lands, its trace stays on the keys, faded, until the next one starts: that is the honest frame to compare shapes in */
+.kbtrace.last{opacity:.45} .kbtrace.last .tr{stroke-dasharray:8 7}
 .key.near::after{content:"";position:absolute;inset:-3px;border-radius:12px;border:3px solid var(--near)}
 .kbrow{display:flex;gap:5px;justify-content:center}
 .kbrow.r1{padding:0 calc(5% + 2px)} .kbrow.r2{padding:0 calc(15% + 2px)}
@@ -439,23 +442,23 @@ const LANGS={
     week:[['word','finger','keyboard'],['jump','spiral','squiggle'],['flow','puzzle','shortcut'],['maze','sketch','treasure'],['knot','doodle','mountain'],['path','zigzag','football'],['quiz','rhythm','notebook']],
     drawWeek:['planet','guitar','rocket','castle','bridge','garden','pillow'],
     tutorial:[{word:'pen',placed:true},{word:'cat',placed:false}],
-    pool:{4:'home fire moon lamp rope bird frog kite wave rock sand leaf tree bell drum pond snow gold milk wolf bear deer fish ship rain wind star lake road hill barn farm cake soup corn rice pear plum lime salt mint jazz folk ball bike boat coin ring glow dusk dawn echo zone hero king lion duck goat crab hawk swan iron wool silk clay'.split(' '),
-      6:'bridge castle garden forest meadow island planet rocket candle mirror window pillow jacket button zipper pocket ladder hammer anchor pencil marker crayon canvas violin guitar breeze frozen summer winter autumn spring sunset tunnel harbor desert jungle canyon saddle rabbit badger beaver turtle lizard monkey parrot pigeon salmon shrimp walnut peanut cherry banana orange tomato potato carrot pepper butter cheese cookie muffin waffle coffee pickle thread needle basket bucket shovel helmet magnet marble puddle'.split(' '),
-      8:'backpack umbrella sandwich elephant kangaroo scorpion hedgehog squirrel reindeer flamingo pancakes popsicle lollipop cupcakes lemonade broccoli zucchini mushroom cucumber eggplant hazelnut cinnamon backyard driveway sidewalk campfire sailboat airplane elevator snowball rainbows sunshine starfish seashell seahorse dolphins whistles whiskers scissors password lanterns necklace bracelet calendar envelope magazine birdcage hammocks blizzard'.split(' ')},
+    pool:{4:'home fire moon lamp rope bird frog kite wave rock sand leaf tree bell drum pond snow gold milk wolf bear deer fish ship rain wind star lake road hill barn farm cake soup corn rice pear plum lime salt mint jazz folk ball bike boat coin ring glow dusk dawn echo zone hero king lion duck goat crab hawk swan iron wool silk clay door desk sofa wall roof gate yard path park pool sail mast deck port dock cave peak moss fern vine seed root bark twig nest wing claw tail fang horn hoof mane bull calf lamb foal colt mule pony toad newt slug worm moth wasp flea crow dove wren lark gull seal orca tuna carp clam tide reef surf foam mist haze hail gust heat book page word song tune note hymn poem tale myth joke game card yarn knit sock shoe boot coat cape belt vest gown robe mask ruby opal jade taco loaf tart bean leek beet date kiwi pork beef veal tofu kale oats chip cola soda hand foot knee heel nose chin brow skin bone neck back palm hair lock cord plug wire bulb fuse bowl dish fork oven sink rake hose cart tire axle gear bolt nail tape glue clip hook bait reel wood mesa dune cove isle gulf moor glen vale lava dust soil city town camp fort mill mine pier quay cafe shop mall bank lynx puma mole vole hare boar bass hake sole year week hour noon gift wish luck love hope calm show film play jump walk swim dive ride hike race goal team club band cozy warm cool dark bold soft tiny huge wide tall deep fast slow blue pink gray teal navy harp oboe lute tuba rust sage'.split(' '),
+      6:'bridge castle garden forest meadow island planet rocket candle mirror window pillow jacket button zipper pocket ladder hammer anchor pencil marker crayon canvas violin guitar breeze frozen summer winter autumn spring sunset tunnel harbor desert jungle canyon saddle rabbit badger beaver turtle lizard monkey parrot pigeon salmon shrimp walnut peanut cherry banana orange tomato potato carrot pepper butter cheese cookie muffin waffle coffee pickle thread needle basket bucket shovel helmet magnet marble puddle bottle carpet closet drawer kettle teapot saucer napkin wrench trowel chisel mallet ribbon sandal donkey gopher ferret weasel walrus jaguar cougar bobcat coyote iguana python toucan falcon magpie osprey condor hornet beetle cicada spider mantis dragon almond cashew raisin squash turnip radish garlic celery lentil quinoa noodle pastry cereal yogurt omelet burger hotdog toffee sorbet gelato mousse eclair valley temple palace chapel church school office market bakery museum cinema arcade studio gazebo shower cloudy meteor nebula galaxy stream lagoon geyser pebble cymbal fiddle anthem ballad melody rhythm chorus subway glider engine doctor farmer sailor artist writer singer dancer knight wizard pirate cowboy jester squire finger tongue throat beanie bonnet hoodie blouse collar sleeve buckle wallet mitten fridge heater faucet toilet cellar garage pantry riddle secret ticket coupon letter number symbol signal target trophy banner poster bright golden silver purple yellow violet smooth gentle little clever fluffy sticky frosty breezy wander gather listen giggle tickle sprint bounce wobble dinner supper picnic brunch nugget wreath tinsel oyster mussel scampi grater laptop camera remote switch outlet locket brooch amulet kitten piglet teacup goblet'.split(' '),
+      8:'backpack umbrella sandwich elephant kangaroo scorpion hedgehog squirrel reindeer flamingo pancakes popsicle lollipop cupcakes lemonade broccoli zucchini mushroom cucumber eggplant hazelnut cinnamon backyard driveway sidewalk campfire sailboat airplane elevator snowball rainbows sunshine starfish seashell seahorse dolphins whistles whiskers scissors password lanterns necklace bracelet calendar envelope magazine birdcage hammocks blizzard antelope tortoise platypus pangolin mongoose chipmunk parakeet cockatoo lovebird songbird bullfrog mackerel sturgeon barnacle stingray goldfish starling bluebird cardinal pheasant hamsters pelicans penguins dinosaur meatball meatloaf macaroni dumpling doughnut porridge coleslaw pastrami rosemary tarragon cardamom licorice marzipan tiramisu smoothie espresso molasses chestnut gumdrops caramels pumpkins avocados apricots plantain tamarind mulberry cornmeal lakeside hillside seashore woodland farmland riverbed sandbank mainland moorland vineyard campsite fishpond bathroom basement stairway doorbell doorstep fireside workshop windmill railroad carriage fountain pavilion treeline keychain lipstick headband bandanna raincoat overcoat cardigan sneakers slippers earmuffs wardrobe bookcase armchair mattress clarinet trombone bagpipes mandolin tricycle monorail snowshoe snowplow sunlight moonbeam daybreak twilight raindrop heatwave asteroid universe engineer sculptor musician magician champion explorer inventor gardener shepherd merchant reporter designer director birthday balloons carnival festival vacation daydream cheerful peaceful graceful colorful delicate charming dazzling thankful friendly splendid spyglass doorknob yearbook textbook cookbook handbook passport suitcase teaspoon saucepan colander stockpot eggshell baseball softball handball kickball swimming climbing paddling sledding lavender marigold daffodil bluebell primrose hyacinth snowdrop'.split(' ')},
     dict:"__VALID__"},
   es:{name:'Español',locale:'es',rows:['qwertyuiop','asdfghjklñ','zxcvbnm'],off:[0,0,1.5],alpha:'abcdefghijklmnopqrstuvwxyzñ',
     week:null,drawWeek:null,
     tutorial:[{word:'pan',placed:true},{word:'sol',placed:false}],
-    pool:{4:'casa vida agua mano cara cama café ropa boca baño aire foto pelo mesa cena caja luna rosa lago isla gato pato nube miel vino risa nido lobo rama hoja piso tren rayo remo sapo toro vaca mapa pino puma sofá niño año'.split(' '),
-      6:'tiempo hombre dinero mañana nombre camino puerta semana ciudad equipo tierra cuerpo fiesta comida música tienda centro blanco bonito fuerza futuro pueblo cuarto planta jardín bosque cocina zapato camisa cabeza abuelo tomate pájaro piedra verano sábado espejo puente ventas cuento sueños'.split(' '),
-      8:'problema personas historia teléfono pregunta hospital película palabras programa edificio estación estrella hermanos animales cuchillo universo proyecto invierno elefante mariposa sombrero ventanas caballos camiseta aventura princesa ciudades semillas escalera guitarra paraguas'.split(' ')},
+    pool:{4:'casa vida agua mano cara cama café ropa boca baño aire foto pelo mesa cena caja luna rosa lago isla gato pato nube miel vino risa nido lobo rama hoja piso tren rayo remo sapo toro vaca mapa pino puma sofá niño pera piña lima kiwi coco mora taza vaso olla pala bota seda lana cuna cubo bola dado tiza nota pico rana foca mono dedo codo beso ruta muro hilo humo duna roca loma cima pozo lodo sopa atún jugo nata cera flor raíz lila lazo faro boya nave tubo tapa moto auto bici taxi vela palo bate meta copa cosa idea tema arte cine rima coro tono'.split(' '),
+      6:'tiempo hombre dinero mañana nombre camino puerta semana ciudad equipo tierra cuerpo fiesta comida música tienda centro blanco bonito fuerza futuro pueblo cuarto planta jardín bosque cocina zapato camisa cabeza abuelo tomate pájaro piedra verano sábado espejo puente ventas cuento sueños mantel toalla champú espuma sillón cuadro conejo jirafa paloma águila delfín iguana sandía cereza pepino patata pastel helado azúcar harina aceite teatro parque volcán océano laguna colina tijera maleta guante abrigo lluvia viento trueno cometa médico doctor piloto pintor músico pirata grande rápido amable alegre fuerte oscuro regalo abrazo pelota muñeca boleto moneda número imagen tesoro velero molino'.split(' '),
+      8:'problema personas historia teléfono pregunta hospital película palabras programa edificio estación estrella hermanos animales cuchillo universo proyecto invierno elefante mariposa sombrero ventanas caballos camiseta aventura princesa ciudades semillas escalera guitarra paraguas cangrejo pimiento desierto cocinero caliente montañas cuaderno almohada calabaza pirámide volcanes tormenta chimenea farmacia jardines campeona diamante libélula hormigas pingüino ardillas ballenas calcetín pantalón chaqueta cinturón trompeta tambores sinfonía orquesta bailarín cantante escritor misterio sorpresa tristeza mediodía amanecer arcoíris catarata planetas satélite camiones vehículo gasolina gimnasio castillo catedral carnaval festival sándwich tortilla empanada ensalada caramelo merienda desayuno almuerzo galletas refresco limonada'.split(' ')},
     dict:"__VALID_ES__"},
   pt:{name:'Português',locale:'pt-BR',rows:['qwertyuiop','asdfghjkl','zxcvbnm'],off:[0,0.5,1.5],alpha:'abcdefghijklmnopqrstuvwxyz',
     week:null,drawWeek:null,
     tutorial:[{word:'pão',placed:true},{word:'sol',placed:false}],
-    pool:{4:'casa vida água mesa café cama boca foto bebê jogo fogo sala loja chão olho nome medo amor rosa lago gato pato lobo rato sapo vaca bolo mapa pipa cubo rede faca sofá ilha nave vela moto'.split(' '),
-      6:'cidade cabeça amigos mulher garota pessoa semana quarto escola guerra música número equipe comida médico cabelo futuro viagem espaço menino menina doutor janela sapato camisa tomate abelha árvore jardim sábado banana cavalo girafa baleia bonito cinema dentro'.split(' '),
-      8:'trabalho dinheiro problema primeiro história crianças mulheres telefone pergunta hospital palavras mensagem programa surpresa resposta conversa notícias cachorro floresta montanha estrelas vermelho natureza universo caminhão detalhes paciente parceiro elefante aventura princesa guitarra presente girassol'.split(' ')},
+    pool:{4:'casa vida água mesa café cama boca foto bebê jogo fogo sala loja chão olho nome medo amor rosa lago gato pato lobo rato sapo vaca bolo mapa pipa cubo rede faca sofá ilha nave vela moto pera maçã coco figo bife sopa suco copo vaso pote lata saco bola dado pena cola fita laço bota meia luva saia boné capa onda duna neve gelo raiz flor erva mato lama poço dedo pele osso urso leão foca galo bode mula onça tatu anta muro vila cais pico vale mata roda pneu remo trem táxi bote hora time meta copa belo alto raro rico novo doce frio seco caju'.split(' '),
+      6:'cidade cabeça amigos mulher garota pessoa semana quarto escola guerra música número equipe comida médico cabelo futuro viagem espaço menino menina doutor janela sapato camisa tomate abelha árvore jardim sábado banana cavalo girafa baleia bonito cinema dentro tucano xícara panela colher toalha tapete quadro escada cereja goiaba batata cebola alface feijão farofa pastel queijo pipoca açúcar coelho macaco jacaré coruja ovelha aranha vulcão oceano igreja teatro parque agulha óculos chapéu casaco trovão cometa pintor piloto pirata rainha grande rápido gentil alegre quente escuro abraço boneca peteca imagem canção almoço gorila câmera cantor enorme'.split(' '),
+      8:'trabalho dinheiro problema primeiro história crianças mulheres telefone pergunta hospital palavras mensagem programa surpresa resposta conversa notícias cachorro floresta montanha estrelas vermelho natureza universo caminhão detalhes paciente parceiro elefante aventura princesa guitarra presente girassol banheiro biscoito golfinho papagaio borracha carteira mandioca melancia macarrão limonada leopardo capivara tamanduá formigas farmácia academia catedral pirâmide nascente nevoeiro trovoada planetas satélite foguetes lanterna cobertor almofada pulseira chaveiro chinelos sandália camiseta uniforme capacete trompete saxofone pandeiro bombeiro policial dentista escritor carteiro festival carnaval mistério fogueira patinete triciclo carrinho maratona capoeira basquete colorido delicado'.split(' ')},
     dict:"__VALID_PT__"}
 };
 let LANG='en',L=LANGS.en,ROWS=L.rows,OFF=L.off,POS={},DICT=new Map(),PREF_LANG='en';
@@ -500,8 +503,8 @@ const STR={en:{
   canRead:'Can you read them?',lettersUp:'{n} LETTERS',drew:'Drew {w} at {a}%',
   howTitle:'How to play',how1:'Each squiggle is the line a finger draws when it <b>swipe-types a word</b> on a phone keyboard. The dot is where the finger lands; the arrowhead is where it lifts.',how2:"You see the shape at <b>true size</b> but not where it sat. A sweep that's five keys wide on the keyboard below is five keys wide here. Slide it around the keyboard in your head until the corners land on letters that make a word.",how3:'Type a word of the right length. As you type, your trace draws across the keys in pink, so you can compare its shape to the squiggle before you commit.',how4:'Feedback is <b>distance, not letters</b>. Each corner of your guess reports how far it landed from the real key. Nothing tells you whether a letter is "in the word somewhere". Only the shape does.',how5:"<b>Round four flips it.</b> You get the word and draw its squiggle from memory, one stroke on the blank keys. You're scored on how close your line runs to the real trace.",howP1:'Three squiggles to read (4, 6 and 8 letters, <b>four guesses</b> each) and one to draw. Solving earns <b>ink</b>: more for longer words and fewer guesses, 1.5× on hard, plus a bonus for finishing the day.',howP2:'Ink buys hints (first letter, last letter, a middle letter, or <b>Place it</b>, which drops the squiggle onto the real keys) and one more guess when you run out. Hints show on your share.',howP3:'<b>Hard mode</b> (in Settings): three guesses, no start or end marker, and Place it is locked.',startTracing:'Start tracing',legendOn:'On the key',legendNear:'Next door (a touching key)',legendCold:'Cold',
   statsTitle:'Your traces',inkAll:'{n} ink earned all time',days:'Days',solvePct:'Solve %',streakL:'Streak',best:'Best',guessesPer:'Guesses per squiggle',drawnTitle:'Drawn squiggles',traces:'Traces',avg:'Avg %',bestPct:'Best %',perfectDays:'{n} perfect {dw} (all three read). Streak counts days you finished the ladder, draw included.',day1:'day',dayN:'days',
-  settingsTitle:'Settings',settingsBody:'Practice from the word pool, trace a word for a friend, or change how the game plays.',appearance:'Appearance',system:'System',light:'Light',dark:'Dark',language:'Language',sound:'Sound',soundD:'Taps, reveals and a little fanfare. Haptics stay on either way.',hardMode:'Hard mode',hardD:"Three guesses, no start or end marker, no Place it; the draw round loses its key grid. Pays 1.5× ink. Applies to rounds you haven't started.",hardOn:'Hard mode on',hardOff:'Hard mode off',soundOn:'Sound on',soundOff:'Sound off',
-  practiceTitle:'Practice',practiceBody:"Practice rounds don't touch your streak and pay half ink.",whichWay:'Which way round?',readOne:'Read a squiggle',drawOne:'Draw a squiggle',howLong:'How long?',mix:'Mix',go:'Go',
+  settingsTitle:'Settings',settingsBody:'Practice from the word pool, trace a word for a friend, or change how the game plays.',appearance:'Appearance',system:'System',light:'Light',dark:'Dark',language:'Language',sound:'Sound',soundD:'Taps, reveals and a little fanfare. Haptics stay on either way.',hardMode:'Hard mode',hardD:"Three guesses, no start or end marker, no pins on the trace, no Place it; the draw round loses its key grid. Pays 1.5× ink. Applies to rounds you haven't started.",hardOn:'Hard mode on',hardOff:'Hard mode off',soundOn:'Sound on',soundOff:'Sound off',
+  practiceTitle:'Practice',practiceBody:"Practice doesn't touch your streak and doesn't pay ink. Ink comes from the daily game.",whichWay:'Which way round?',readOne:'Read a squiggle',drawOne:'Draw a squiggle',howLong:'How long?',mix:'Mix',go:'Go',
   sendTitle:'Send a squiggle',sendBody:"Type any word or name, 3 to 10 letters. We'll trace it and give you a link. They'll see the shape, not the word.",sendPh:'e.g. tacos, Erin, Oklahoma',copyLink:'Copy link',canYouRead:'Can you read my squiggle? {link}',
   enter:'Enter',del:'Delete'
 },
@@ -529,8 +532,8 @@ es:{
   canRead:'¿Puedes leerlos?',lettersUp:'{n} LETRAS',drew:'Dibujé {w} al {a}%',
   howTitle:'Cómo jugar',how1:'Cada garabato es la línea que dibuja un dedo al <b>escribir deslizando</b> una palabra en el teclado del móvil. El punto es donde apoya; la flecha, donde levanta.',how2:'Ves la forma a <b>tamaño real</b> pero no dónde estaba. Un barrido de cinco teclas en el teclado de abajo mide cinco teclas aquí. Muévela por el teclado en tu cabeza hasta que las esquinas caigan en letras que formen una palabra.',how3:'Escribe una palabra del largo correcto. Mientras escribes, tu trazo se dibuja en rosa sobre las teclas para comparar la forma antes de confirmar.',how4:'La pista es <b>distancia, no letras</b>. Cada esquina de tu intento dice a qué distancia cayó de la tecla real. Nada te dice si una letra está "en algún sitio de la palabra". Solo la forma.',how5:'<b>La cuarta ronda lo invierte.</b> Recibes la palabra y dibujas su garabato de memoria, de un trazo, sobre las teclas en blanco. Se puntúa lo cerca que pasa tu línea del trazo real.',howP1:'Tres garabatos para leer (4, 6 y 8 letras, <b>cuatro intentos</b> cada uno) y uno para dibujar. Resolver da <b>tinta</b>: más por palabras largas y pocos intentos, 1,5× en difícil, y un bono por terminar el día.',howP2:'La tinta compra pistas (primera letra, última letra, una del medio o <b>Colocar</b>, que pone el garabato sobre las teclas reales) y un intento más cuando se acaban. Las pistas se ven al compartir.',howP3:'<b>Modo difícil</b> (en Ajustes): tres intentos, sin marcas de inicio ni fin, y Colocar bloqueado.',startTracing:'Empezar',legendOn:'Sobre la tecla',legendNear:'Al lado (una tecla que la toca)',legendCold:'Frío',
   statsTitle:'Tus trazos',inkAll:'{n} de tinta ganada en total',days:'Días',solvePct:'% resueltos',streakL:'Racha',best:'Mejor',guessesPer:'Intentos por garabato',drawnTitle:'Garabatos dibujados',traces:'Trazos',avg:'Media %',bestPct:'Mejor %',perfectDays:'{n} {dw} perfectos (los tres leídos). La racha cuenta los días que terminaste todo, dibujo incluido.',day1:'día',dayN:'días',
-  settingsTitle:'Ajustes',settingsBody:'Practica con el banco de palabras, traza una palabra para un amigo o cambia cómo se juega.',appearance:'Aspecto',system:'Sistema',light:'Claro',dark:'Oscuro',language:'Idioma',sound:'Sonido',soundD:'Toques, revelaciones y una pequeña fanfarria. La vibración sigue igual.',hardMode:'Modo difícil',hardD:'Tres intentos, sin marcas de inicio ni fin, sin Colocar; la ronda de dibujo pierde la cuadrícula. Paga 1,5× de tinta. Se aplica a las rondas que no hayas empezado.',hardOn:'Modo difícil activado',hardOff:'Modo difícil desactivado',soundOn:'Sonido activado',soundOff:'Sonido desactivado',
-  practiceTitle:'Práctica',practiceBody:'La práctica no toca tu racha y paga la mitad de tinta.',whichWay:'¿En qué sentido?',readOne:'Leer un garabato',drawOne:'Dibujar un garabato',howLong:'¿Qué largo?',mix:'Mezcla',go:'Vamos',
+  settingsTitle:'Ajustes',settingsBody:'Practica con el banco de palabras, traza una palabra para un amigo o cambia cómo se juega.',appearance:'Aspecto',system:'Sistema',light:'Claro',dark:'Oscuro',language:'Idioma',sound:'Sonido',soundD:'Toques, revelaciones y una pequeña fanfarria. La vibración sigue igual.',hardMode:'Modo difícil',hardD:'Tres intentos, sin marcas de inicio ni fin, sin chinchetas en el trazo, sin Colocar; la ronda de dibujo pierde la cuadrícula. Paga 1,5× de tinta. Se aplica a las rondas que no hayas empezado.',hardOn:'Modo difícil activado',hardOff:'Modo difícil desactivado',soundOn:'Sonido activado',soundOff:'Sonido desactivado',
+  practiceTitle:'Práctica',practiceBody:'La práctica no toca tu racha ni da tinta. La tinta se gana en el juego del día.',whichWay:'¿En qué sentido?',readOne:'Leer un garabato',drawOne:'Dibujar un garabato',howLong:'¿Qué largo?',mix:'Mezcla',go:'Vamos',
   sendTitle:'Enviar un garabato',sendBody:'Escribe cualquier palabra o nombre, de 3 a 10 letras. Lo trazamos y te damos un enlace. Verán la forma, no la palabra.',sendPh:'p. ej. tacos, Lucía, Madrid',copyLink:'Copiar enlace',canYouRead:'¿Puedes leer mi garabato? {link}',
   enter:'Intro',del:'Borrar'
 },
@@ -558,8 +561,8 @@ pt:{
   canRead:'Consegue ler?',lettersUp:'{n} LETRAS',drew:'Desenhei {w} em {a}%',
   howTitle:'Como jogar',how1:'Cada rabisco é a linha que um dedo desenha ao <b>digitar por deslize</b> uma palavra no teclado do celular. O ponto é onde encosta; a seta, onde levanta.',how2:'Você vê a forma em <b>tamanho real</b>, mas não onde estava. Um movimento de cinco teclas no teclado abaixo mede cinco teclas aqui. Mova-a pelo teclado na sua cabeça até os cantos caírem em letras que formem uma palavra.',how3:'Digite uma palavra do tamanho certo. Enquanto digita, seu traço aparece em rosa sobre as teclas para comparar a forma antes de confirmar.',how4:'A resposta é <b>distância, não letras</b>. Cada canto do seu palpite diz a que distância caiu da tecla real. Nada diz se uma letra está "em algum lugar da palavra". Só a forma.',how5:'<b>A quarta rodada inverte tudo.</b> Você recebe a palavra e desenha o rabisco de memória, em um traço, sobre as teclas em branco. A nota é o quanto sua linha passa perto do traço real.',howP1:'Três rabiscos para ler (4, 6 e 8 letras, <b>quatro palpites</b> cada) e um para desenhar. Resolver dá <b>tinta</b>: mais por palavras longas e poucos palpites, 1,5× no difícil, e um bônus por terminar o dia.',howP2:'A tinta compra dicas (primeira letra, última letra, uma do meio ou <b>Colocar</b>, que põe o rabisco sobre as teclas reais) e mais um palpite quando acabam. As dicas aparecem ao compartilhar.',howP3:'<b>Modo difícil</b> (em Ajustes): três palpites, sem marcas de início e fim, e Colocar bloqueado.',startTracing:'Começar',legendOn:'Na tecla',legendNear:'Ao lado (uma tecla encostada)',legendCold:'Frio',
   statsTitle:'Seus traços',inkAll:'{n} de tinta ganha no total',days:'Dias',solvePct:'% resolvidos',streakL:'Sequência',best:'Melhor',guessesPer:'Palpites por rabisco',drawnTitle:'Rabiscos desenhados',traces:'Traços',avg:'Média %',bestPct:'Melhor %',perfectDays:'{n} {dw} perfeitos (os três lidos). A sequência conta os dias em que você terminou tudo, desenho incluído.',day1:'dia',dayN:'dias',
-  settingsTitle:'Ajustes',settingsBody:'Pratique com o banco de palavras, trace uma palavra para um amigo ou mude como o jogo funciona.',appearance:'Aparência',system:'Sistema',light:'Claro',dark:'Escuro',language:'Idioma',sound:'Som',soundD:'Toques, revelações e uma pequena fanfarra. A vibração continua igual.',hardMode:'Modo difícil',hardD:'Três palpites, sem marcas de início e fim, sem Colocar; a rodada de desenho perde a grade. Paga 1,5× de tinta. Vale para rodadas que você ainda não começou.',hardOn:'Modo difícil ligado',hardOff:'Modo difícil desligado',soundOn:'Som ligado',soundOff:'Som desligado',
-  practiceTitle:'Prática',practiceBody:'A prática não mexe na sua sequência e paga metade da tinta.',whichWay:'Em que sentido?',readOne:'Ler um rabisco',drawOne:'Desenhar um rabisco',howLong:'Que tamanho?',mix:'Misto',go:'Vamos',
+  settingsTitle:'Ajustes',settingsBody:'Pratique com o banco de palavras, trace uma palavra para um amigo ou mude como o jogo funciona.',appearance:'Aparência',system:'Sistema',light:'Claro',dark:'Escuro',language:'Idioma',sound:'Som',soundD:'Toques, revelações e uma pequena fanfarra. A vibração continua igual.',hardMode:'Modo difícil',hardD:'Três palpites, sem marcas de início e fim, sem pinos no traço, sem Colocar; a rodada de desenho perde a grade. Paga 1,5× de tinta. Vale para rodadas que você ainda não começou.',hardOn:'Modo difícil ligado',hardOff:'Modo difícil desligado',soundOn:'Som ligado',soundOff:'Som desligado',
+  practiceTitle:'Prática',practiceBody:'A prática não mexe na sua sequência nem rende tinta. Tinta vem do jogo do dia.',whichWay:'Em que sentido?',readOne:'Ler um rabisco',drawOne:'Desenhar um rabisco',howLong:'Que tamanho?',mix:'Misto',go:'Vamos',
   sendTitle:'Enviar um rabisco',sendBody:'Digite qualquer palavra ou nome, de 3 a 10 letras. Nós traçamos e te damos um link. Verão a forma, não a palavra.',sendPh:'ex.: tacos, Ana, Brasil',copyLink:'Copiar link',canYouRead:'Consegue ler meu rabisco? {link}',
   enter:'Enter',del:'Apagar'
 }};
@@ -573,16 +576,39 @@ function todayIndex(){const n=new Date();const d0=new Date(n.getFullYear(),n.get
 function fmtDate(d){return d.toLocaleDateString(L.locale,{weekday:'short',month:'short',day:'numeric'});}
 function store(k,v){try{if(v===undefined){const s=localStorage.getItem(k);return s?JSON.parse(s):null;}localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}}
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* Daily words walk a fixed shuffle of the pool, so a word can't come back until every other word of that length has had its day */
+function cycle(len,salt){
+  const p=L.pool[len],r=rng(hash('cycle:'+LANG+':'+len+':'+salt)),o=p.map((_,i)=>i);
+  for(let i=o.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[o[i],o[j]]=[o[j],o[i]];}
+  return o.map(i=>p[i]);
+}
 function dailyWords(day){
   if(L.week&&day<L.week.length) return L.week[day].map(norm);
-  const r=rng(hash('day'+day+':'+LANG)*7+day);
-  return [4,6,8].map(n=>norm(L.pool[n][Math.floor(r()*L.pool[n].length)]));
+  const d=day-(L.week?L.week.length:0);
+  return [4,6,8].map(n=>{const c=cycle(n,'read');return norm(c[d%c.length]);});
 }
-function randomWord(len){const Ls=len?[len]:[4,6,8];const n=Ls[Math.floor(Math.random()*Ls.length)];const p=L.pool[n];return norm(p[Math.floor(Math.random()*p.length)]);}
 function dailyDrawWord(day){
   if(L.drawWeek&&day<L.drawWeek.length) return norm(L.drawWeek[day]);
-  const r=rng(hash('draw'+day+':'+LANG)*3+day);const p=L.pool[6];return norm(p[Math.floor(r()*p.length)]);
+  const d=day-(L.drawWeek?L.drawWeek.length:0),c=cycle(6,'draw'),read=dailyWords(day)[1];
+  let w=norm(c[d%c.length]);if(w===read)w=norm(c[(d+1)%c.length]);return w;
 }
+/* Practice deals from a shuffled deck per language and length, kept on the device: nothing repeats until the whole pool has been played.
+   Today's daily words are skipped so practice can't spoil them. */
+function drawFromDeck(len){
+  const p=L.pool[len],key=`sq.deck.${LANG}.${len}`,today=todayIndex(),avoid=new Set([...dailyWords(today),dailyDrawWord(today)]);
+  let d=store(key);
+  for(let tries=0;tries<4;tries++){
+    if(!d||d.n!==p.length||!Array.isArray(d.o)||d.i>=d.o.length){
+      const last=d&&Array.isArray(d.o)&&d.o.length?d.o[d.o.length-1]:-1,o=p.map((_,i)=>i);
+      for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]];}
+      if(o.length>1&&o[0]===last)[o[0],o[1]]=[o[1],o[0]];
+      d={n:p.length,o,i:0};
+    }
+    const w=norm(p[d.o[d.i++]]);
+    if(!avoid.has(w)||tries===3){store(key,d);return w;}
+  }
+}
+function randomWord(len){const Ls=len?[len]:[4,6,8];return drawFromDeck(Ls[Math.floor(Math.random()*Ls.length)]);}
 
 /* Link code for send-a-squiggle: a light scramble so the word isn't readable in the URL */
 const CODE='abcdefghijklmnopqrstuvwxyz0';
@@ -653,21 +679,37 @@ function traceMarkup(pts,loops,showEnds){
   if(showEnds){s+=`<circle class="start" cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="17"/>`;s+=`<path class="end" d="${endChevron(pts)}"/>`;}
   return s;
 }
-function targetGlyph(word,seed,placed,hard,rev){
+/* What the guesses have established about each corner of the trace: a green pin with the letter once a guess landed on it,
+   an amber pin with the guessed letter(s) when a corner is one key away from them. Reveal hints count as green. */
+function glyphMarks(r){
+  const m=[];
+  r.g.forEach((g,gi)=>[...g].forEach((c,i)=>{const e=r.ev[gi][i];
+    if(e==='ok'){if(!m[i]||!m[i].ok)m[i]={ok:c,g:gi};}
+    else if(e==='near'){if(!m[i])m[i]={near:[],g:gi};if(m[i].near&&!m[i].near.includes(c)){m[i].near.push(c);m[i].g=gi;}}}));
+  (r.rev||[]).forEach(i=>{if(!m[i]||!m[i].ok)m[i]={ok:r.word[i],g:-1};});
+  return m;
+}
+function pinMarkup(p,st,txt,delay){
+  const x=p.x.toFixed(1),y=p.y.toFixed(1),style=delay!==undefined?` style="animation-delay:${delay}s"`:'';
+  let shape;
+  if(txt.length<=1) shape=`<circle cx="${x}" cy="${y}" r="30"/>`;
+  else{const w=txt.length*26+24;shape=`<rect x="${(p.x-w/2).toFixed(1)}" y="${(p.y-30).toFixed(1)}" width="${w}" height="60" rx="30"/>`;}
+  return `<g class="pin ${st}${delay!==undefined?' anim':''}"${style}>${shape}<text x="${x}" y="${(p.y+2).toFixed(1)}">${txt.toUpperCase()}</text></g>`;
+}
+/* The pins sit on the trace's own corners, inside its floating transform, so they never give away where the key grid is */
+function targetGlyph(word,seed,placed,hard,marks,animG){
   const {pts,loops}=points(word,seed,0.27);
   let inner=traceMarkup(pts,loops,!hard);
-  if(rev&&rev.length){
+  if(marks&&marks.some(Boolean)){
     const at={};pts.forEach(p=>{at[p.i]=p;});
     for(let i=1;i<word.length;i++) if(!at[i]) at[i]=at[i-1];
-    rev.forEach(i=>{const p=at[i];if(!p)return;inner+=`<circle class="firstmark" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="34"/><text class="firstlab" x="${p.x.toFixed(1)}" y="${(p.y-50).toFixed(1)}">${word[i].toUpperCase()}</text>`;});
+    const byPt=new Map();
+    marks.forEach((m,i)=>{const p=at[i];if(!m||!p)return;let e=byPt.get(p);if(!e){e={ok:null,near:[],i,fresh:false};byPt.set(p,e);}
+      if(m.ok)e.ok=m.ok;else m.near.forEach(c=>{if(!e.near.includes(c))e.near.push(c);});
+      if(animG!==undefined&&m.g===animG)e.fresh=true;});
+    byPt.forEach((e,p)=>{const d=e.fresh?.1+e.i*.07:undefined;inner+=e.ok?pinMarkup(p,'ok',e.ok,d):pinMarkup(p,'near',e.near.slice(-3).join(''),d);});
   }
   return placed?inner:`<g transform="${centerTransform(pts,loops)}">${inner}</g>`;
-}
-function guessOverlay(guess,ev,placed){
-  const {pts,loops}=points(guess,'x',0);
-  let s=`<path class="gpath" d="${curve(pts)}"/>`;
-  pts.forEach(p=>{s+=`<circle class="mark ${ev[p.i]}" cx="${p.x}" cy="${p.y}" r="15"/>`;});
-  return placed?s:`<g transform="${centerTransform(pts,loops)}">${s}</g>`;
 }
 function cleanGlyph(word,anim){
   const {pts,loops}=points(word,'x',0);
@@ -715,14 +757,14 @@ function loadDaily(){
 function saveDaily(){if(S.mode==='daily')store('sq.daily.v6.'+LANG,{day:S.day,round:S.round,rounds:S.rounds});}
 
 /* ---------- Ink economy ---------- */
+/* Only the daily game pays ink. Practice, friend squiggles and duels are unlimited, so paying for them would make ink meaningless. */
 function inkFor(r){
-  if(S.mode==='tutorial') return 0;
+  if(S.mode!=='daily') return 0;
   let base=r.word.length*Math.max(1,BASE_GUESSES+1-r.g.length);
   if(r.hard) base=Math.round(base*1.5);
-  if(S.mode!=='daily') base=Math.floor(base/2);
   return base;
 }
-function addInk(n){const st=getStats();st.ink+=n;if(n>0)st.inkEarned+=n;store('sq.stats.v2',st);renderInk(true);}
+function addInk(n){if(!n)return;const st=getStats();st.ink+=n;if(n>0)st.inkEarned+=n;store('sq.stats.v2',st);renderInk(true);}
 function spend(cost){const st=getStats();if(st.ink<cost)return false;st.ink-=cost;store('sq.stats.v2',st);renderInk(true);sfx('spend');return true;}
 function renderInk(pop){const st=getStats();el('inkVal').textContent=st.ink;if(pop){const p=el('inkPill');p.classList.remove('pop');void p.offsetWidth;p.classList.add('pop');}}
 function startPractice(len){S.mode='practice';S.practiceLen=len;S.rounds=[makeRound(randomWord(len))];S.round=0;S.cur='';render();}
@@ -746,14 +788,15 @@ function recordDay(){const st=getStats();if(st.lastDay===S.day)return 0;st.days+
 
 /* ---------- Rendering ---------- */
 function seedFor(r){return S.mode==='daily'?`d${S.day}:${r.word}`:`${S.mode}:${r.word}:${S.rounds.length}`;}
-function renderGlyph(){
+function renderGlyph(fresh){
   const r=cur();
   if(isDraw(r)){renderDrawGlyph(r);return;}
   const placed=r.done||r.placed; let s=placed?cells(false):lattice();
   if(r.done){s+=cleanGlyph(r.word,false);}
   else{
-    s+=targetGlyph(r.word,seedFor(r),r.placed,r.hard,r.rev);
-    if(r.g.length){s+=guessOverlay(r.g[r.g.length-1],r.ev[r.ev.length-1],r.placed);}
+    /* Hard mode keeps the trace unmarked (pins would give away which end is the start); reveal hints still show */
+    const marks=r.hard?glyphMarks({g:[],ev:[],rev:r.rev,word:r.word}):glyphMarks(r);
+    s+=targetGlyph(r.word,seedFor(r),r.placed,r.hard,marks,fresh?r.g.length-1:undefined);
   }
   el('glyph').innerHTML=s;
   el('glyph').classList.remove('draw');el('glyph').setAttribute('viewBox','-20 -20 1040 340');
@@ -817,7 +860,8 @@ function renderKeyboard(){
 /* Live trace: the word being typed is drawn across the real keys, so you can compare its shape to the squiggle before you commit. */
 function renderTrace(){
   const svg=el('kbtrace'),kb=el('kb');if(!svg)return;
-  const r=cur(),w=(r&&!r.done)?S.cur:'';
+  const r=cur(),last=(r&&!r.done&&!S.cur&&r.g.length)?r.g[r.g.length-1]:'',w=(r&&!r.done)?(S.cur||last):'';
+  svg.classList.toggle('last',!!last&&!S.cur);
   if(w.length<1){svg.innerHTML='';return;}
   const R=kb.getBoundingClientRect();if(!R.width){svg.innerHTML='';return;}
   svg.setAttribute('viewBox',`0 0 ${R.width} ${R.height}`);
@@ -934,8 +978,8 @@ function scoreStroke(raw,word){
   const acc=Math.round(100*(0.6*letterScore+0.4*shapeScore));
   return {acc,hits,dev:Math.round(dev)};
 }
-window.__squiggle={scoreStroke,resampleN,POS};
-function inkForDraw(r){if(S.mode==='tutorial')return 0;let base=Math.round(r.word.length*2*r.acc/100);if(r.acc>=95)base+=5;if(r.hard)base=Math.round(base*1.5);if(S.mode!=='daily')base=Math.floor(base/2);return base;}
+window.__squiggle={scoreStroke,resampleN,POS,startPractice,startCustom,cur,randomWord,dailyWords,dailyDrawWord,pool:()=>L.pool,dict:()=>DICT};
+function inkForDraw(r){if(S.mode!=='daily')return 0;let base=Math.round(r.word.length*2*r.acc/100);if(r.acc>=95)base+=5;if(r.hard)base=Math.round(base*1.5);return base;}
 function recordDraw(r){const st=getStats();st.traces=(st.traces||0)+1;st.traceSum=(st.traceSum||0)+r.acc;st.traceBest=Math.max(st.traceBest||0,r.acc);store('sq.stats.v2',st);}
 
 const stroke={on:false,pts:[]};
@@ -1020,10 +1064,10 @@ function submit(){
   if(won){finishRound(r,true);return;}
   if(r.g.length>=allowed(r)){
     const price=PRICE.extra[r.extra];
-    if(price!==undefined&&getStats().ink>=price){saveDaily();renderGlyph();renderStatus();renderGuesses(true);renderKeyboard();setTimeout(()=>extraSheet(r,price),n*70+350);return;}
+    if(price!==undefined&&getStats().ink>=price){saveDaily();renderGlyph(true);renderStatus();renderGuesses(true);renderKeyboard();setTimeout(()=>extraSheet(r,price),n*70+350);return;}
     finishRound(r,false);return;
   }
-  saveDaily();renderGlyph();renderStatus();renderGuesses(true);renderKeyboard();renderRounds();sfx('reveal');
+  saveDaily();renderGlyph(true);renderStatus();renderGuesses(true);renderKeyboard();renderRounds();sfx('reveal');
 }
 function finishRound(r,won){
   const n=r.word.length;

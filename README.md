@@ -1,6 +1,6 @@
 # Squiggle
 
-A daily word game. Each squiggle is the line a finger draws when it swipe-types a word on a phone keyboard. Three to read every day (4, 6 and 8 letters, four guesses each), then one word to draw from memory, scored against the real trace. Solving earns ink; ink buys hints and extra guesses.
+A daily word game. Each squiggle is the line a finger draws when it swipe-types a word on a phone keyboard. Three to read every day (4, 6 and 8 letters, four guesses each), then one word to draw from memory, scored against the real trace. Solving earns ink; ink buys hints and extra guesses. Only the daily game pays ink: practice, friend squiggles and duels are unlimited, so they are free to play and pay nothing.
 
 The whole game is one HTML file. It runs as a web page, as a home-screen app, and inside a native iPhone wrapper, from the same source.
 
@@ -73,4 +73,8 @@ Code hooks to add when this starts: an `economy` object in the template holding 
 
 English, Spanish and Portuguese ship today. Each language in `LANGS` (top of the template) is a keyboard layout (rows and row offsets, as the iOS keyboard lays them out: Spanish has Ñ on a ten-key middle row), an alphabet, word pools for the daily ladder, a two-word tutorial and a dictionary. Words are stored in their written form and traced through their base keys, so CAFÉ traces C-A-F-E and the reveal still shows the accent; ñ is its own key in Spanish, ç traces through C in Portuguese. UI strings live in `STR`. Friend and duel links carry a language tag (`#c-es-…`) so a Spanish squiggle opens on the Spanish keyboard wherever it lands. The first run picks the device language when it is one of the three; Settings changes it any time, and each language keeps its own daily state.
 
-To add a language: a layout, an alphabet, pools (about 40 words each of 4, 6 and 8 letters), two tutorial words, a strings block, and a `words-xx.txt` wired into `scripts/build.mjs`.
+To add a language: a layout, an alphabet, pools (100 to 300 words each of 4, 6 and 8 letters), two tutorial words, a strings block, and a `words-xx.txt` wired into `scripts/build.mjs`.
+
+## Word pools
+
+Daily words walk a fixed shuffle of each pool (`cycle()` in the template), so a word can't come back until every other word of that length has had its day: with today's English pools that is about 290 days for 4 letters, 250 for 6 and 210 for 8. Practice deals from a shuffled deck saved on the device, skips today's daily words, and only reshuffles once the whole pool has been played. Adding words to a pool changes the daily sequence from that day on, which is fine; removing or reordering words in the first week's `week` list is not, since those are already in people's history.
