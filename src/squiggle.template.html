@@ -1,0 +1,962 @@
+<!--STANDALONE--><!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Squiggle">
+<meta name="theme-color" content="#EDF0F6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1424" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Three squiggles a day. Each one is the line a finger draws swipe-typing a word. Read it, then draw one of your own.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<!--/STANDALONE--><title>Squiggle</title>
+<!--ARTIFACT--><meta name="claude:viewport-fit-sides" content="cover"><!--/ARTIFACT-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one phone-width column. A paper card holds the keyboard-shaped tracing frame; guess tiles sit beneath it;
+   the typing keyboard at the bottom shares the frame's exact geometry so the eye can travel straight down from a corner
+   of the squiggle to the key under it. */
+:root{
+  --bg:#EDF0F6; --surface:#FFFFFF; --fg:#151D33; --muted:#66718C; --line:#D6DCE8;
+  --cell:#EEF2F8; --cellline:#DFE5F0; --keycap:#FFFFFF; --keyboard:#DCE2ED; --keytext:#1B2440; --keyshadow:#B9C2D4;
+  --ink:#2A3FC9; --inksoft:rgba(42,63,201,.14); --guess:#C81E7E;
+  --ok:#15915F; --near:#DC8E00; --absent:#A3ACBF; --onstatus:#FFFFFF;
+  --accent:#2A3FC9; --onaccent:#FFFFFF; --scrim:rgba(21,29,51,.45);
+  --shadow:0 1px 0 rgba(21,29,51,.06), 0 10px 28px -14px rgba(21,29,51,.22);
+  --display:'Fredoka','Avenir Next Rounded','Nunito',system-ui,sans-serif;
+  --body:'Atkinson Hyperlegible','Helvetica Neue',Arial,sans-serif;
+  --radius:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1424; --surface:#171E33; --fg:#EAEEF8; --muted:#97A3C0; --line:#28324C;
+    --cell:#1E2740; --cellline:#283352; --keycap:#263052; --keyboard:#111829; --keytext:#EAEEF8; --keyshadow:#0B1020;
+    --ink:#8FB0FF; --inksoft:rgba(143,176,255,.16); --guess:#FF75BD;
+    --ok:#2FBF86; --near:#E6AE3D; --absent:#3F4A66; --onstatus:#0E1424;
+    --accent:#8FB0FF; --onaccent:#0E1424; --scrim:rgba(0,0,0,.6);
+    --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1424; --surface:#171E33; --fg:#EAEEF8; --muted:#97A3C0; --line:#28324C;
+  --cell:#1E2740; --cellline:#283352; --keycap:#263052; --keyboard:#111829; --keytext:#EAEEF8; --keyshadow:#0B1020;
+  --ink:#8FB0FF; --inksoft:rgba(143,176,255,.16); --guess:#FF75BD;
+  --ok:#2FBF86; --near:#E6AE3D; --absent:#3F4A66; --onstatus:#0E1424;
+  --accent:#8FB0FF; --onaccent:#0E1424; --scrim:rgba(0,0,0,.6);
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.4;
+  -webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.app{max-width:540px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:10px 12px;gap:10px}
+
+/* Header */
+.top{display:flex;align-items:center;gap:10px}
+.brand{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:-.01em;line-height:1;display:flex;align-items:center;gap:8px}
+.brand svg{width:34px;height:20px;overflow:visible}
+.sub{color:var(--muted);font-size:13px;margin-top:3px;font-variant-numeric:tabular-nums}
+.top .grow{flex:1;min-width:0}
+.iconbtn{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--surface);box-shadow:var(--shadow)}
+.iconbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Round pills */
+.rounds{display:flex;gap:8px;align-items:center}
+.pill{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;height:34px;border-radius:999px;
+  background:var(--surface);color:var(--muted);font-family:var(--display);font-weight:600;font-size:15px;box-shadow:var(--shadow);
+  border:2px solid transparent}
+.pill.cur{border-color:var(--ink);color:var(--fg)}
+.pill.won{background:var(--ok);color:var(--onstatus)}
+.pill.lost{background:var(--absent);color:var(--onstatus)}
+.pill small{font-family:var(--body);font-weight:400;font-size:12px;opacity:.9}
+.rounds .modetag{flex:1;height:34px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:var(--surface);
+  font-family:var(--display);font-weight:600;color:var(--fg);box-shadow:var(--shadow);font-size:15px}
+
+/* Glyph card */
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px}
+.glyph{display:block;width:100%;height:auto;aspect-ratio:1040/340;max-width:100%}
+.glyph .cellrect{fill:var(--cell);stroke:var(--cellline);stroke-width:2}
+.glyph .ghost{fill:var(--muted);font-family:var(--display);font-weight:600;font-size:40px;text-anchor:middle;dominant-baseline:central;opacity:.55}
+.glyph .ink{fill:none;stroke:var(--ink);stroke-width:15;stroke-linecap:round;stroke-linejoin:round}
+.glyph .inkhalo{fill:none;stroke:var(--inksoft);stroke-width:34;stroke-linecap:round;stroke-linejoin:round}
+.glyph .start{fill:var(--ink)}
+.glyph .end{fill:none;stroke:var(--ink);stroke-width:13;stroke-linecap:round;stroke-linejoin:round}
+.glyph .loop{fill:none;stroke:var(--ink);stroke-width:11;stroke-linecap:round}
+.glyph .gpath{fill:none;stroke:var(--guess);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:14 12;opacity:.9}
+.glyph .mark{stroke:var(--surface);stroke-width:4}
+.glyph .mark.ok{fill:var(--ok)} .glyph .mark.near{fill:var(--near)} .glyph .mark.no{fill:var(--absent)}
+.glyph .clean{fill:none;stroke:var(--ink);stroke-width:9;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+.glyph .lab circle{fill:var(--surface);stroke:var(--ink);stroke-width:5}
+.glyph .lab text{fill:var(--fg);font-family:var(--display);font-weight:700;font-size:44px;text-anchor:middle;dominant-baseline:central}
+.glyph .lab.hit circle{fill:var(--ok);stroke:var(--ok)} .glyph .lab.hit text{fill:var(--onstatus)}
+.glyph.draw{touch-action:none;cursor:crosshair}
+/* Draw round reads top-down: prompt, canvas, result */
+.app.drawmode .top{order:0} .app.drawmode .rounds{order:1} .app.drawmode .guesses{order:2;min-height:0} .app.drawmode .card{order:3} .app.drawmode .status{order:4} .app.drawmode .kb{order:5}
+.glyph .live,.glyph .stroke{fill:none;stroke:var(--guess);stroke-width:12;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+.glyph .livestart{fill:var(--guess)}
+@keyframes fadein{to{opacity:1}}
+.pill svg{width:18px;height:18px}
+.drawpanel{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding-block:6px}
+.drawpanel p{margin:0;color:var(--muted);font-size:14px;max-width:38ch}
+.drawpanel .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.drawword{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.drawword .dl{width:44px;height:52px;border-radius:12px;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:28px;text-transform:uppercase;background:var(--surface);box-shadow:var(--shadow);color:var(--fg)}
+.drawword .dl.ok{background:var(--ok);color:var(--onstatus)} .drawword .dl.near{background:var(--near);color:var(--onstatus)} .drawword .dl.no{background:var(--absent);color:var(--onstatus)}
+.acc{display:flex;align-items:baseline;gap:10px;font-variant-numeric:tabular-nums}
+.acc b{font-family:var(--display);font-weight:700;font-size:40px;line-height:1;color:var(--ink)}
+.acc span{color:var(--muted);font-size:14px}
+.minilist.two{grid-template-columns:1fr 1fr} .minilist.two button{font-size:14px}
+.stats.three{grid-template-columns:repeat(3,1fr)}
+.glyph .firstmark{fill:none;stroke:var(--near);stroke-width:6;stroke-dasharray:10 8}
+.glyph .firstlab{fill:var(--near);font-family:var(--display);font-weight:700;font-size:40px;text-anchor:middle;dominant-baseline:central}
+.glyph .dot{fill:var(--cellline)}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.glyph .lab{transform-box:fill-box;transform-origin:center;animation:pop .32s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes draw{to{stroke-dashoffset:0}}
+.glyph .clean.anim{stroke-dasharray:4000;stroke-dashoffset:4000;animation:draw 1.1s ease-out forwards}
+@media (prefers-reduced-motion: reduce){.glyph .lab,.glyph .clean.anim{animation:none;stroke-dashoffset:0}}
+
+/* Status + hints */
+.status{display:flex;align-items:center;gap:8px;min-height:36px}
+.status .msg{flex:1;min-width:0;font-size:14px;color:var(--muted)}
+.status .msg b{color:var(--fg);font-weight:700}
+.status .msg.err{color:var(--guess);font-weight:700}
+.hint{height:32px;padding:0 11px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:700;
+  display:flex;align-items:center;gap:6px;white-space:nowrap}
+.hint svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.hint.used{background:var(--near);color:var(--onstatus)}
+.hint:disabled{opacity:.45;cursor:default}
+
+/* Guess rows */
+.guesses{display:flex;flex-direction:column;gap:6px;min-height:calc(5 * 40px + 4 * 6px)}
+.row{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:6px;max-width:calc(var(--n) * 46px + (var(--n) - 1) * 6px);margin:0 auto;width:100%}
+.tile{aspect-ratio:1;max-width:100%;border-radius:10px;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:22px;
+  background:var(--surface);box-shadow:var(--shadow);text-transform:uppercase;color:var(--fg)}
+.tile.ok{background:var(--ok);color:var(--onstatus)} .tile.near{background:var(--near);color:var(--onstatus)} .tile.no{background:var(--absent);color:var(--onstatus)}
+.tile.empty{background:transparent;box-shadow:inset 0 0 0 2px var(--line)}
+.tile.typed{box-shadow:inset 0 0 0 2px var(--ink)}
+@keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+.row.fresh .tile{animation:flip .5s ease both;animation-delay:calc(var(--i) * 70ms)}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.row.shake{animation:shake .4s ease}
+@media (prefers-reduced-motion: reduce){.row.fresh .tile,.row.shake{animation:none}}
+
+/* Keyboard */
+.kb{margin-top:auto;background:var(--keyboard);border-radius:var(--radius);padding:8px 6px 10px;display:flex;flex-direction:column;gap:7px;position:relative}
+.kbtrace{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.kbtrace .tr{fill:none;stroke:var(--guess);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+.kbtrace .trloop{fill:none;stroke:var(--guess);stroke-width:4;opacity:.9}
+.kbtrace .trstart{fill:var(--guess)}
+.key.near::after{content:"";position:absolute;inset:-3px;border-radius:12px;border:3px solid var(--near)}
+.kbrow{display:flex;gap:5px;justify-content:center}
+.kbrow.r1{padding:0 calc(5% + 2px)} .kbrow.r2{padding:0 calc(15% + 2px)}
+.key{flex:1 1 0;height:48px;border-radius:9px;background:var(--keycap);color:var(--keytext);font-family:var(--display);font-weight:600;font-size:18px;
+  box-shadow:0 2px 0 var(--keyshadow);display:grid;place-items:center;text-transform:uppercase;min-width:0;user-select:none;position:relative}
+.key:active{transform:translateY(1px);box-shadow:0 1px 0 var(--keyshadow)}
+.key.ok{background:var(--ok);color:var(--onstatus)}
+.key.wide{flex:1.6 1 0;font-size:13px;font-family:var(--body);font-weight:700}
+.key.wide svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.key.first::after{content:"";position:absolute;inset:-3px;border-radius:12px;border:3px solid var(--near)}
+.kbrow.r2 .key.wide:first-child,.kbrow.r2 .key.wide:last-child{flex:1.6 1 0}
+.kbrow.r2{padding:0 2px}
+
+/* Sheet + modals */
+.scrim{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:50;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));padding-top:calc(16px + env(safe-area-inset-top,0px))}
+.scrim.center{align-items:center}
+.sheet{width:100%;max-width:520px;background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:20px 18px 18px;max-height:100%;overflow:auto;
+  display:flex;flex-direction:column;gap:14px}
+@keyframes rise{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.sheet{animation:rise .3s cubic-bezier(.2,.9,.3,1) both}
+@media (prefers-reduced-motion: reduce){.sheet{animation:none}}
+.sheet h2{font-family:var(--display);font-weight:700;font-size:26px;margin:0;line-height:1.1;text-wrap:balance}
+.sheet h3{font-family:var(--display);font-weight:600;font-size:17px;margin:0}
+.sheet p{margin:0;color:var(--muted);max-width:60ch}
+.sheet p b{color:var(--fg)}
+.sheet .x{position:absolute;right:14px;top:12px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--bg)}
+.sheet .x svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round}
+.sheet{position:relative}
+.answer{font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);line-height:1}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{flex:1 1 140px;height:48px;border-radius:14px;font-family:var(--display);font-weight:600;font-size:17px;display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--bg);color:var(--fg);box-shadow:inset 0 0 0 2px var(--line)}
+.btn.primary{background:var(--accent);color:var(--onaccent);box-shadow:none}
+.btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.share{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;line-height:1.5;background:var(--bg);border-radius:12px;padding:12px;white-space:pre-wrap;word-break:break-word;border:0;width:100%;color:var(--fg);resize:none}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{background:var(--bg);border-radius:12px;padding:10px 6px;text-align:center}
+.stat b{display:block;font-family:var(--display);font-weight:700;font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.dist{display:flex;flex-direction:column;gap:5px;font-variant-numeric:tabular-nums}
+.dist .d{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:center;font-size:13px}
+.dist .bar{height:20px;border-radius:6px;background:var(--absent);color:var(--onstatus);font-weight:700;display:flex;align-items:center;justify-content:flex-end;padding:0 7px;min-width:24px;font-size:12px}
+.dist .bar.top{background:var(--ok)}
+.how{display:flex;flex-direction:column;gap:12px}
+.how .step{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.how .num{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--onaccent);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:16px}
+.how .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.how .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:5px}
+.field{display:flex;gap:8px}
+.field input{flex:1;min-width:0;height:48px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--fg);padding:0 14px;font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:.1em;text-transform:uppercase}
+.field input::placeholder{letter-spacing:0;font-family:var(--body);font-weight:400;font-size:15px;text-transform:none;color:var(--muted)}
+.minilist{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
+.minilist button{height:44px;border-radius:12px;background:var(--bg);box-shadow:inset 0 0 0 2px var(--line);font-family:var(--display);font-weight:600;font-size:16px}
+.minilist button.on{background:var(--accent);color:var(--onaccent);box-shadow:none}
+.ink{display:flex;align-items:center;gap:5px;height:38px;padding:0 12px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);
+  font-family:var(--display);font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;color:var(--fg)}
+.ink svg{width:16px;height:16px;fill:var(--ink)}
+@keyframes inkpop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+.ink.pop{animation:inkpop .45s ease}
+@media (prefers-reduced-motion: reduce){.ink.pop{animation:none}}
+.row.known{margin-bottom:2px}
+.tile.rev{background:var(--near);color:var(--onstatus)}
+.tile.slot{background:transparent;box-shadow:inset 0 0 0 2px var(--line);color:var(--muted);font-size:18px}
+.key.known::after{content:"";position:absolute;inset:-3px;border-radius:12px;border:3px solid var(--near)}
+.balance{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border-radius:14px;padding:10px 14px}
+.balance b{font-family:var(--display);font-weight:700;font-size:22px;display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.balance b svg{width:18px;height:18px;fill:var(--ink)}
+.balance span{color:var(--muted);font-size:13px;text-align:right}
+.hints{display:flex;flex-direction:column;gap:8px}
+.hintcard{display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:14px;padding:11px 12px;text-align:left;width:100%;box-shadow:inset 0 0 0 2px transparent}
+.hintcard:not(:disabled):hover{box-shadow:inset 0 0 0 2px var(--line)}
+.hintcard .ic{width:40px;height:40px;border-radius:12px;background:var(--surface);display:grid;place-items:center;flex:0 0 40px;color:var(--ink)}
+.hintcard .ic svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.hintcard .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.hintcard .t b{font-size:15px} .hintcard .t small{color:var(--muted);font-size:12px;line-height:1.35}
+.hintcard .price{font-family:var(--display);font-weight:700;font-size:14px;padding:6px 10px;border-radius:999px;background:var(--accent);color:var(--onaccent);white-space:nowrap;display:flex;align-items:center;gap:4px}
+.hintcard .price svg{width:12px;height:12px;fill:currentColor}
+.hintcard:disabled{opacity:.55;cursor:default}
+.hintcard.used{opacity:1} .hintcard.used .price{background:var(--ok);color:var(--onstatus)}
+.hintcard.poor .price{background:var(--absent);color:var(--onstatus)}
+.earn{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:20px;color:var(--ink)}
+.earn svg{width:18px;height:18px;fill:var(--ink)}
+.earn small{font-family:var(--body);font-weight:400;font-size:13px;color:var(--muted)}
+.switch{display:flex;align-items:center;gap:12px;text-align:left;background:var(--bg);border-radius:14px;padding:12px 14px;width:100%}
+.switch .sw{flex:0 0 46px;height:28px;border-radius:999px;background:var(--absent);position:relative;transition:background .2s}
+.switch .knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.switch[aria-checked="true"] .sw{background:var(--ok)} .switch[aria-checked="true"] .knob{left:21px}
+.switch .swtext{display:flex;flex-direction:column;gap:2px;min-width:0}
+.switch .swtext small{color:var(--muted);font-size:12px;line-height:1.35}
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;
+  font-weight:700;font-size:14px;z-index:60;box-shadow:var(--shadow);max-width:calc(100% - 32px);text-align:center}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+
+<!--STANDALONE--><style>
+/* Things the Claude artifact frame provides on its own; the standalone page and the iPhone app need them here. */
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%}
+body{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;overscroll-behavior:none}
+.share,.field input{-webkit-user-select:text;user-select:text}
+</style>
+<script>
+/* Where "Send a squiggle" links point. Inside the iPhone app the page's own address is capacitor://localhost,
+   which no one else can open, so links always use the public web copy of the game. */
+window.SQUIGGLE_SHARE_URL='https://jarredksmith.github.io/squiggle/';
+</script>
+</head>
+<body>
+<!--/STANDALONE--><div class="app" id="app">
+  <header class="top">
+    <div class="grow">
+      <div class="brand"><svg viewBox="0 0 34 20" aria-hidden="true"><path d="M2 16 C8 2, 12 2, 16 10 S24 18, 32 4" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/></svg>Squiggle</div>
+      <div class="sub" id="sub"></div>
+    </div>
+    <button class="ink" id="inkPill" aria-label="Ink balance, opens hints"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c3.5 4.8 6 8 6 11.5a6 6 0 0 1-12 0c0-3.5 2.5-6.7 6-11.5z"/></svg><span id="inkVal">0</span></button>
+    <button class="iconbtn" id="btnHow" aria-label="How to play"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg></button>
+    <button class="iconbtn" id="btnStats" aria-label="Statistics"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></button>
+    <button class="iconbtn" id="btnMore" aria-label="More: practice and send a squiggle"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/></svg></button>
+  </header>
+
+  <nav class="rounds" id="rounds" aria-label="Today's three squiggles"></nav>
+
+  <section class="card">
+    <svg class="glyph" id="glyph" viewBox="-20 -20 1040 340" role="img" aria-label="The squiggle to decode"></svg>
+  </section>
+
+  <div class="status">
+    <div class="msg" id="msg" aria-live="polite"></div>
+    <button class="hint" id="btnHints"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M8.5 14.5A6 6 0 1 1 15.5 14.5c-.6.6-1 1.5-1 2.5h-5c0-1-.4-1.9-1-2.5z"/></svg>Hints</button>
+  </div>
+
+  <section class="guesses" id="guesses" aria-label="Your guesses"></section>
+
+  <section class="kb" id="kb" aria-label="Keyboard"></section>
+</div>
+
+<div id="overlay"></div>
+<div id="toastHost"></div>
+
+<script>
+(function(){
+'use strict';
+/* Native iPhone app (Capacitor wrapper in ios-app/). The same page runs on the web and inside the app;
+   these two flags are the only difference it ever checks. */
+const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+const NP=NATIVE?(window.Capacitor.Plugins||{}):{};
+const SHARE_URL=window.SQUIGGLE_SHARE_URL||(location.origin+location.pathname);
+function haptic(kind){
+  if(!NATIVE||!NP.Haptics)return;
+  try{
+    if(kind==='success'||kind==='error')NP.Haptics.notification({type:kind==='success'?'SUCCESS':'ERROR'});
+    else NP.Haptics.impact({style:kind==='heavy'?'HEAVY':kind==='medium'?'MEDIUM':'LIGHT'});
+  }catch(e){}
+}
+/* Native share sheet when there is one (the app, or a browser with Web Share); false means fall back to copy. */
+async function shareOut(text){
+  if(NATIVE&&NP.Share){try{await NP.Share.share({text});return true;}catch(e){return false;}}
+  if(navigator.share){try{await navigator.share({text});return true;}catch(e){return false;}}
+  return false;
+}
+/* ---------- Keyboard geometry ---------- */
+const ROWS=['qwertyuiop','asdfghjkl','zxcvbnm'];
+const OFF=[0,0.5,1.5];
+const U=100;
+const POS={};
+ROWS.forEach((r,ri)=>[...r].forEach((ch,ci)=>{POS[ch]={x:(ci+OFF[ri]+0.5)*U,y:(ri+0.5)*U,row:ri,col:ci};}));
+
+/* ---------- Words ---------- */
+const WEEK=[
+  ['word','finger','keyboard'],
+  ['jump','spiral','squiggle'],
+  ['flow','puzzle','shortcut'],
+  ['maze','sketch','treasure'],
+  ['knot','doodle','mountain'],
+  ['path','zigzag','football'],
+  ['quiz','rhythm','notebook']
+];
+const POOL={
+  4:'home fire moon lamp rope bird frog kite wave rock sand leaf tree bell drum pond snow gold milk wolf bear deer fish ship rain wind star lake road hill barn farm cake soup corn rice pear plum lime salt mint jazz folk ball bike boat coin ring glow dusk dawn echo zone hero king lion duck goat crab hawk swan iron wool silk clay'.split(' '),
+  6:'bridge castle garden forest meadow island planet rocket candle mirror window pillow jacket button zipper pocket ladder hammer anchor pencil marker crayon canvas violin guitar breeze frozen summer winter autumn spring sunset tunnel harbor desert jungle canyon saddle rabbit badger beaver turtle lizard monkey parrot pigeon salmon shrimp walnut peanut cherry banana orange tomato potato carrot pepper butter cheese cookie muffin waffle coffee pickle thread needle basket bucket shovel helmet magnet marble puddle'.split(' '),
+  8:'backpack umbrella sandwich elephant kangaroo scorpion hedgehog squirrel reindeer flamingo pancakes popsicle lollipop cupcakes lemonade broccoli zucchini mushroom cucumber eggplant hazelnut cinnamon backyard driveway sidewalk campfire sailboat airplane elevator snowball rainbows sunshine starfish seashell seahorse dolphins whistles whiskers scissors password lanterns necklace bracelet calendar envelope magazine birdcage hammocks blizzard'.split(' ')
+};
+const VALID=new Set("__VALID__".split('|'));
+WEEK.flat().forEach(w=>VALID.add(w)); Object.values(POOL).flat().forEach(w=>VALID.add(w));
+
+/* ---------- Utils ---------- */
+function hash(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return h>>>0;}
+function rng(seed){let a=seed>>>0;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const EPOCH=new Date(2026,9,15);
+function todayIndex(){const n=new Date();const d0=new Date(n.getFullYear(),n.getMonth(),n.getDate());return Math.max(0,Math.round((d0-EPOCH)/864e5));}
+function fmtDate(d){return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});}
+function store(k,v){try{if(v===undefined){const s=localStorage.getItem(k);return s?JSON.parse(s):null;}localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function dailyWords(day){
+  if(day<WEEK.length) return WEEK[day];
+  const r=rng(hash('day'+day)*7+day);
+  return [4,6,8].map(L=>POOL[L][Math.floor(r()*POOL[L].length)]);
+}
+function randomWord(len){const Ls=len?[len]:[4,6,8];const L=Ls[Math.floor(Math.random()*Ls.length)];const p=POOL[L];return p[Math.floor(Math.random()*p.length)];}
+const DRAW_WEEK=['planet','guitar','rocket','castle','bridge','garden','pillow'];
+function dailyDrawWord(day){
+  if(day<DRAW_WEEK.length) return DRAW_WEEK[day];
+  const r=rng(hash('draw'+day)*3+day);const p=POOL[6];return p[Math.floor(r()*p.length)];
+}
+
+/* Link code for send-a-squiggle: a light scramble so the word isn't readable in the URL */
+function encodeWord(w){return 'c-'+[...w].map((c,i)=>String.fromCharCode(97+((c.charCodeAt(0)-97+7*i+11)%26))).join('');}
+function decodeWord(code){return [...code].map((c,i)=>String.fromCharCode(97+(((c.charCodeAt(0)-97-7*i-11)%26)+26)%26)).join('');}
+
+/* ---------- Glyph geometry ---------- */
+function points(word,seed,jit){
+  const r=rng(hash(seed));
+  const pts=[],loops=[];
+  for(let i=0;i<word.length;i++){
+    const ch=word[i],p=POS[ch]; if(!p) continue;
+    const jx=(r()*2-1)*jit*U, jy=(r()*2-1)*jit*U;
+    if(i>0&&word[i-1]===ch){loops.push(pts.length-1);continue;}
+    pts.push({x:p.x+jx,y:p.y+jy,ch,i});
+  }
+  return {pts,loops};
+}
+function curve(pts){
+  if(pts.length===0) return '';
+  const f=n=>Math.round(n*10)/10;
+  if(pts.length===1) return `M${f(pts[0].x)} ${f(pts[0].y)}`;
+  if(pts.length===2) return `M${f(pts[0].x)} ${f(pts[0].y)}L${f(pts[1].x)} ${f(pts[1].y)}`;
+  const P=[pts[0],...pts,pts[pts.length-1]];
+  let d=`M${f(pts[0].x)} ${f(pts[0].y)}`;
+  for(let i=1;i<P.length-2;i++){
+    const p0=P[i-1],p1=P[i],p2=P[i+1],p3=P[i+2];
+    const c1x=p1.x+(p2.x-p0.x)/6,c1y=p1.y+(p2.y-p0.y)/6,c2x=p2.x-(p3.x-p1.x)/6,c2y=p2.y-(p3.y-p1.y)/6;
+    d+=`C${f(c1x)} ${f(c1y)} ${f(c2x)} ${f(c2y)} ${f(p2.x)} ${f(p2.y)}`;
+  }
+  return d;
+}
+function endChevron(pts){
+  if(pts.length<2) return '';
+  const a=pts[pts.length-2],b=pts[pts.length-1];
+  const ang=Math.atan2(b.y-a.y,b.x-a.x),L=30,w=Math.PI*0.78;
+  const p1={x:b.x-L*Math.cos(ang-w),y:b.y-L*Math.sin(ang-w)},p2={x:b.x-L*Math.cos(ang+w),y:b.y-L*Math.sin(ang+w)};
+  const f=n=>Math.round(n*10)/10;
+  return `M${f(p1.x)} ${f(p1.y)}L${f(b.x)} ${f(b.y)}L${f(p2.x)} ${f(p2.y)}`;
+}
+function cells(showLetters){
+  let s='';
+  for(const ch in POS){const p=POS[ch];
+    s+=`<rect class="cellrect" x="${p.x-44}" y="${p.y-44}" width="88" height="88" rx="16"/>`;
+    if(showLetters) s+=`<text class="ghost" x="${p.x}" y="${p.y+2}">${ch.toUpperCase()}</text>`;
+  }
+  return s;
+}
+/* Bounding box of the drawn curve (sampled), so a floating squiggle can be centered without revealing its true keys */
+function bbox(pts,loops){
+  const xs=[],ys=[];
+  if(pts.length<=2){pts.forEach(p=>{xs.push(p.x);ys.push(p.y);});}
+  else{
+    const P=[pts[0],...pts,pts[pts.length-1]];xs.push(pts[0].x);ys.push(pts[0].y);
+    for(let i=1;i<P.length-2;i++){const p0=P[i-1],p1=P[i],p2=P[i+1],p3=P[i+2];
+      const c1x=p1.x+(p2.x-p0.x)/6,c1y=p1.y+(p2.y-p0.y)/6,c2x=p2.x-(p3.x-p1.x)/6,c2y=p2.y-(p3.y-p1.y)/6;
+      for(let k=1;k<=10;k++){const t=k/10,m=1-t;xs.push(m*m*m*p1.x+3*m*m*t*c1x+3*m*t*t*c2x+t*t*t*p2.x);ys.push(m*m*m*p1.y+3*m*m*t*c1y+3*m*t*t*c2y+t*t*t*p2.y);}}
+  }
+  loops.forEach(i=>{const p=pts[i];xs.push(p.x-8,p.x+36);ys.push(p.y-34,p.y+10);});
+  return {x0:Math.min(...xs),y0:Math.min(...ys),x1:Math.max(...xs),y1:Math.max(...ys)};
+}
+function centerTransform(pts,loops){const b=bbox(pts,loops);return `translate(${(500-(b.x0+b.x1)/2).toFixed(1)} ${(150-(b.y0+b.y1)/2).toFixed(1)})`;}
+function lattice(){let s='';for(let y=50;y<=250;y+=50)for(let x=50;x<=950;x+=50)s+=`<circle class="dot" cx="${x}" cy="${y}" r="3"/>`;return s;}
+function traceMarkup(pts,loops,showEnds){
+  const d=curve(pts);
+  let s=`<path class="inkhalo" d="${d}"/><path class="ink" d="${d}"/>`;
+  loops.forEach(i=>{const p=pts[i];s+=`<circle class="loop" cx="${(p.x+14).toFixed(1)}" cy="${(p.y-12).toFixed(1)}" r="22"/>`;});
+  if(showEnds){s+=`<circle class="start" cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="17"/>`;s+=`<path class="end" d="${endChevron(pts)}"/>`;}
+  return s;
+}
+function targetGlyph(word,seed,placed,hard,rev){
+  const {pts,loops}=points(word,seed,0.27);
+  let inner=traceMarkup(pts,loops,!hard);
+  if(rev&&rev.length){
+    const at={};pts.forEach(p=>{at[p.i]=p;});
+    for(let i=1;i<word.length;i++) if(!at[i]) at[i]=at[i-1];
+    rev.forEach(i=>{const p=at[i];if(!p)return;inner+=`<circle class="firstmark" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="34"/><text class="firstlab" x="${p.x.toFixed(1)}" y="${(p.y-50).toFixed(1)}">${word[i].toUpperCase()}</text>`;});
+  }
+  return placed?inner:`<g transform="${centerTransform(pts,loops)}">${inner}</g>`;
+}
+function guessOverlay(guess,ev,placed){
+  const {pts,loops}=points(guess,'x',0);
+  let s=`<path class="gpath" d="${curve(pts)}"/>`;
+  pts.forEach(p=>{s+=`<circle class="mark ${ev[p.i]}" cx="${p.x}" cy="${p.y}" r="15"/>`;});
+  return placed?s:`<g transform="${centerTransform(pts,loops)}">${s}</g>`;
+}
+function cleanGlyph(word,anim){
+  const {pts,loops}=points(word,'x',0);
+  let s=`<path class="clean${anim?' anim':''}" d="${curve(pts)}"/>`;
+  loops.forEach(i=>{const p=pts[i];s+=`<circle class="loop" cx="${p.x+14}" cy="${p.y-12}" r="22" style="opacity:.7"/>`;});
+  [...word].forEach((ch,i)=>{const p=POS[ch];s+=`<g class="lab" style="animation-delay:${anim?(.25+i*.12):0}s"><circle cx="${p.x}" cy="${p.y}" r="31"/><text x="${p.x}" y="${p.y+2}">${ch.toUpperCase()}</text></g>`;});
+  return s;
+}
+
+/* ---------- Scoring ---------- */
+/* Feedback is keyboard distance, not letter presence: for each corner of your guess, how far it landed from the real key.
+   'ok' = on the key, 'near' = a touching key (one step on the staggered grid), 'no' = cold. */
+const TOUCH=118;
+function kdist(a,b){const p=POS[a],q=POS[b];return Math.hypot(p.x-q.x,p.y-q.y);}
+function evaluate(guess,target){
+  const n=target.length,res=new Array(n);
+  for(let i=0;i<n;i++){const d=kdist(guess[i],target[i]);res[i]=d===0?'ok':(d<=TOUCH?'near':'no');}
+  return res;
+}
+
+/* ---------- State ---------- */
+const BASE_GUESSES=4, HARD_GUESSES=3;
+const PRICE={first:10,last:10,letter:15,place:25,extra:[20,35]};
+const START_INK=30, DAY_BONUS=20;
+const S={mode:'daily',day:todayIndex(),round:0,rounds:[],cur:'',practiceLen:null,customCode:null,hard:!!store('sq.hard')};
+const el=id=>document.getElementById(id);
+
+function makeRound(word){return {type:'read',word,g:[],ev:[],rev:[],placed:false,hard:S.hard,extra:0,done:false,won:false,ink:0};}
+function makeDraw(word){return {type:'draw',word,g:[],ev:[],rev:[],placed:false,hard:S.hard,extra:0,done:false,won:false,ink:0,acc:0,hits:[],stroke:[]};}
+const isDraw=r=>r&&r.type==='draw';
+function baseGuesses(r){return r.hard?HARD_GUESSES:BASE_GUESSES;}
+function allowed(r){return baseGuesses(r)+r.extra;}
+function setHard(on){S.hard=on;store('sq.hard',on);S.rounds.forEach(r=>{if(!r.done&&r.g.length===0)r.hard=on;});saveDaily();render();}
+function cur(){return S.rounds[S.round];}
+const reads=()=>S.rounds.filter(r=>!isDraw(r));
+const drawRound=()=>S.rounds.find(isDraw);
+
+function loadDaily(){
+  const saved=store('sq.daily.v5');
+  S.mode='daily'; S.day=todayIndex(); S.cur='';
+  if(saved&&saved.day===S.day&&Array.isArray(saved.rounds)&&saved.rounds.length===4){S.rounds=saved.rounds;S.round=Math.min(saved.round,3);}
+  else{S.rounds=[...dailyWords(S.day).map(makeRound),makeDraw(dailyDrawWord(S.day))];S.round=0;}
+}
+function saveDaily(){if(S.mode==='daily')store('sq.daily.v5',{day:S.day,round:S.round,rounds:S.rounds});}
+
+/* ---------- Ink economy ---------- */
+function inkFor(r){
+  let base=r.word.length*Math.max(1,BASE_GUESSES+1-r.g.length);
+  if(r.hard) base=Math.round(base*1.5);
+  if(S.mode!=='daily') base=Math.floor(base/2);
+  return base;
+}
+function addInk(n){const st=getStats();st.ink+=n;if(n>0)st.inkEarned+=n;store('sq.stats.v2',st);renderInk(true);}
+function spend(cost){const st=getStats();if(st.ink<cost)return false;st.ink-=cost;store('sq.stats.v2',st);renderInk(true);return true;}
+function renderInk(pop){const st=getStats();el('inkVal').textContent=st.ink;if(pop){const p=el('inkPill');p.classList.remove('pop');void p.offsetWidth;p.classList.add('pop');}}
+function startPractice(len){S.mode='practice';S.practiceLen=len;S.rounds=[makeRound(randomWord(len))];S.round=0;S.cur='';render();}
+function startCustom(word,code){S.mode='custom';S.customCode=code;S.rounds=[makeRound(word)];S.round=0;S.cur='';render();}
+
+/* ---------- Stats ---------- */
+function getStats(){const st=store('sq.stats.v2')||{days:0,perfect:0,streak:0,maxStreak:0,lastDay:null,rounds:0,solved:0,dist:{1:0,2:0,3:0,4:0,5:0,x:0}};
+  if(typeof st.ink!=='number'){st.ink=START_INK;st.inkEarned=0;}return st;}
+function recordRound(r){const st=getStats();st.rounds++;if(r.won){st.solved++;st.dist[Math.min(5,r.g.length)]++;}else st.dist.x++;store('sq.stats.v2',st);}
+function recordDay(){const st=getStats();if(st.lastDay===S.day)return 0;st.days++;const perfect=reads().every(r=>r.won);if(perfect)st.perfect++;
+  st.streak=(st.lastDay===S.day-1)?st.streak+1:1;st.maxStreak=Math.max(st.maxStreak,st.streak);st.lastDay=S.day;
+  const bonus=(perfect?DAY_BONUS:0)+Math.min(st.streak,10)*2;st.ink+=bonus;st.inkEarned+=bonus;store('sq.stats.v2',st);return bonus;}
+
+/* ---------- Rendering ---------- */
+function seedFor(r){return S.mode==='daily'?`d${S.day}:${r.word}`:`${S.mode}:${r.word}:${S.rounds.length}`;}
+function renderGlyph(){
+  const r=cur();
+  if(isDraw(r)){renderDrawGlyph(r);return;}
+  const placed=r.done||r.placed; let s=placed?cells(false):lattice();
+  if(r.done){s+=cleanGlyph(r.word,false);}
+  else{
+    s+=targetGlyph(r.word,seedFor(r),r.placed,r.hard,r.rev);
+    if(r.g.length){s+=guessOverlay(r.g[r.g.length-1],r.ev[r.ev.length-1],r.placed);}
+  }
+  el('glyph').innerHTML=s;
+  el('glyph').classList.remove('draw');
+}
+function renderRounds(){
+  const host=el('rounds');
+  if(S.mode!=='daily'){host.innerHTML=`<div class="modetag">${S.mode==='practice'?'Practice':'From a friend'} · ${cur().word.length} letters</div><button class="pill" id="backDaily" style="flex:0 0 auto;padding:0 14px"><small>Today's puzzle</small></button>`;
+    el('backDaily').onclick=()=>{loadDaily();render();};return;}
+  host.innerHTML=S.rounds.map((r,i)=>{const st=r.done?(r.won?'won':'lost'):(i===S.round?'cur':'');
+    if(isDraw(r)){const tag=r.done?`<small>${r.acc}%</small>`:(i===S.round?'<small>now</small>':'');
+      return `<button class="pill ${st}" data-i="${i}" aria-label="Round ${i+1}, draw the squiggle">${penIcon()}${tag}</button>`;}
+    const tag=r.done?(r.won?`<small>${r.g.length}/${baseGuesses(r)}</small>`:'<small>missed</small>'):(i===S.round?'<small>now</small>':'');
+    return `<button class="pill ${st}" data-i="${i}" aria-label="Squiggle ${i+1}, ${r.word.length} letters">${r.word.length}${tag}</button>`;}).join('');
+  host.querySelectorAll('.pill').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(i<=S.round||S.rounds[i].done){S.round=i;S.cur='';render();}else toast('Finish the current squiggle first');});
+}
+function renderStatus(msg,err){
+  const r=cur(),m=el('msg'),hb=el('btnHints');
+  if(msg!==undefined){m.textContent=msg;m.classList.toggle('err',!!err);}
+  else{m.classList.remove('err');
+    if(isDraw(r)) m.innerHTML=r.done?`<b>Blue</b> is the real trace, <b>pink</b> is yours${r.ink?` · +${r.ink} ink`:''}.`:`Draw it in <b>one stroke</b>, then lift${r.hard?' · <b>hard</b>':''}`;
+    else if(r.done) m.innerHTML=r.won?`Solved in <b>${r.g.length}</b>${r.ink?` · +${r.ink} ink`:''}.`:`The word was <b>${r.word.toUpperCase()}</b>.`;
+    else if(limbo(r)) m.innerHTML=`<b>Out of guesses.</b> Buy one more, or reveal.`;
+    else m.innerHTML=`<b>${r.word.length} letters</b> · guess ${r.g.length+1} of ${allowed(r)}${r.hard?' · <b>hard</b>':''}`;}
+  hb.hidden=isDraw(r);
+  hb.disabled=r.done;hb.classList.toggle('used',r.rev.length>0||r.placed);
+  hb.lastChild.textContent=limbo(r)?'One more?':'Hints';
+}
+function limbo(r){return !isDraw(r)&&!r.done&&r.g.length>=allowed(r);}
+function resolveLimbo(r){const price=PRICE.extra[r.extra];if(price!==undefined&&getStats().ink>=price)extraSheet(r,price);else finishRound(r,false);}
+function renderGuesses(fresh,shake){
+  const r=cur(),n=r.word.length,host=el('guesses');let s='';
+  if(isDraw(r)){host.innerHTML=drawPanel(r);return;}
+  if(r.rev.length&&!r.done){s+=`<div class="row known" style="--n:${n}" aria-label="Revealed letters">`+Array.from({length:n},(_,i)=>r.rev.includes(i)?`<div class="tile rev">${r.word[i]}</div>`:`<div class="tile slot">·</div>`).join('')+'</div>';}
+  for(let gi=0;gi<allowed(r);gi++){
+    if(gi<r.g.length){s+=`<div class="row${fresh&&gi===r.g.length-1?' fresh':''}" style="--n:${n}">`+[...r.g[gi]].map((c,i)=>`<div class="tile ${r.ev[gi][i]}" style="--i:${i}">${c}</div>`).join('')+'</div>';}
+    else if(gi===r.g.length&&!r.done){s+=`<div class="row${shake?' shake':''}" style="--n:${n}">`+Array.from({length:n},(_,i)=>`<div class="tile ${i<S.cur.length?'typed':'empty'}">${S.cur[i]||''}</div>`).join('')+'</div>';}
+    else{s+=`<div class="row" style="--n:${n}">`+Array.from({length:n},()=>`<div class="tile empty"></div>`).join('')+'</div>';}
+  }
+  host.innerHTML=s;
+}
+/* Keyboard marks are geometric: a key goes green once a corner landed on it; a key gets an amber halo when a corner
+   landed next door to it (the real key is one of its neighbours). Cold keys are left alone, because a cold corner says
+   nothing about that key at other positions. */
+function renderKeyboard(){
+  const r=cur(),hit=new Set(),warm=new Set();
+  r.g.forEach((g,gi)=>[...g].forEach((c,i)=>{const e=r.ev[gi][i];if(e==='ok')hit.add(c);else if(e==='near')warm.add(c);}));
+  const kb=el('kb');
+  if(!kb.dataset.built){
+    kb.innerHTML=ROWS.map((row,ri)=>`<div class="kbrow r${ri}">`+(ri===2?`<button class="key wide" data-k="enter">Enter</button>`:'')+[...row].map(c=>`<button class="key" data-k="${c}">${c}</button>`).join('')+(ri===2?`<button class="key wide" data-k="back" aria-label="Delete"><svg viewBox="0 0 24 24"><path d="M21 5H8l-5 7 5 7h13z"/><path d="m12 9 6 6M18 9l-6 6"/></svg></button>`:'')+'</div>').join('')+`<svg class="kbtrace" id="kbtrace" aria-hidden="true"></svg>`;
+    kb.dataset.built='1';
+    kb.addEventListener('click',e=>{const b=e.target.closest('.key');if(b)onKey(b.dataset.k);});
+  }
+  kb.hidden=isDraw(r);
+  const known=new Set(r.rev.map(i=>r.word[i]));
+  kb.querySelectorAll('.key').forEach(b=>{const c=b.dataset.k;b.className='key'+(c==='enter'||c==='back'?' wide':'')+(hit.has(c)?' ok':(warm.has(c)&&!r.done?' near':''))+(!r.done&&known.has(c)?' known':'');});
+  renderTrace();
+}
+/* Live trace: the word being typed is drawn across the real keys, so you can compare its shape to the squiggle before you commit. */
+function renderTrace(){
+  const svg=el('kbtrace'),kb=el('kb');if(!svg)return;
+  const r=cur(),w=(r&&!r.done)?S.cur:'';
+  if(w.length<1){svg.innerHTML='';return;}
+  const R=kb.getBoundingClientRect();if(!R.width){svg.innerHTML='';return;}
+  svg.setAttribute('viewBox',`0 0 ${R.width} ${R.height}`);
+  const pts=[],loops=[];
+  for(let i=0;i<w.length;i++){
+    const b=kb.querySelector(`.key[data-k="${w[i]}"]`);if(!b)continue;
+    const k=b.getBoundingClientRect(),x=k.left-R.left+k.width/2,y=k.top-R.top+k.height/2;
+    if(i>0&&w[i-1]===w[i]){loops.push(pts.length-1);continue;}
+    pts.push({x,y,ch:w[i],i});
+  }
+  const kw=pts.length?kb.querySelector('.key').getBoundingClientRect().width:40;
+  let s=`<path class="tr" d="${curve(pts)}"/>`;
+  loops.forEach(i=>{const p=pts[i];s+=`<circle class="trloop" cx="${(p.x+kw*.18).toFixed(1)}" cy="${(p.y-kw*.2).toFixed(1)}" r="${(kw*.22).toFixed(1)}"/>`;});
+  if(pts.length) s+=`<circle class="trstart" cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="${(kw*.14).toFixed(1)}"/>`;
+  svg.innerHTML=s;
+}
+window.addEventListener('resize',()=>{if(el('kbtrace'))renderTrace();});
+function renderSub(){
+  if(S.mode==='daily'){const d=new Date(EPOCH);d.setDate(d.getDate()+S.day);el('sub').textContent=`#${S.day+1} · ${fmtDate(d)}${S.hard?' · hard':''}`;}
+  else if(S.mode==='practice') el('sub').textContent='Practice · as many as you like';
+  else el('sub').textContent='Someone traced this one for you';
+}
+function render(opts){opts=opts||{};el('app').classList.toggle('drawmode',isDraw(cur()));renderSub();renderInk();renderRounds();renderGlyph();renderStatus();renderGuesses(opts.fresh,opts.shake);renderKeyboard();}
+
+/* ---------- Draw mode: you get the word, you draw its squiggle from memory ---------- */
+function penIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 20l4-1L19 8a2 2 0 0 0-3-3L5 16z"/><path d="M14 6l3 3"/></svg>`;}
+const dist2=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+function pathLen(p){let L=0;for(let i=1;i<p.length;i++)L+=dist2(p[i],p[i-1]);return L;}
+/* Uniform arc-length resample to exactly n points */
+function resampleN(p,n){
+  if(p.length===0) return [];
+  if(p.length===1) return Array.from({length:n},()=>({x:p[0].x,y:p[0].y}));
+  const L=pathLen(p);if(L===0) return Array.from({length:n},()=>({x:p[0].x,y:p[0].y}));
+  const step=L/(n-1),out=[{x:p[0].x,y:p[0].y}];let acc=0,i=1,a=p[0];
+  while(out.length<n-1&&i<p.length){
+    const b=p[i],d=dist2(a,b);
+    if(acc+d>=step){const t=(step-acc)/d;const q={x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t};out.push(q);a=q;acc=0;}
+    else{acc+=d;a=b;i++;}
+  }
+  while(out.length<n) out.push({x:p[p.length-1].x,y:p[p.length-1].y});
+  return out;
+}
+/* The ideal trace is the polyline through key centers; keyAt[i] is the sample index where letter i sits */
+function idealTrace(word,n){
+  const keys=[...word].map(c=>({x:POS[c].x,y:POS[c].y}));
+  const cum=[0];for(let i=1;i<keys.length;i++)cum.push(cum[i-1]+dist2(keys[i],keys[i-1]));
+  const L=cum[cum.length-1]||1;
+  return {pts:resampleN(keys,n),keyAt:cum.map(c=>Math.round(c/L*(n-1))),keys};
+}
+function scoreStroke(raw,word){
+  const N=64,drawn=resampleN(raw,N),ideal=idealTrace(word,N),P=ideal.pts;
+  /* Dynamic time warping aligns the drawn stroke to the ideal one, so a slow start or a fast finish isn't punished */
+  const D=Array.from({length:N+1},()=>new Float64Array(N+1).fill(Infinity));D[0][0]=0;
+  for(let i=1;i<=N;i++)for(let j=1;j<=N;j++){const c=dist2(drawn[i-1],P[j-1]);D[i][j]=c+Math.min(D[i-1][j],D[i][j-1],D[i-1][j-1]);}
+  let i=N,j=N,steps=0;const match=Array.from({length:N},()=>[]);
+  while(i>0&&j>0){match[j-1].push(i-1);steps++;const a=D[i-1][j-1],b=D[i-1][j],c=D[i][j-1];if(a<=b&&a<=c){i--;j--;}else if(b<=c)i--;else j--;}
+  const dev=D[N][N]/Math.max(1,steps);
+  const hits=ideal.keys.map((k,li)=>{let best=Infinity,bp=drawn[0];for(const di of match[ideal.keyAt[li]]){const d=dist2(drawn[di],k);if(d<best){best=d;bp=drawn[di];}}
+    if(best===Infinity)best=dist2(bp,k);
+    return {ch:word[li],d:Math.round(best),tier:best<=44?'ok':(best<=118?'near':'no'),score:best<=22?1:Math.max(0,1-(best-22)/160),x:Math.round(bp.x),y:Math.round(bp.y)};});
+  const letterScore=hits.reduce((a,h)=>a+h.score,0)/hits.length;
+  const shapeScore=Math.max(0,1-Math.max(0,dev-18)/130);
+  const acc=Math.round(100*(0.6*letterScore+0.4*shapeScore));
+  return {acc,hits,dev:Math.round(dev)};
+}
+window.__squiggle={scoreStroke,resampleN,POS};
+function inkForDraw(r){let base=Math.round(r.word.length*2*r.acc/100);if(r.acc>=95)base+=5;if(r.hard)base=Math.round(base*1.5);if(S.mode!=='daily')base=Math.floor(base/2);return base;}
+function recordDraw(r){const st=getStats();st.traces=(st.traces||0)+1;st.traceSum=(st.traceSum||0)+r.acc;st.traceBest=Math.max(st.traceBest||0,r.acc);store('sq.stats.v2',st);}
+
+const stroke={on:false,pts:[]};
+function toSvg(e){const svg=el('glyph');
+  if(svg.getScreenCTM&&svg.createSVGPoint){const ctm=svg.getScreenCTM();if(ctm){const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const q=pt.matrixTransform(ctm.inverse());return {x:q.x,y:q.y};}}
+  const R=svg.getBoundingClientRect();return {x:-20+(e.clientX-R.left)/R.width*1040,y:-20+(e.clientY-R.top)/R.height*340};}
+function strokePath(p){if(!p.length)return '';return 'M'+p.map(q=>`${q.x.toFixed(1)} ${q.y.toFixed(1)}`).join('L');}
+function liveStroke(){const svg=el('glyph');let live=svg.querySelector('.live');
+  if(!live){svg.insertAdjacentHTML('beforeend',`<circle class="livestart"/><path class="live"/>`);live=svg.querySelector('.live');}
+  live.setAttribute('d',strokePath(stroke.pts));const s=svg.querySelector('.livestart');s.setAttribute('cx',stroke.pts[0].x);s.setAttribute('cy',stroke.pts[0].y);s.setAttribute('r',14);}
+function bindDraw(){
+  const g=el('glyph');
+  g.addEventListener('pointerdown',e=>{const r=cur();if(!isDraw(r)||r.done)return;e.preventDefault();stroke.on=true;stroke.pts=[toSvg(e)];try{g.setPointerCapture(e.pointerId);}catch(x){}renderStatus();liveStroke();});
+  g.addEventListener('pointermove',e=>{if(!stroke.on)return;e.preventDefault();const p=toSvg(e),last=stroke.pts[stroke.pts.length-1];if(dist2(p,last)>=3){stroke.pts.push(p);liveStroke();}});
+  const end=e=>{if(!stroke.on)return;stroke.on=false;const r=cur();
+    if(stroke.pts.length<4||pathLen(stroke.pts)<80){stroke.pts=[];renderGlyph();renderStatus('Draw the whole word in one stroke, finger down to finger up',true);return;}
+    finishDraw(r,stroke.pts);stroke.pts=[];};
+  g.addEventListener('pointerup',end);g.addEventListener('pointercancel',end);
+}
+function finishDraw(r,pts){
+  const res=scoreStroke(pts,r.word);
+  haptic(res.acc>=70?'success':'medium');
+  r.done=true;r.acc=res.acc;r.hits=res.hits;r.stroke=resampleN(pts,48).map(p=>({x:Math.round(p.x),y:Math.round(p.y)}));r.won=res.acc>=70;r.bonus=0;
+  r.ink=inkForDraw(r);addInk(r.ink);
+  if(S.mode==='daily'){recordDraw(r);if(S.rounds.every(x=>x.done)){r.bonus=recordDay();renderInk(true);}}
+  saveDaily();
+  renderRounds();renderStatus();renderGuesses();
+  revealDraw(r);
+}
+function drawGlyphMarkup(r,anim){
+  let s=`<path class="stroke" d="${strokePath(r.stroke)}"/>`;
+  if(r.stroke.length)s+=`<circle class="livestart" cx="${r.stroke[0].x}" cy="${r.stroke[0].y}" r="14"/>`;
+  s+=cleanGlyph(r.word,anim);
+  r.hits.forEach((h,i)=>{s+=`<circle class="mark ${h.tier}" cx="${h.x}" cy="${h.y}" r="13" style="${anim?`opacity:0;animation:fadein .3s ${(.4+i*.12).toFixed(2)}s forwards`:''}"/>`;});
+  return s;
+}
+function renderDrawGlyph(r){
+  const svg=el('glyph');svg.classList.add('draw');
+  let s=r.hard?lattice():cells(false);
+  if(r.done)s+=drawGlyphMarkup(r,false);
+  svg.innerHTML=s;
+}
+function revealDraw(r){
+  const svg=el('glyph');svg.innerHTML=(r.hard?lattice():cells(false))+drawGlyphMarkup(r,true);
+  const wait=matchMedia('(prefers-reduced-motion: reduce)').matches?300:(600+r.word.length*120+500);
+  setTimeout(()=>resultSheet(r),wait);
+}
+function drawPanel(r){
+  const word=[...r.word].map((c,i)=>`<span class="dl ${r.done?(r.hits[i]||{}).tier||'':''}">${c}</span>`).join('');
+  if(!r.done) return `<div class="drawpanel"><div class="eyebrow">Draw this word</div><div class="drawword" aria-label="Word to draw: ${r.word}">${word}</div>
+    <p>Imagine the keyboard. Finger down on the first letter, glide through the rest, lift on the last. ${r.hard?'No grid on hard: the keys are where you remember them.':'The blank cells below are the keys.'}</p></div>`;
+  const on=r.hits.filter(h=>h.tier==='ok').length;
+  return `<div class="drawpanel"><div class="drawword">${word}</div><div class="acc"><b>${r.acc}%</b><span>${on} of ${r.word.length} letters on the key</span></div></div>`;
+}
+function startDrawPractice(len){S.mode='practice';S.practiceLen=len;S.practiceType='draw';S.rounds=[makeDraw(randomWord(len||6))];S.round=0;S.cur='';render();}
+
+/* ---------- Input ---------- */
+function onKey(k){
+  const r=cur(); if(r.done||isDraw(r)) return;
+  if(limbo(r)) return resolveLimbo(r);
+  if(k==='enter') return submit();
+  if(k==='back'){S.cur=S.cur.slice(0,-1);renderGuesses();renderTrace();haptic('light');return;}
+  if(/^[a-z]$/.test(k)&&S.cur.length<r.word.length){S.cur+=k;renderGuesses();renderTrace();haptic('light');}
+}
+document.addEventListener('keydown',e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  if(document.querySelector('.scrim')) return;
+  if(e.key==='Enter') onKey('enter'); else if(e.key==='Backspace') onKey('back'); else if(/^[a-zA-Z]$/.test(e.key)) onKey(e.key.toLowerCase());
+});
+function submit(){
+  const r=cur(),n=r.word.length;
+  if(S.cur.length<n){renderStatus(`Needs ${n} letters`,true);renderGuesses(false,true);return;}
+  if(S.mode!=='custom'&&!VALID.has(S.cur)){renderStatus('Not in the word list',true);renderGuesses(false,true);haptic('error');return;}
+  const ev=evaluate(S.cur,r.word);
+  r.g.push(S.cur);r.ev.push(ev);S.cur='';
+  const won=ev.every(e=>e==='ok');
+  if(won){finishRound(r,true);return;}
+  if(r.g.length>=allowed(r)){
+    const price=PRICE.extra[r.extra];
+    if(price!==undefined&&getStats().ink>=price){saveDaily();renderGlyph();renderStatus();renderGuesses(true);renderKeyboard();setTimeout(()=>extraSheet(r,price),n*70+350);return;}
+    finishRound(r,false);return;
+  }
+  saveDaily();renderGlyph();renderStatus();renderGuesses(true);renderKeyboard();renderRounds();
+}
+function finishRound(r,won){
+  const n=r.word.length;
+  r.done=true;r.won=won;r.bonus=0;
+  haptic(won?'success':'error');
+  if(won){r.ink=inkFor(r);addInk(r.ink);}
+  if(S.mode==='daily'){recordRound(r);if(S.rounds.every(x=>x.done)){r.bonus=recordDay();renderInk(true);}}
+  saveDaily();
+  renderGlyph();renderStatus();renderGuesses(true);renderKeyboard();renderRounds();
+  setTimeout(()=>{reveal(r);},n*70+450);
+}
+function extraSheet(r,price){
+  openSheet(`<h2>Out of guesses</h2><p>The squiggle's still there. One more guess costs <b>${price} ink</b>; you have <b>${getStats().ink}</b>.</p>
+  <div class="btns"><button class="btn primary" id="xBuy">${inkIcon()}One more guess · ${price}</button><button class="btn" id="xGive">Give up and reveal</button></div>`);
+  document.getElementById('xBuy').onclick=()=>{if(!spend(price)){toast('Not enough ink');return;}r.extra++;closeSheet();saveDaily();render();};
+  document.getElementById('xGive').onclick=()=>{closeSheet();finishRound(r,false);};
+}
+function inkIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true" style="fill:currentColor;stroke:none"><path d="M12 2.5c3.5 4.8 6 8 6 11.5a6 6 0 0 1-12 0c0-3.5 2.5-6.7 6-11.5z"/></svg>`;}
+
+/* ---------- Hints shop ---------- */
+function hintsSheet(){
+  const r=cur();if(r.done)return;
+  const st=getStats(),n=r.word.length;
+  const middle=[];for(let i=1;i<n-1;i++)if(!r.rev.includes(i))middle.push(i);
+  const items=[
+    {k:'first',t:'First letter',d:'Marks where the finger landed and which key it was.',p:PRICE.first,used:r.rev.includes(0),ok:true,
+      ic:'<path d="M4 20 20 4M4 12V4h8"/>'},
+    {k:'last',t:'Last letter',d:'Marks where the finger lifted.',p:PRICE.last,used:r.rev.includes(n-1),ok:true,
+      ic:'<path d="M20 4 4 20M20 12V4h-8"/>'},
+    {k:'letter',t:'A middle letter',d:'Reveals one of the letters between the ends, on the squiggle and in the row above your guesses.',p:PRICE.letter,used:middle.length===0,ok:middle.length>0,
+      ic:'<circle cx="12" cy="12" r="3"/><path d="M3 12h4M17 12h4"/>'},
+    {k:'place',t:'Place it on the keys',d:r.hard?'Locked in hard mode.':'Drops the squiggle onto the real keyboard grid. The big one.',p:PRICE.place,used:r.placed,ok:!r.hard,
+      ic:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8"/>'}
+  ];
+  const cards=items.map(it=>{const poor=!it.used&&st.ink<it.p;const dis=it.used||!it.ok||poor;
+    return `<button class="hintcard${it.used?' used':''}${poor?' poor':''}" data-k="${it.k}" ${dis?'disabled':''}><span class="ic"><svg viewBox="0 0 24 24">${it.ic}</svg></span><span class="t"><b>${it.t}</b><small>${it.d}</small></span><span class="price">${it.used?'Used':(it.ok?inkIcon()+it.p:'Locked')}</span></button>`;}).join('');
+  openSheet(`<h2>Hints</h2>
+  <div class="balance"><b>${inkIcon()}${st.ink}</b><span>Earn ink by solving: longer words and fewer guesses pay more, hard mode pays 1.5×, finishing the day adds a bonus.</span></div>
+  <div class="hints">${cards}</div>`,true);
+  document.querySelectorAll('.hintcard').forEach(b=>b.onclick=()=>buyHint(b.dataset.k));
+}
+function buyHint(k){
+  const r=cur(),n=r.word.length;
+  if(k==='first'){if(!spend(PRICE.first))return;r.rev.push(0);}
+  else if(k==='last'){if(!spend(PRICE.last))return;r.rev.push(n-1);}
+  else if(k==='letter'){const middle=[];for(let i=1;i<n-1;i++)if(!r.rev.includes(i))middle.push(i);if(!middle.length)return;if(!spend(PRICE.letter))return;r.rev.push(middle[Math.floor(Math.random()*middle.length)]);}
+  else if(k==='place'){if(r.hard||r.placed)return;if(!spend(PRICE.place))return;r.placed=true;}
+  closeSheet();saveDaily();renderGlyph();renderStatus();renderGuesses();renderKeyboard();
+}
+el('btnHints').onclick=()=>{const r=cur();if(limbo(r))resolveLimbo(r);else hintsSheet();};
+el('inkPill').onclick=()=>{const r=cur();if(r.done)statsSheet();else if(limbo(r))resolveLimbo(r);else hintsSheet();};
+
+/* ---------- Reveal + result sheet ---------- */
+function reveal(r){
+  el('glyph').innerHTML=cells(false)+cleanGlyph(r.word,true);
+  const wait=matchMedia('(prefers-reduced-motion: reduce)').matches?200:(500+r.word.length*120+500);
+  setTimeout(()=>resultSheet(r),wait);
+}
+function resultSheet(r){
+  const n=r.word.length;
+  let title,body,earn;
+  if(isDraw(r)){
+    const a=r.acc;title=a>=95?'Pixel perfect.':a>=85?'Clean trace.':a>=70?'Close. Readable.':a>=50?'Rough, but it\'s in there.':'That\'s a different word.';
+    const on=r.hits.filter(h=>h.tier==='ok').length;
+    body=`You drew <b>${r.word.toUpperCase()}</b> at <b>${a}%</b>: ${on} of ${n} letters landed on the key${r.hard?', on hard':''}. Blue is the real trace.`;
+    earn=r.ink?`<div class="earn">${inkIcon()}+${r.ink} ink<small>${n} letters × 2 × ${a}%${a>=95?' + 5 perfect':''}${r.hard?' × 1.5 hard':''}${S.mode!=='daily'?' · half outside the daily':''}</small></div>`:'';
+  } else {
+    if(r.won){title=['','Read it in one.','Two. Sharp.','Three. Nice trace.','Four. Just made it.'][r.g.length]||'Got there, with a little ink.';}
+    else title='That one got away.';
+    const hints=r.rev.length+(r.placed?1:0);
+    body=r.won?`You traced <b>${r.word.toUpperCase()}</b> in ${r.g.length} ${r.g.length===1?'guess':'guesses'}${hints?` with ${hints} ${hints===1?'hint':'hints'}`:''}${r.hard?' on hard':''}.`:`It was <b>${r.word.toUpperCase()}</b>. Here's where it really sat on the keys.`;
+    earn=r.won?`<div class="earn">${inkIcon()}+${r.ink} ink<small>${r.word.length} letters × ${Math.max(1,BASE_GUESSES+1-r.g.length)} for speed${r.hard?' × 1.5 hard':''}${S.mode!=='daily'?' · half outside the daily':''}</small></div>`:'';
+  }
+  const bonus=r.bonus?`<div class="earn">${inkIcon()}+${r.bonus} ink<small>day bonus${reads().every(x=>x.won)?' · all three solved':''} · streak ${getStats().streak}</small></div>`:'';
+  let btns='';
+  if(S.mode==='daily'){
+    const next=S.rounds.findIndex(x=>!x.done);
+    if(next>=0) btns=`<button class="btn primary" id="sNext">${isDraw(S.rounds[next])?'Next: draw one':`Next squiggle · ${S.rounds[next].word.length} letters`}</button>`;
+    else btns=`<button class="btn primary" id="sShare">${ic('share')}Share today</button><button class="btn" id="sPractice">Practice</button>`;
+  } else if(S.mode==='practice'){
+    btns=`<button class="btn primary" id="sAnother">Another one</button><button class="btn" id="sDaily">Today's puzzle</button>`;
+  } else {
+    btns=`<button class="btn primary" id="sMake">Make one for them</button><button class="btn" id="sDaily">Today's puzzle</button>`;
+  }
+  const done=S.mode==='daily'&&S.rounds.every(x=>x.done);
+  openSheet(`<h2>${title}</h2><div class="answer">${r.word}</div><p>${body}</p>${earn}${bonus}${done?dayRecap():''}<div class="btns">${btns}</div>`);
+  const q=id=>document.getElementById(id);
+  if(q('sNext')) q('sNext').onclick=()=>{closeSheet();S.round=S.rounds.findIndex(x=>!x.done);S.cur='';render();};
+  if(q('sShare')) q('sShare').onclick=()=>{closeSheet();shareSheet();};
+  if(q('sPractice')) q('sPractice').onclick=()=>{closeSheet();practiceSheet();};
+  if(q('sAnother')) q('sAnother').onclick=()=>{closeSheet();if(S.practiceType==='draw')startDrawPractice(S.practiceLen);else startPractice(S.practiceLen);};
+  if(q('sDaily')) q('sDaily').onclick=()=>{closeSheet();loadDaily();render();};
+  if(q('sMake')) q('sMake').onclick=()=>{closeSheet();sendSheet();};
+}
+function dayRecap(){
+  const rs=reads(),solved=rs.filter(r=>r.won).length,total=rs.reduce((a,r)=>a+r.g.length,0),ink=dayInk(),dr=drawRound();
+  return `<p><b>${solved} of 3</b> solved in ${total} guesses${dr&&dr.done?`, <b>${dr.word.toUpperCase()}</b> drawn at <b>${dr.acc}%</b>`:''}, <b>${ink} ink</b> earned.</p>`;
+}
+function dayInk(){return S.rounds.reduce((a,r)=>a+(r.ink||0)+(r.bonus||0),0);}
+function shareText(){
+  const rs=reads(),dr=drawRound();
+  const lines=[`Squiggle #${S.day+1} · ${rs.map(r=>r.won?r.g.length:'X').join('/')}${dr&&dr.done?` · ✎${dr.acc}%`:''}${S.rounds.every(r=>r.hard)?' · hard':''} · ${dayInk()} ink`];
+  rs.forEach(r=>{let row='';for(let i=0;i<r.g.length;i++){row+=(i===r.g.length-1&&r.won)?'🟩':'⬜';}if(!r.won)row+='🟥';const h=r.rev.length+(r.placed?1:0);if(h)row+=' '+'💡'.repeat(Math.min(h,4));if(r.hard&&!S.rounds.every(x=>x.hard))row+=' ★';lines.push(`${r.word.length}  ${row}`);});
+  if(dr&&dr.done) lines.push(`✎  ${dr.hits.map(h=>h.tier==='ok'?'🟩':h.tier==='near'?'🟨':'⬜').join('')} ${dr.acc}%${dr.hard&&!S.rounds.every(x=>x.hard)?' ★':''}`);
+  lines.push(SHARE_URL);
+  return lines.join('\n');
+}
+function shareSheet(){
+  const t=shareText();
+  openSheet(`<h2>Share today's trace</h2><textarea class="share" id="shareBox" rows="6" readonly>${esc(t)}</textarea><div class="btns"><button class="btn primary" id="shareNow">${ic('share')}Share</button><button class="btn" id="copyShare">${ic('copy')}Copy</button></div><div class="btns"><button class="btn" id="sPractice2">Practice more</button></div>`);
+  document.getElementById('shareNow').onclick=async()=>{if(!(await shareOut(t)))copy(t,'shareBox');};
+  document.getElementById('copyShare').onclick=()=>copy(t,'shareBox');
+  document.getElementById('sPractice2').onclick=()=>{closeSheet();practiceSheet();};
+}
+function copy(text,boxId){
+  const done=()=>toast('Copied');
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>selectBox(boxId));}
+  else selectBox(boxId);
+}
+function selectBox(id){const b=document.getElementById(id);if(b){b.focus();b.select();toast('Select and copy the text');}}
+
+/* ---------- Modals ---------- */
+function ic(n){const d={share:'<path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M12 15V3m0 0L8 7m4-4 4 4"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/>',link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5"/>'}[n];return `<svg viewBox="0 0 24 24">${d}</svg>`;}
+function openSheet(html,center){
+  closeSheet();
+  const o=document.createElement('div');o.className='scrim'+(center?' center':'');
+  o.innerHTML=`<div class="sheet" role="dialog" aria-modal="true"><button class="x" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>${html}</div>`;
+  o.addEventListener('click',e=>{if(e.target===o||e.target.closest('.x'))closeSheet();});
+  el('overlay').appendChild(o);
+  const f=o.querySelector('input,button.primary,button');if(f&&!o.querySelector('input'))f.focus({preventScroll:true});
+}
+function closeSheet(){el('overlay').innerHTML='';}
+function toast(t){const h=el('toastHost');h.innerHTML=`<div class="toast">${esc(t)}</div>`;clearTimeout(h._t);h._t=setTimeout(()=>h.innerHTML='',1800);}
+
+function howSheet(){
+  openSheet(`<h2>How to play</h2>
+  <div class="how">
+    <div class="step"><div class="num">1</div><div>Each squiggle is the line a finger draws when it <b>swipe-types a word</b> on a phone keyboard. The dot is where the finger lands; the chevron is where it lifts.</div></div>
+    <div class="step"><div class="num">2</div><div>You see the shape at <b>true size</b> but not where it sat. A sweep that's five keys wide on the keyboard below is five keys wide here. Slide it around the keyboard in your head until the corners land on letters that make a word.</div></div>
+    <div class="step"><div class="num">3</div><div>Type a word of the right length. As you type, your trace draws across the keys in pink, so you can compare its shape to the squiggle before you commit.</div></div>
+    <div class="step"><div class="num">4</div><div>Feedback is <b>distance, not letters</b>. Each corner of your guess reports how far it landed from the real key. Nothing tells you whether a letter is "in the word somewhere". Only the shape does.</div></div>
+    <div class="legend"><span><i style="background:var(--ok)"></i>On the key</span><span><i style="background:var(--near)"></i>Next door (a touching key)</span><span><i style="background:var(--absent)"></i>Cold</span></div>
+    <div class="step"><div class="num">5</div><div><b>Round four flips it.</b> You get the word and draw its squiggle from memory, one stroke on the blank keys. You're scored on how close your line runs to the real trace.</div></div>
+    <p>Three squiggles to read (4, 6 and 8 letters, <b>four guesses</b> each) and one to draw. Solving earns <b>ink</b>: more for longer words and fewer guesses, 1.5× on hard, plus a bonus for finishing the day.</p>
+    <p>Ink buys hints (first letter, last letter, a middle letter, or <b>Place it</b>, which drops the squiggle onto the real keys) and one more guess when you run out. Hints show on your share.</p>
+    <p><b>Hard mode</b> (in the ⋯ menu): three guesses, no start or end marker, and Place it is locked.</p>
+  </div>
+  <div class="btns"><button class="btn primary" id="howGo">Start tracing</button></div>`,true);
+  document.getElementById('howGo').onclick=closeSheet;
+}
+function statsSheet(){
+  const st=getStats();const pct=st.rounds?Math.round(100*st.solved/st.rounds):0;
+  const max=Math.max(1,...Object.values(st.dist));
+  const r=cur();const curN=(S.mode==='daily'&&r.done&&r.won)?r.g.length:null;
+  const dist=['1','2','3','4','5','x'].map(k=>`<div class="d"><span>${k==='x'?'✕':(k==='5'?'5+':k)}</span><div class="bar${(curN!==null&&String(curN)===k)?' top':''}" style="width:${Math.max(8,100*st.dist[k]/max)}%">${st.dist[k]}</div></div>`).join('');
+  openSheet(`<h2>Your traces</h2>
+  <div class="balance"><b>${inkIcon()}${st.ink}</b><span>${st.inkEarned} ink earned all time</span></div>
+  <div class="stats"><div class="stat"><b>${st.days}</b><span>Days</span></div><div class="stat"><b>${pct}</b><span>Solve %</span></div><div class="stat"><b>${st.streak}</b><span>Streak</span></div><div class="stat"><b>${st.maxStreak}</b><span>Best</span></div></div>
+  <h3>Guesses per squiggle</h3><div class="dist">${dist}</div>
+  <h3>Drawn squiggles</h3>
+  <div class="stats three"><div class="stat"><b>${st.traces||0}</b><span>Traces</span></div><div class="stat"><b>${st.traces?Math.round(st.traceSum/st.traces):0}</b><span>Avg %</span></div><div class="stat"><b>${st.traceBest||0}</b><span>Best %</span></div></div>
+  <p>${st.perfect} perfect ${st.perfect===1?'day':'days'} (all three read). Streak counts days you finished the ladder, draw included.</p>
+  ${S.mode==='daily'&&S.rounds.every(x=>x.done)?`<div class="btns"><button class="btn primary" id="stShare">${ic('share')}Share today</button></div>`:''}`,true);
+  const b=document.getElementById('stShare');if(b)b.onclick=()=>{closeSheet();shareSheet();};
+}
+function moreSheet(){
+  openSheet(`<h2>More squiggles</h2>
+  <p>Today's three not enough? Practice from the word pool, or trace a word for a friend and send them the link.</p>
+  <div class="btns"><button class="btn primary" id="mPractice">Practice</button><button class="btn" id="mSend">${ic('link')}Send a squiggle</button></div>
+  <button class="switch" id="mHard" role="switch" aria-checked="${S.hard}"><span class="sw"><span class="knob"></span></span><span class="swtext"><b>Hard mode</b><small>Three guesses, no start or end marker, no Place it; the draw round loses its key grid. Pays 1.5× ink. Applies to rounds you haven't started.</small></span></button>
+  <div class="btns"><button class="btn" id="mHow">How to play</button></div>`,true);
+  document.getElementById('mPractice').onclick=()=>{closeSheet();practiceSheet();};
+  document.getElementById('mSend').onclick=()=>{closeSheet();sendSheet();};
+  document.getElementById('mHow').onclick=()=>{closeSheet();howSheet();};
+  const sw=document.getElementById('mHard');sw.onclick=()=>{setHard(!S.hard);sw.setAttribute('aria-checked',S.hard);toast(S.hard?'Hard mode on':'Hard mode off');};
+}
+function practiceSheet(){
+  openSheet(`<h2>Practice</h2><p>Practice rounds don't touch your streak and pay half ink.</p>
+  <h3>Which way round?</h3>
+  <div class="minilist two" id="pType"><button data-t="read" class="on">Read a squiggle</button><button data-t="draw">Draw a squiggle</button></div>
+  <h3>How long?</h3>
+  <div class="minilist" id="pLen"><button data-l="4">4</button><button data-l="6">6</button><button data-l="8">8</button><button data-l="0" class="on">Mix</button></div>
+  <div class="btns"><button class="btn primary" id="pGo">Go</button></div>`,true);
+  let len=0,type='read';const list=document.getElementById('pLen'),types=document.getElementById('pType');
+  list.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;len=+b.dataset.l;list.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));});
+  types.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;type=b.dataset.t;types.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));});
+  document.getElementById('pGo').onclick=()=>{closeSheet();if(type==='draw')startDrawPractice(len||null);else{S.practiceType='read';startPractice(len||null);}};
+}
+function sendSheet(){
+  openSheet(`<h2>Send a squiggle</h2><p>Type any word or name, 3 to 10 letters. We'll trace it and give you a link. They'll see the shape, not the word.</p>
+  <div class="field"><input id="sendWord" maxlength="10" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. tacos, Erin, Oklahoma"></div>
+  <svg class="glyph" id="sendPreview" viewBox="-20 -20 1040 340" aria-hidden="true" style="background:var(--bg);border-radius:12px"></svg>
+  <div class="btns"><button class="btn primary" id="sendCopy">${ic('link')}Copy link</button></div>
+  <textarea class="share visually-hidden" id="sendBox" rows="2" readonly></textarea>`,true);
+  const inp=document.getElementById('sendWord'),pv=document.getElementById('sendPreview'),cp=document.getElementById('sendCopy');
+  const draw=()=>{const w=inp.value.toLowerCase().replace(/[^a-z]/g,'');inp.value=w;pv.innerHTML=lattice()+(w.length>=2?targetGlyph(w,'send:'+w,false,false,false):'');cp.disabled=w.length<3;};
+  inp.addEventListener('input',draw);draw();inp.focus();
+  cp.onclick=()=>{const w=inp.value;if(w.length<3)return;const link=SHARE_URL+'#'+encodeWord(w);document.getElementById('sendBox').value=link;
+    document.getElementById('sendBox').classList.remove('visually-hidden');const msg=`Can you read my squiggle? ${link}`;shareOut(msg).then(ok=>{if(!ok)copy(msg,'sendBox');});};
+}
+el('btnHow').onclick=howSheet; el('btnStats').onclick=statsSheet; el('btnMore').onclick=moreSheet;
+
+/* ---------- Boot ---------- */
+function start(){
+  bindDraw();
+  const m=/^#c-([a-z]{3,10})$/.exec(location.hash||'');
+  if(m){startCustom(decodeWord(m[1]),m[1]);}
+  else{loadDaily();render();}
+  if(!store('sq.seen')){store('sq.seen',1);setTimeout(howSheet,300);}
+}
+window.addEventListener('hashchange',()=>{const m=/^#c-([a-z]{3,10})$/.exec(location.hash||'');if(m)startCustom(decodeWord(m[1]),m[1]);});
+if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){window.claude.hot.snapshot(()=>({cur:S.cur}));}
+const boot=()=>{start();try{const d=window.claude&&window.claude.hot&&window.claude.hot.data;if(d&&d.cur){S.cur=d.cur;renderGuesses();}}catch(e){}};
+if(window.claude&&window.claude.hot&&window.claude.hot.ready) window.claude.hot.ready(boot); else boot();
+})();
+</script>
+<!--STANDALONE--><script>
+/* Offline support for the web copy. The iPhone app ships its own files, so it skips this. */
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)&&!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform())){
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
+</script>
+</body>
+</html>
+<!--/STANDALONE-->

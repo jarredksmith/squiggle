@@ -1,0 +1,15 @@
+{
+  "appId": "com.jarredsmith.squiggle",
+  "appName": "Squiggle",
+  "webDir": "www",
+  "backgroundColor": "#EDF0F6",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#EDF0F6",
+    "scrollEnabled": false,
+    "limitsNavigationsToAppBoundDomains": false
+  },
+  "plugins": {
+    "StatusBar": { "style": "DEFAULT", "overlaysWebView": true }
+  }
+}
