@@ -166,6 +166,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .acc b{font-family:var(--display);font-weight:700;font-size:40px;line-height:1;color:var(--ink)}
 .acc span{color:var(--muted);font-size:14px}
 .minilist.two{grid-template-columns:1fr 1fr} .minilist.two button{font-size:14px}
+.minilist.three{grid-template-columns:1fr 1fr 1fr} .minilist.three button{font-size:14px}
 .stats.three{grid-template-columns:repeat(3,1fr)}
 .glyph .firstmark{fill:none;stroke:var(--near);stroke-width:6;stroke-dasharray:10 8}
 .glyph .firstlab{fill:var(--near);font-family:var(--display);font-weight:700;font-size:40px;text-anchor:middle;dominant-baseline:central}
@@ -405,6 +406,18 @@ function confetti(n){
   requestAnimationFrame(step);
 }
 function inkFloat(n){const pill=el('inkPill');if(!pill||!n)return;const R=pill.getBoundingClientRect();const d=document.createElement('div');d.className='inkfloat';d.textContent=`+${n}`;d.style.left=(R.left+R.width/2)+'px';d.style.top=(R.bottom+6)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1300);}
+/* ---------- Theme: system, light or dark; the CSS already keys off data-theme on the root ---------- */
+const THEME={mode:store('sq.theme')||'system'};
+function applyTheme(){
+  const root=document.documentElement;
+  if(THEME.mode==='system')root.removeAttribute('data-theme');else root.setAttribute('data-theme',THEME.mode);
+  const dark=THEME.mode==='dark'||(THEME.mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);
+  if(NATIVE&&NP.StatusBar){try{NP.StatusBar.setStyle({style:dark?'DARK':'LIGHT'});}catch(e){}}
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(!m.media)m.content=dark?'#0E0F2B':'#F2F1FB';});
+}
+function setTheme(mode){THEME.mode=mode;store('sq.theme',mode);applyTheme();}
+applyTheme();
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(THEME.mode==='system')applyTheme();});}catch(e){}
 function haptic(kind){
   if(!NATIVE||!NP.Haptics)return;
   try{
@@ -1155,6 +1168,8 @@ function moreSheet(){
   openSheet(`<h2>Settings</h2>
   <p>Practice from the word pool, trace a word for a friend, or change how the game plays.</p>
   <div class="btns"><button class="btn primary" id="mPractice">Practice</button><button class="btn" id="mSend">${ic('link')}Send a squiggle</button></div>
+  <h3>Appearance</h3>
+  <div class="minilist three" id="mTheme"><button data-t="system" class="${THEME.mode==='system'?'on':''}">System</button><button data-t="light" class="${THEME.mode==='light'?'on':''}">Light</button><button data-t="dark" class="${THEME.mode==='dark'?'on':''}">Dark</button></div>
   <button class="switch" id="mSound" role="switch" aria-checked="${SFX.on}"><span class="sw"><span class="knob"></span></span><span class="swtext"><b>Sound</b><small>Taps, reveals and a little fanfare. Haptics stay on either way.</small></span></button>
   <button class="switch" id="mHard" role="switch" aria-checked="${S.hard}"><span class="sw"><span class="knob"></span></span><span class="swtext"><b>Hard mode</b><small>Three guesses, no start or end marker, no Place it; the draw round loses its key grid. Pays 1.5× ink. Applies to rounds you haven't started.</small></span></button>
   <div class="btns"><button class="btn" id="mHow">How to play</button><button class="btn" id="mStats">Your traces</button></div>`,true);
@@ -1163,6 +1178,7 @@ function moreSheet(){
   document.getElementById('mHow').onclick=()=>{closeSheet();howSheet();};
   document.getElementById('mStats').onclick=()=>{closeSheet();statsSheet();};
   const sw=document.getElementById('mHard');sw.onclick=()=>{setHard(!S.hard);sw.setAttribute('aria-checked',S.hard);toast(S.hard?'Hard mode on':'Hard mode off');};
+  const th=document.getElementById('mTheme');th.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;setTheme(b.dataset.t);th.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));});
   const ss=document.getElementById('mSound');ss.onclick=()=>{SFX.on=!SFX.on;store('sq.sound',SFX.on);ss.setAttribute('aria-checked',SFX.on);if(SFX.on){audioCtx();sfx('win');}toast(SFX.on?'Sound on':'Sound off');};
 }
 function practiceSheet(){
