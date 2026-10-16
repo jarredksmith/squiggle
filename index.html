@@ -830,6 +830,7 @@ function renderGuesses(fresh,shake){
   const r=cur(),n=r.word.length,host=el('guesses');let s='';
   if(isDraw(r)){host.innerHTML=drawPanel(r);return;}
   if(r.tut&&!r.done){s+=`<div class="coach">${r.g.length?r.tut.coach2:r.tut.coach}</div>`;}
+  if(!r.done)fillKnown(r); /* a revealed first letter is in place before you type, so the cursor visibly sits after it */
   for(let gi=0;gi<allowed(r);gi++){
     if(gi<r.g.length){s+=`<div class="row${fresh&&gi===r.g.length-1?' fresh':''}" style="--n:${n}">`+[...r.g[gi]].map((c,i)=>`<div class="tile ${r.ev[gi][i]}" style="--i:${i}">${c}</div>`).join('')+'</div>';}
     else if(gi===r.g.length&&!r.done){s+=`<div class="row${shake?' shake':''}" style="--n:${n}">`+Array.from({length:n},(_,i)=>{const known=r.rev.includes(i);
@@ -859,8 +860,8 @@ function renderKeyboard(){
 /* Live trace: the word being typed is drawn across the real keys, so you can compare its shape to the squiggle before you commit. */
 function renderTrace(){
   const svg=el('kbtrace'),kb=el('kb');if(!svg)return;
-  const r=cur(),last=(r&&!r.done&&!S.cur&&r.g.length)?r.g[r.g.length-1]:'',w=(r&&!r.done)?(S.cur||last):'';
-  svg.classList.toggle('last',!!last&&!S.cur);
+  const r=cur(),typed=r&&!r.done&&[...S.cur].some((c,i)=>!r.rev.includes(i)),last=(r&&!r.done&&!typed&&r.g.length)?r.g[r.g.length-1]:'',w=(r&&!r.done)?(typed?S.cur:(last||S.cur)):'';
+  svg.classList.toggle('last',!!last&&!typed);
   if(w.length<1){svg.innerHTML='';return;}
   const R=kb.getBoundingClientRect();if(!R.width){svg.innerHTML='';return;}
   svg.setAttribute('viewBox',`0 0 ${R.width} ${R.height}`);
