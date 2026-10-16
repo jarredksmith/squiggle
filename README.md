@@ -57,3 +57,14 @@ Each run's build number is the GitHub run number, so uploads never collide. The 
 - **Daily reminder** at a time the player picks: `@capacitor/local-notifications`, same as Sparkle House.
 - **Game Center** leaderboards for weekly ink and best draw accuracy: a community Capacitor plugin, plus the Game Center capability on the App ID.
 - **Image share cards**: draw the squiggle and the result to a canvas and share the PNG through the native share sheet (the Share plugin accepts files).
+
+## Phase 2: making money without breaking the loop
+
+The game's growth engine is the share card and the friend links, so nothing may sit between a player and today's puzzle, and nothing may sell an advantage that shows on the share. Within that:
+
+1. **Squiggle+ (one-time unlock or yearly)**: the archive of past days, alternate inks and themes, detailed stats and streak repair. Sold through StoreKit via a Capacitor purchases plugin (RevenueCat's `@revenuecat/purchases-capacitor` is the least work; it also handles receipts and restores). The web copy stays free and ad-free.
+2. **Ink packs (consumable IAP)**: ink is already the only currency, and hints already cost ink. Selling ink is honest because hints are flagged on the share, so bought ink can't fake a result. Price so a pack covers a week of hints, not a day.
+3. **Ads, rewarded only**: a "watch for 20 ink" button in the hints sheet when a player is short, and an interstitial at most once per day after the day is complete, never before or between rounds. `@capacitor-community/admob` with App Tracking Transparency declined by default (contextual ads only). Squiggle+ removes all of them.
+4. **Never**: pay for extra daily rounds, pay to skip the draw round, or sell anything that changes the day's share line.
+
+Code hooks to add when this starts: an `economy` object in the template holding prices and a `premium` flag read from the store; `hintsSheet` gets a "Get ink" row; `recordDay` becomes the one place an interstitial may fire.

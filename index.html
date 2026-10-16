@@ -7,8 +7,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Squiggle">
-<meta name="theme-color" content="#EDF0F6" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0E1424" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F2F1FB" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E0F2B" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Three squiggles a day. Each one is the line a finger draws swipe-typing a word. Read it, then draw one of your own.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -21,90 +21,87 @@
    the typing keyboard at the bottom shares the frame's exact geometry so the eye can travel straight down from a corner
    of the squiggle to the key under it. */
 :root{
-  --bg:#EDF0F6; --surface:#FFFFFF; --fg:#151D33; --muted:#66718C; --line:#D6DCE8;
-  --cell:#EEF2F8; --cellline:#DFE5F0; --keycap:#FFFFFF; --keyboard:#DCE2ED; --keytext:#1B2440; --keyshadow:#B9C2D4;
-  --ink:#2A3FC9; --inksoft:rgba(42,63,201,.14); --guess:#C81E7E;
-  --ok:#15915F; --near:#DC8E00; --absent:#A3ACBF; --onstatus:#FFFFFF;
-  --accent:#2A3FC9; --onaccent:#FFFFFF; --scrim:rgba(21,29,51,.45);
-  --shadow:0 1px 0 rgba(21,29,51,.06), 0 10px 28px -14px rgba(21,29,51,.22);
+  --bg:#F2F1FB; --bg2:#E7EAF9; --surface:#FFFFFF; --fg:#17163A; --muted:#6B6F8E; --line:#DCDCEE;
+  --cell:#F0F0FA; --cellline:#DCDDF0; --keycap:#FFFFFF; --keyboard:#DFE0F3; --keytext:#1B1A40; --keyshadow:#B9BBD8;
+  --ink:#3A2FD9; --ink2:#7A5CFF; --inksoft:rgba(58,47,217,.14); --guess:#E63E95; --gold:#F2B705; --goldsoft:rgba(242,183,5,.18);
+  --ok:#16A571; --near:#F08C00; --absent:#A6ABC4; --miss:#E0455A; --onstatus:#FFFFFF;
+  --accent:#3A2FD9; --onaccent:#FFFFFF; --scrim:rgba(23,22,58,.5);
+  --shadow:0 1px 0 rgba(23,22,58,.05), 0 10px 28px -14px rgba(23,22,58,.24);
   --display:'Fredoka','Avenir Next Rounded','Nunito',system-ui,sans-serif;
   --body:'Atkinson Hyperlegible','Helvetica Neue',Arial,sans-serif;
   --radius:16px;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0E1424; --surface:#171E33; --fg:#EAEEF8; --muted:#97A3C0; --line:#28324C;
-    --cell:#1E2740; --cellline:#283352; --keycap:#263052; --keyboard:#111829; --keytext:#EAEEF8; --keyshadow:#0B1020;
-    --ink:#8FB0FF; --inksoft:rgba(143,176,255,.16); --guess:#FF75BD;
-    --ok:#2FBF86; --near:#E6AE3D; --absent:#3F4A66; --onstatus:#0E1424;
-    --accent:#8FB0FF; --onaccent:#0E1424; --scrim:rgba(0,0,0,.6);
+    --bg:#0E0F2B; --bg2:#16173F; --surface:#1A1B45; --fg:#EEEEFA; --muted:#A3A7CC; --line:#2C2E62;
+    --cell:#232560; --cellline:#30336F; --keycap:#2A2C66; --keyboard:#13143A; --keytext:#EEEEFA; --keyshadow:#0A0B24;
+    --ink:#8F8BFF; --ink2:#B39CFF; --inksoft:rgba(143,139,255,.2); --guess:#FF77C6; --gold:#FFC83D; --goldsoft:rgba(255,200,61,.2);
+    --ok:#2ED39A; --near:#FFAE3D; --absent:#44486F; --miss:#FF6B7F; --onstatus:#0E0F2B;
+    --accent:#8F8BFF; --onaccent:#0E0F2B; --scrim:rgba(0,0,0,.62);
     --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.6);
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0E1424; --surface:#171E33; --fg:#EAEEF8; --muted:#97A3C0; --line:#28324C;
-  --cell:#1E2740; --cellline:#283352; --keycap:#263052; --keyboard:#111829; --keytext:#EAEEF8; --keyshadow:#0B1020;
-  --ink:#8FB0FF; --inksoft:rgba(143,176,255,.16); --guess:#FF75BD;
-  --ok:#2FBF86; --near:#E6AE3D; --absent:#3F4A66; --onstatus:#0E1424;
-  --accent:#8FB0FF; --onaccent:#0E1424; --scrim:rgba(0,0,0,.6);
+  --bg:#0E0F2B; --bg2:#16173F; --surface:#1A1B45; --fg:#EEEEFA; --muted:#A3A7CC; --line:#2C2E62;
+  --cell:#232560; --cellline:#30336F; --keycap:#2A2C66; --keyboard:#13143A; --keytext:#EEEEFA; --keyshadow:#0A0B24;
+  --ink:#8F8BFF; --ink2:#B39CFF; --inksoft:rgba(143,139,255,.2); --guess:#FF77C6; --gold:#FFC83D; --goldsoft:rgba(255,200,61,.2);
+  --ok:#2ED39A; --near:#FFAE3D; --absent:#44486F; --miss:#FF6B7F; --onstatus:#0E0F2B;
+  --accent:#8F8BFF; --onaccent:#0E0F2B; --scrim:rgba(0,0,0,.62);
   --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.6);
   color-scheme:dark;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.4;
-  -webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+html{height:100%}
+body{margin:0;min-height:100%;background:var(--bg);background-image:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);background-attachment:fixed;color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.4;
+  -webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+.top,.rounds,.card,.status{flex-shrink:0}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.app{max-width:540px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;
+.app{max-width:540px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   padding-block:10px 12px;gap:10px}
 
 /* Header */
 .top{display:flex;align-items:center;gap:10px}
-.brandbtn{text-align:left;min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+.brandbtn{text-align:left;min-width:0;display:flex;flex-direction:column;align-items:flex-start;overflow:hidden}
+.app.onhome .brandbtn{visibility:hidden}
+/* In play the header is a toolbar: mark + date only, so the ink pill and icons never crowd the wordmark */
+.app:not(.onhome) .brand .wm{display:none}
+.app:not(.onhome) .brandbtn{flex-direction:row;align-items:center;gap:8px}
+.app:not(.onhome) .brand svg{width:30px;height:18px}
+.app:not(.onhome) .sub{margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
+.app:not(.onhome) #btnHow,.app:not(.onhome) #btnStats{display:none}
 .game{display:flex;flex-direction:column;gap:10px;flex:1}
-/* Home: the day at a glance */
-.home{display:flex;flex-direction:column;gap:14px;flex:1;padding-block:6px 10px}
-.hero{display:flex;flex-direction:column;gap:6px}
-.hero .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
-.hero h1{font-family:var(--display);font-weight:700;font-size:34px;line-height:1.05;margin:0;text-wrap:balance;letter-spacing:-.01em}
-.hero p{margin:0;color:var(--muted);font-size:15px;max-width:40ch}
-.ladder{display:flex;flex-direction:column;gap:8px}
-.lcard{display:grid;grid-template-columns:1fr 92px;align-items:center;gap:10px;background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:8px 12px 8px 8px;text-align:left;width:100%;border:2px solid transparent}
-.lcard.cur{border-color:var(--ink)}
-.lcard:disabled{opacity:.55;cursor:default}
-.lcard .mini{display:block;width:100%;height:auto;aspect-ratio:1040/340;max-width:100%}
-.lcard .mini .cellrect{fill:var(--cell);stroke:var(--cellline);stroke-width:2}
-.lcard .mini .dot{fill:var(--cellline)}
-.lcard .mini .ink{fill:none;stroke:var(--ink);stroke-width:18;stroke-linecap:round;stroke-linejoin:round}
-.lcard .mini .inkhalo{display:none}
-.lcard .mini .start{fill:var(--ink)} .lcard .mini .end{fill:none;stroke:var(--ink);stroke-width:14;stroke-linecap:round;stroke-linejoin:round} .lcard .mini .loop{fill:none;stroke:var(--ink);stroke-width:12}
-.lcard .mini .clean{fill:none;stroke:var(--ink);stroke-width:12;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
-.lcard .mini .lab circle{fill:var(--surface);stroke:var(--ink);stroke-width:6} .lcard .mini .lab text{fill:var(--fg);font-family:var(--display);font-weight:700;font-size:56px;text-anchor:middle;dominant-baseline:central}
-.lcard .mini .lab{animation:none}
-.lcard .mini .stroke{fill:none;stroke:var(--guess);stroke-width:14;stroke-linecap:round;stroke-linejoin:round;opacity:.85} .lcard .mini .livestart{fill:var(--guess)} .lcard .mini .mark{display:none}
-.lcard .side{display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right}
-.lcard .side b{font-family:var(--display);font-weight:700;font-size:22px;line-height:1;font-variant-numeric:tabular-nums}
-.lcard .side small{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.lcard .side .tagx{display:inline-flex;align-items:center;justify-content:center;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:700;background:var(--bg);color:var(--muted)}
-.lcard .side .tagx.won{background:var(--ok);color:var(--onstatus)} .lcard .side .tagx.lost{background:var(--absent);color:var(--onstatus)} .lcard .side .tagx.now{background:var(--ink);color:var(--onaccent)}
-.drawmini{display:grid;place-items:center;height:100%;color:var(--ink)}
-.drawmini svg{width:34px;height:34px}
-.cta{display:flex;flex-direction:column;gap:8px}
-.cta .btn.big{height:56px;font-size:19px;flex:1 1 auto}
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.tile2{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:14px;text-align:left;min-height:96px}
-.tile2 .ic{width:34px;height:34px;border-radius:10px;background:var(--bg);display:grid;place-items:center;color:var(--ink)}
-.tile2 .ic svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.tile2 b{font-family:var(--display);font-weight:600;font-size:16px}
-.tile2 small{color:var(--muted);font-size:12px;line-height:1.35}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+/* Home: logo, date, a few buttons */
+.home{display:flex;flex-direction:column;align-items:center;gap:18px;flex:1;padding-block:8px 10px;position:relative;text-align:center}
+.home .bigmark{width:min(78vw,300px);height:auto;overflow:visible;margin-top:min(5vh,34px)}
+.home .bigmark path{fill:none;stroke:var(--ink);stroke-width:4.6;stroke-linecap:round;stroke-linejoin:round}
+.home .bigmark circle{fill:var(--guess)}
+.home .wordmark{font-family:var(--display);font-weight:700;font-size:clamp(44px,13vw,60px);letter-spacing:-.02em;line-height:1;background:linear-gradient(135deg,var(--ink),var(--ink2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.home .tag{color:var(--muted);font-size:15px;margin-top:-10px}
+.home .daychip{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.home .daychip i{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}
+.home .daychip i.todo{background:var(--near)} .home .daychip i.fresh{background:var(--ink)}
+.menu{display:flex;flex-direction:column;gap:10px;width:100%;max-width:360px;margin-top:6px}
+.mbtn{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:12px 16px;border-radius:18px;background:var(--surface);box-shadow:var(--shadow);text-align:left}
+.mbtn .mi{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:0 0 40px;background:var(--bg);color:var(--ink)}
+.mbtn .mi svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.mbtn .mt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.mbtn .mt b{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.1}
+.mbtn .mt small{color:var(--muted);font-size:13px}
+.mbtn .chev{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:0 0 18px}
+.mbtn.primary{background:linear-gradient(135deg,var(--ink),var(--ink2));color:var(--onaccent);box-shadow:0 12px 26px -12px var(--ink)}
+.mbtn.primary .mi{background:rgba(255,255,255,.18);color:#fff} .mbtn.primary .mt small{color:rgba(255,255,255,.8)} .mbtn.primary .chev{stroke:rgba(255,255,255,.8)}
+.mbtn .mi.pink{background:rgba(230,62,149,.14);color:var(--guess)} .mbtn .mi.gold{background:var(--goldsoft);color:var(--near)} .mbtn .mi.mint{background:rgba(22,165,113,.14);color:var(--ok)}
+.mrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mrow .mbtn{min-height:58px;padding:10px 12px;gap:10px} .mrow .mbtn .mt b{font-size:16px}
+.homefoot{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:auto;padding-top:6px}
 .chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
-.chip svg{width:14px;height:14px;fill:var(--ink)}
-.chip.muted{font-weight:400;color:var(--muted)}
+.chip svg{width:14px;height:14px;fill:var(--gold)}
+.chip.link{font-weight:600;color:var(--muted)}
+.lcard,.lcard .mini{display:none}
 .brand{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:-.01em;line-height:1;display:flex;align-items:center;gap:8px}
 .brand svg{width:34px;height:20px;overflow:visible}
 .sub{color:var(--muted);font-size:13px;margin-top:3px;font-variant-numeric:tabular-nums}
@@ -147,7 +144,9 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .coach b{color:var(--ink)}
 .cardpreview{width:100%;max-width:260px;height:auto;border-radius:14px;box-shadow:var(--shadow);align-self:center;display:block}
 /* Draw round reads top-down: prompt, canvas, result */
-.app.drawmode .rounds{order:1} .app.drawmode .guesses{order:2;min-height:0} .app.drawmode .card{order:3} .app.drawmode .status{order:4} .app.drawmode .kb{order:5}
+.app.drawmode .rounds{order:1} .app.drawmode .guesses{order:2;min-height:0} .app.drawmode .status{order:3} .app.drawmode .card{order:4;margin-top:auto;background:var(--keyboard);padding:8px 6px 10px} .app.drawmode .kb{order:5}
+.app.drawmode .glyph{aspect-ratio:1040/430}
+.app.drawmode .glyph .cellrect{fill:var(--keycap);stroke:none;filter:drop-shadow(0 3px 0 var(--keyshadow))}
 .glyph .live,.glyph .stroke{fill:none;stroke:var(--guess);stroke-width:12;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
 .glyph .livestart{fill:var(--guess)}
 @keyframes fadein{to{opacity:1}}
@@ -193,9 +192,9 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .tile.typed{box-shadow:inset 0 0 0 2px var(--ink)}
 @keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
 .row.fresh .tile{animation:flip .5s ease both;animation-delay:calc(var(--i) * 70ms)}
-@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
-.row.shake{animation:shake .4s ease}
-@media (prefers-reduced-motion: reduce){.row.fresh .tile,.row.shake{animation:none}}
+@keyframes badpulse{0%,100%{box-shadow:inset 0 0 0 2px var(--line)}50%{box-shadow:inset 0 0 0 3px var(--miss)}}
+.row.shake .tile{animation:badpulse .5s ease}
+@media (prefers-reduced-motion: reduce){.row.fresh .tile,.row.shake .tile{animation:none}}
 
 /* Keyboard */
 .kb{margin-top:auto;background:var(--keyboard);border-radius:var(--radius);padding:8px 6px 10px;display:flex;flex-direction:column;gap:7px;position:relative}
@@ -237,7 +236,8 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .btns{display:flex;gap:10px;flex-wrap:wrap}
 .btn{flex:1 1 140px;height:48px;border-radius:14px;font-family:var(--display);font-weight:600;font-size:17px;display:flex;align-items:center;justify-content:center;gap:8px;
   background:var(--bg);color:var(--fg);box-shadow:inset 0 0 0 2px var(--line)}
-.btn.primary{background:var(--accent);color:var(--onaccent);box-shadow:none}
+.btn.primary{background:linear-gradient(135deg,var(--ink),var(--ink2));color:var(--onaccent);box-shadow:0 8px 20px -10px var(--ink)}
+.btn.primary:active{filter:brightness(.96)}
 .btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .share{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;line-height:1.5;background:var(--bg);border-radius:12px;padding:12px;white-space:pre-wrap;word-break:break-word;border:0;width:100%;color:var(--fg);resize:none}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
@@ -247,6 +247,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .dist{display:flex;flex-direction:column;gap:5px;font-variant-numeric:tabular-nums}
 .dist .d{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:center;font-size:13px}
 .dist .bar{height:20px;border-radius:6px;background:var(--absent);color:var(--onstatus);font-weight:700;display:flex;align-items:center;justify-content:flex-end;padding:0 7px;min-width:24px;font-size:12px}
+.pill.lost,.tile.no{background:var(--absent)}
 .dist .bar.top{background:var(--ok)}
 .how{display:flex;flex-direction:column;gap:12px}
 .how .step{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
@@ -261,7 +262,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .minilist button.on{background:var(--accent);color:var(--onaccent);box-shadow:none}
 .ink{display:flex;align-items:center;gap:5px;height:38px;padding:0 12px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);
   font-family:var(--display);font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;color:var(--fg)}
-.ink svg{width:16px;height:16px;fill:var(--ink)}
+.ink svg{width:16px;height:16px;fill:var(--gold)}
 @keyframes inkpop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
 .ink.pop{animation:inkpop .45s ease}
 @media (prefers-reduced-motion: reduce){.ink.pop{animation:none}}
@@ -271,7 +272,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .key.known::after{content:"";position:absolute;inset:-3px;border-radius:12px;border:3px solid var(--near)}
 .balance{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border-radius:14px;padding:10px 14px}
 .balance b{font-family:var(--display);font-weight:700;font-size:22px;display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
-.balance b svg{width:18px;height:18px;fill:var(--ink)}
+.balance b svg{width:18px;height:18px;fill:var(--gold)}
 .balance span{color:var(--muted);font-size:13px;text-align:right}
 .hints{display:flex;flex-direction:column;gap:8px}
 .hintcard{display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:14px;padding:11px 12px;text-align:left;width:100%;box-shadow:inset 0 0 0 2px transparent}
@@ -280,13 +281,14 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .hintcard .ic svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .hintcard .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .hintcard .t b{font-size:15px} .hintcard .t small{color:var(--muted);font-size:12px;line-height:1.35}
-.hintcard .price{font-family:var(--display);font-weight:700;font-size:14px;padding:6px 10px;border-radius:999px;background:var(--accent);color:var(--onaccent);white-space:nowrap;display:flex;align-items:center;gap:4px}
+.hintcard .price{font-family:var(--display);font-weight:700;font-size:14px;padding:6px 10px;border-radius:999px;background:var(--goldsoft);color:var(--fg);white-space:nowrap;display:flex;align-items:center;gap:4px}
+.hintcard .price svg{fill:var(--gold)}
 .hintcard .price svg{width:12px;height:12px;fill:currentColor}
 .hintcard:disabled{opacity:.55;cursor:default}
 .hintcard.used{opacity:1} .hintcard.used .price{background:var(--ok);color:var(--onstatus)}
 .hintcard.poor .price{background:var(--absent);color:var(--onstatus)}
-.earn{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:20px;color:var(--ink)}
-.earn svg{width:18px;height:18px;fill:var(--ink)}
+.earn{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:20px;color:var(--fg)}
+.earn svg{width:18px;height:18px;fill:var(--gold)}
 .earn small{font-family:var(--body);font-weight:400;font-size:13px;color:var(--muted)}
 .switch{display:flex;align-items:center;gap:12px;text-align:left;background:var(--bg);border-radius:14px;padding:12px 14px;width:100%}
 .switch .sw{flex:0 0 46px;height:28px;border-radius:999px;background:var(--absent);position:relative;transition:background .2s}
@@ -294,6 +296,10 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .switch[aria-checked="true"] .sw{background:var(--ok)} .switch[aria-checked="true"] .knob{left:21px}
 .switch .swtext{display:flex;flex-direction:column;gap:2px;min-width:0}
 .switch .swtext small{color:var(--muted);font-size:12px;line-height:1.35}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:70}
+.inkfloat{position:fixed;transform:translateX(-50%);font-family:var(--display);font-weight:700;font-size:18px;color:var(--gold);text-shadow:0 1px 0 var(--surface);pointer-events:none;z-index:71;animation:inkrise 1.2s ease-out forwards}
+@keyframes inkrise{0%{opacity:0;transform:translate(-50%,0) scale(.8)}20%{opacity:1;transform:translate(-50%,-6px) scale(1.1)}100%{opacity:0;transform:translate(-50%,-44px) scale(1)}}
+@media (prefers-reduced-motion: reduce){.inkfloat{animation:none;opacity:0}}
 .toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;
   font-weight:700;font-size:14px;z-index:60;box-shadow:var(--shadow);max-width:calc(100% - 32px);text-align:center}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
@@ -301,7 +307,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 
 <style>
 /* Things the Claude artifact frame provides on its own; the standalone page and the iPhone app need them here. */
-:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.app{padding-top:calc(env(safe-area-inset-top,0px) + 10px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px)}
 img{max-width:100%}
 body{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;overscroll-behavior:none}
 .share,.field input{-webkit-user-select:text;user-select:text}
@@ -317,7 +323,7 @@ window.SQUIGGLE_SHARE_URL='https://jarredksmith.github.io/squiggle/';
   <header class="top">
     <button class="iconbtn" id="btnHome" aria-label="Home" hidden><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10"/></svg></button>
     <button class="grow brandbtn" id="brandBtn" aria-label="Squiggle home">
-      <div class="brand"><svg viewBox="0 0 34 20" aria-hidden="true"><path d="M2 16 C8 2, 12 2, 16 10 S24 18, 32 4" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/></svg>Squiggle</div>
+      <div class="brand"><svg viewBox="0 0 34 20" aria-hidden="true"><path d="M2 16 C8 2, 12 2, 16 10 S24 18, 32 4" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/></svg><span class="wm">Squiggle</span></div>
       <div class="sub" id="sub"></div>
     </button>
     <button class="ink" id="inkPill" aria-label="Ink balance, opens hints"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c3.5 4.8 6 8 6 11.5a6 6 0 0 1-12 0c0-3.5 2.5-6.7 6-11.5z"/></svg><span id="inkVal">0</span></button>
@@ -357,6 +363,43 @@ window.SQUIGGLE_SHARE_URL='https://jarredksmith.github.io/squiggle/';
 const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
 const NP=NATIVE?(window.Capacitor.Plugins||{}):{};
 const SHARE_URL=window.SQUIGGLE_SHARE_URL||(location.origin+location.pathname);
+/* ---------- Sound: a tiny synth, no audio files. Unlocked by the first tap, muted from Settings. ---------- */
+const SFX={on:store('sq.sound')!==false,ctx:null};
+function audioCtx(){if(!SFX.ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;SFX.ctx=new AC();}if(SFX.ctx.state==='suspended')SFX.ctx.resume().catch(()=>{});return SFX.ctx;}
+function tone(f,dur,opts){opts=opts||{};const c=audioCtx();if(!c)return;const t=c.currentTime+(opts.at||0);const o=c.createOscillator(),g=c.createGain();o.type=opts.type||'sine';o.frequency.setValueAtTime(f,t);if(opts.to)o.frequency.exponentialRampToValueAtTime(opts.to,t+dur);
+  const v=opts.vol||0.12;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v,t+0.008);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g).connect(c.destination);o.start(t);o.stop(t+dur+0.02);}
+function sfx(name){
+  if(!SFX.on)return;
+  try{switch(name){
+    case 'tap':tone(1800,0.04,{type:'triangle',vol:0.06});break;
+    case 'back':tone(900,0.05,{type:'triangle',vol:0.05});break;
+    case 'open':tone(660,0.07,{type:'sine',vol:0.07,to:880});break;
+    case 'bad':tone(220,0.14,{type:'triangle',vol:0.09,to:170});break;
+    case 'reveal':tone(523,0.08,{type:'sine',vol:0.07});tone(659,0.08,{type:'sine',vol:0.07,at:0.07});break;
+    case 'win':[523,659,784,1047].forEach((f,i)=>tone(f,0.16,{type:'sine',vol:0.1,at:i*0.08}));tone(1047,0.35,{type:'sine',vol:0.08,at:0.34,to:1319});break;
+    case 'big':[523,659,784,1047,1319,1568].forEach((f,i)=>tone(f,0.18,{type:'sine',vol:0.1,at:i*0.07}));[784,1047,1319].forEach((f,i)=>tone(f,0.5,{type:'triangle',vol:0.05,at:0.45+i*0.02}));break;
+    case 'lose':tone(392,0.18,{type:'sine',vol:0.08});tone(311,0.3,{type:'sine',vol:0.08,at:0.16});break;
+    case 'ink':tone(1568,0.06,{type:'square',vol:0.04});tone(2093,0.12,{type:'square',vol:0.04,at:0.06});break;
+    case 'spend':tone(1047,0.06,{type:'square',vol:0.04});tone(784,0.1,{type:'square',vol:0.04,at:0.06});break;
+    case 'draw':tone(300,0.16,{type:'sine',vol:0.06,to:900});break;
+    case 'lift':tone(900,0.12,{type:'sine',vol:0.06,to:400});break;
+  }}catch(e){}
+}
+document.addEventListener('pointerdown',()=>{if(SFX.on)audioCtx();},{passive:true,once:false});
+/* ---------- Confetti on a fixed canvas, palette colours, ~1.6 s ---------- */
+function confetti(n){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  let cv=document.getElementById('fx');if(!cv){cv=document.createElement('canvas');cv.id='fx';document.body.appendChild(cv);}
+  const dpr=Math.min(2,window.devicePixelRatio||1);cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;const x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
+  const cs=getComputedStyle(document.documentElement),cols=['--ink','--guess','--gold','--ok','--ink2'].map(v=>cs.getPropertyValue(v).trim()||'#3A2FD9');
+  const P=[];for(let i=0;i<n;i++){const a=-Math.PI/2+(Math.random()-0.5)*1.4,sp=380+Math.random()*420;P.push({x:innerWidth/2+(Math.random()-0.5)*120,y:innerHeight*0.42,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:Math.random()*Math.PI*2,vr:(Math.random()-0.5)*14,w:6+Math.random()*7,h:4+Math.random()*5,c:cols[i%cols.length],shape:Math.random()<0.3?'c':'r'});}
+  let last=performance.now();const t0=last;
+  function step(now){const dt=Math.min(0.033,(now-last)/1000);last=now;const age=(now-t0)/1000;x.clearRect(0,0,innerWidth,innerHeight);
+    for(const q of P){q.vy+=1500*dt;q.vx*=0.985;q.x+=q.vx*dt;q.y+=q.vy*dt;q.r+=q.vr*dt;x.save();x.translate(q.x,q.y);x.rotate(q.r);x.globalAlpha=Math.max(0,1-Math.max(0,age-1.0)/0.6);x.fillStyle=q.c;if(q.shape==='c'){x.beginPath();x.arc(0,0,q.w/2,0,Math.PI*2);x.fill();}else x.fillRect(-q.w/2,-q.h/2,q.w,q.h*Math.abs(Math.cos(q.r*1.3)));x.restore();}
+    if(age<1.7)requestAnimationFrame(step);else{x.clearRect(0,0,innerWidth,innerHeight);}}
+  requestAnimationFrame(step);
+}
+function inkFloat(n){const pill=el('inkPill');if(!pill||!n)return;const R=pill.getBoundingClientRect();const d=document.createElement('div');d.className='inkfloat';d.textContent=`+${n}`;d.style.left=(R.left+R.width/2)+'px';d.style.top=(R.bottom+6)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1300);}
 function haptic(kind){
   if(!NATIVE||!NP.Haptics)return;
   try{
@@ -553,7 +596,7 @@ function inkFor(r){
   return base;
 }
 function addInk(n){const st=getStats();st.ink+=n;if(n>0)st.inkEarned+=n;store('sq.stats.v2',st);renderInk(true);}
-function spend(cost){const st=getStats();if(st.ink<cost)return false;st.ink-=cost;store('sq.stats.v2',st);renderInk(true);return true;}
+function spend(cost){const st=getStats();if(st.ink<cost)return false;st.ink-=cost;store('sq.stats.v2',st);renderInk(true);sfx('spend');return true;}
 function renderInk(pop){const st=getStats();el('inkVal').textContent=st.ink;if(pop){const p=el('inkPill');p.classList.remove('pop');void p.offsetWidth;p.classList.add('pop');}}
 function startPractice(len){S.mode='practice';S.practiceLen=len;S.rounds=[makeRound(randomWord(len))];S.round=0;S.cur='';render();}
 function startCustom(word,code){S.mode='custom';S.customCode=code;S.rival=null;S.rounds=[makeRound(word)];S.round=0;S.cur='';render();}
@@ -589,7 +632,7 @@ function renderGlyph(){
     if(r.g.length){s+=guessOverlay(r.g[r.g.length-1],r.ev[r.ev.length-1],r.placed);}
   }
   el('glyph').innerHTML=s;
-  el('glyph').classList.remove('draw');
+  el('glyph').classList.remove('draw');el('glyph').setAttribute('viewBox','-20 -20 1040 340');
 }
 function renderRounds(){
   const host=el('rounds');
@@ -678,59 +721,49 @@ function render(opts){opts=opts||{};showGame();el('app').classList.toggle('drawm
 
 /* ---------- Home ---------- */
 let homeTimer=null;
-function showGame(){S.view='game';el('home').hidden=true;el('game').hidden=false;el('btnHome').hidden=false;clearInterval(homeTimer);homeTimer=null;}
+function showGame(){S.view='game';el('app').classList.remove('onhome');el('home').hidden=true;el('game').hidden=false;el('btnHome').hidden=false;clearInterval(homeTimer);homeTimer=null;}
 function goHome(){
   closeSheet();
   if(S.mode!=='daily'){if(S.mode==='tutorial'){S.after=null;}loadDaily();}
   S.view='home';S.cur='';
-  el('app').classList.remove('drawmode');el('game').hidden=true;el('home').hidden=false;el('btnHome').hidden=true;
+  el('app').classList.remove('drawmode');el('app').classList.add('onhome');el('game').hidden=true;el('home').hidden=false;el('btnHome').hidden=true;
   renderInk();el('sub').textContent='Daily word trace';
-  renderHome();
+  renderHome();el('home').scrollIntoView?.({block:'start'});
   clearInterval(homeTimer);homeTimer=setInterval(()=>{const c=el('countdown');if(c)c.textContent=untilTomorrow();},30000);
 }
 function untilTomorrow(){const n=new Date(),t=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1);const m=Math.max(0,Math.round((t-n)/60000));const h=Math.floor(m/60);return h?`${h}h ${String(m%60).padStart(2,'0')}m`:`${m}m`;}
-function miniGlyph(r){
-  if(isDraw(r)){
-    if(r.done) return `<svg class="mini" viewBox="-20 -20 1040 340" aria-hidden="true">${cells(false)}<path class="stroke" d="${strokePath(r.stroke)}"/>${cleanGlyph(r.word,false)}</svg>`;
-    return `<div class="drawmini">${penIcon().replace('width:18px;height:18px','width:34px;height:34px')}</div>`;
-  }
-  if(r.done) return `<svg class="mini" viewBox="-20 -20 1040 340" aria-hidden="true">${cells(false)}${cleanGlyph(r.word,false)}</svg>`;
-  return `<svg class="mini" viewBox="-20 -20 1040 340" aria-hidden="true">${lattice()}${targetGlyph(r.word,seedFor(r),false,r.hard,[])}</svg>`;
-}
 function renderHome(){
   const st=getStats(),d=new Date(EPOCH);d.setDate(d.getDate()+S.day);
   const doneN=S.rounds.filter(r=>r.done).length,all=doneN===S.rounds.length,next=S.rounds.findIndex(r=>!r.done);
-  const title=all?'Done for today.':doneN?'Pick up where you left off.':'Today\'s squiggles';
-  const sub=all?`${reads().filter(r=>r.won).length} of 3 read, ${drawRound()&&drawRound().done?drawRound().word.toUpperCase()+' drawn at '+drawRound().acc+'%':'draw skipped'}, ${dayInk()} ink. New squiggles in <b id="countdown">${untilTomorrow()}</b>.`
-    :doneN?`${doneN} of ${S.rounds.length} done. ${isDraw(S.rounds[next])?'The draw round is up next.':`A ${S.rounds[next].word.length}-letter squiggle is up next.`}`
-    :'Three to read, one to draw. Each squiggle is the line a finger drew swipe-typing a word.';
-  const ladder=S.rounds.map((r,i)=>{
-    const playable=r.done||i<=next;
-    let side;
-    if(isDraw(r)) side=r.done?`<b>${r.acc}%</b><small>drawn</small>`:`<span class="tagx${i===next?' now':''}">${i===next?'Next':'Draw'}</span><small>${r.word.length} letters</small>`;
-    else side=r.done?(r.won?`<b>${r.g.length}/${baseGuesses(r)}</b><small>${r.word.length} letters</small>`:`<span class="tagx lost">Missed</span><small>${r.word.length} letters</small>`):`<span class="tagx${i===next?' now':''}">${i===next?'Next':'Locked'}</span><small>${r.word.length} letters</small>`;
-    return `<button class="lcard${i===next?' cur':''}" data-i="${i}" ${playable?'':'disabled'} aria-label="Round ${i+1}">${miniGlyph(r)}<div class="side">${side}</div></button>`;}).join('');
-  const cta=all?`<button class="btn primary big" id="hShare">${ic('share')}Share today</button>`:`<button class="btn primary big" id="hPlay">${doneN?'Continue':'Play'}</button>`;
+  const chip=all?`<i></i>Done · new squiggles in <span id="countdown">${untilTomorrow()}</span>`:doneN?`<i class="todo"></i>${doneN} of ${S.rounds.length} done`:`<i class="fresh"></i>#${S.day+1} · ${fmtDate(d)}`;
+  const play=all
+    ?`<button class="mbtn primary" id="hShare"><span class="mi">${ic('share')}</span><span class="mt"><b>Share today</b><small>${reads().filter(r=>r.won).length} of 3 read${drawRound()&&drawRound().done?`, drawn at ${drawRound().acc}%`:''} · ${dayInk()} ink</small></span>${chev()}</button>
+       <button class="mbtn" id="hReview"><span class="mi"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></span><span class="mt"><b>Review today</b><small>See the traces and your guesses</small></span>${chev()}</button>`
+    :`<button class="mbtn primary" id="hPlay"><span class="mi"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span><span class="mt"><b>${doneN?'Continue':'Play'}</b><small>${doneN?`${S.rounds.length-doneN} to go · ${isDraw(S.rounds[next])?'draw round next':S.rounds[next].word.length+'-letter squiggle next'}`:'Three to read, one to draw'}</small></span>${chev()}</button>`;
   el('home').innerHTML=`
-  <div class="hero"><div class="eyebrow">#${S.day+1} · ${fmtDate(d)}${S.hard?' · hard':''}</div><h1>${title}</h1><p>${sub}</p></div>
-  <div class="ladder">${ladder}</div>
-  <div class="cta">${cta}</div>
-  <div class="tiles">
-    <button class="tile2" id="hPractice"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8a2 2 0 0 0-3-3L5 16z"/><path d="M14 6l3 3"/></svg></span><b>Practice</b><small>Read or draw, any length. Half ink, no streak.</small></button>
-    <button class="tile2" id="hSend"><span class="ic">${ic('link')}</span><b>Send a squiggle</b><small>Trace any word or name and text the link.</small></button>
-    <button class="tile2" id="hDuel"><span class="ic"><svg viewBox="0 0 24 24"><path d="M14 4l6 6-9 9H5v-6z"/><path d="M12 6l6 6"/></svg></span><b>Challenge</b><small>Draw a word, send your trace, see who's closer.</small></button>
-    <button class="tile2" id="hStats"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><b>Your traces</b><small>Streak ${st.streak}, ${st.days} ${st.days===1?'day':'days'} played.</small></button>
+  <svg class="bigmark" viewBox="-2 -4 38 28" aria-hidden="true"><path d="M2 16 C8 2, 12 2, 16 10 S24 18, 32 4"/><circle cx="2" cy="16" r="2.4"/></svg>
+  <div class="wordmark">Squiggle</div>
+  <div class="tag">Daily word trace</div>
+  <div class="daychip">${chip}</div>
+  <div class="menu">
+    ${play}
+    <div class="mrow">
+      <button class="mbtn" id="hPractice"><span class="mi mint"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8a2 2 0 0 0-3-3L5 16z"/><path d="M14 6l3 3"/></svg></span><span class="mt"><b>Practice</b><small>Read or draw</small></span></button>
+      <button class="mbtn" id="hDuel"><span class="mi gold"><svg viewBox="0 0 24 24"><path d="M14 4l6 6-9 9H5v-6z"/><path d="M12 6l6 6"/></svg></span><span class="mt"><b>Challenge</b><small>Beat a trace</small></span></button>
+    </div>
+    <button class="mbtn" id="hSend"><span class="mi pink">${ic('link')}</span><span class="mt"><b>Send a squiggle</b><small>Trace a word or name, text the link</small></span>${chev()}</button>
   </div>
-  <div class="chips"><span class="chip">${inkIcon()}${st.ink} ink</span><span class="chip">🔥 ${st.streak} day streak</span>${st.hardDays?'':''}<span class="chip muted">${S.hard?'Hard mode on':'Normal mode'}</span></div>`;
-  el('home').querySelectorAll('.lcard').forEach(b=>b.onclick=()=>{S.round=+b.dataset.i;S.cur='';render();});
+  <div class="homefoot"><span class="chip">${inkIcon()}${st.ink}</span><span class="chip">🔥 ${st.streak}</span><button class="chip link" id="hStats">Stats</button><button class="chip link" id="hHow">How to play</button><button class="chip link" id="hMore">Settings</button></div>`;
   const q=id=>document.getElementById(id);
-  if(q('hPlay'))q('hPlay').onclick=()=>{S.round=next;S.cur='';render();};
+  if(q('hPlay'))q('hPlay').onclick=()=>{sfx('open');S.round=next;S.cur='';render();};
   if(q('hShare'))q('hShare').onclick=()=>shareSheet();
+  if(q('hReview'))q('hReview').onclick=()=>{S.round=0;S.cur='';render();};
   q('hPractice').onclick=()=>practiceSheet();
-  q('hSend').onclick=()=>sendSheet();
   q('hDuel').onclick=()=>startDrawPractice(6);
-  q('hStats').onclick=()=>statsSheet();
+  q('hSend').onclick=()=>sendSheet();
+  q('hStats').onclick=()=>statsSheet();q('hHow').onclick=()=>howSheet();q('hMore').onclick=()=>moreSheet();
 }
+function chev(){return `<svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>`;}
 el('btnHome').onclick=goHome; el('brandBtn').onclick=goHome;
 
 /* ---------- Draw mode: you get the word, you draw its squiggle from memory ---------- */
@@ -781,14 +814,14 @@ function recordDraw(r){const st=getStats();st.traces=(st.traces||0)+1;st.traceSu
 const stroke={on:false,pts:[]};
 function toSvg(e){const svg=el('glyph');
   if(svg.getScreenCTM&&svg.createSVGPoint){const ctm=svg.getScreenCTM();if(ctm){const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const q=pt.matrixTransform(ctm.inverse());return {x:q.x,y:q.y};}}
-  const R=svg.getBoundingClientRect();return {x:-20+(e.clientX-R.left)/R.width*1040,y:-20+(e.clientY-R.top)/R.height*340};}
+  const R=svg.getBoundingClientRect(),vb=(svg.getAttribute('viewBox')||'-20 -20 1040 340').split(' ').map(Number);return {x:vb[0]+(e.clientX-R.left)/R.width*vb[2],y:vb[1]+(e.clientY-R.top)/R.height*vb[3]};}
 function strokePath(p){if(!p.length)return '';return 'M'+p.map(q=>`${q.x.toFixed(1)} ${q.y.toFixed(1)}`).join('L');}
 function liveStroke(){const svg=el('glyph');let live=svg.querySelector('.live');
   if(!live){svg.insertAdjacentHTML('beforeend',`<circle class="livestart"/><path class="live"/>`);live=svg.querySelector('.live');}
   live.setAttribute('d',strokePath(stroke.pts));const s=svg.querySelector('.livestart');s.setAttribute('cx',stroke.pts[0].x);s.setAttribute('cy',stroke.pts[0].y);s.setAttribute('r',14);}
 function bindDraw(){
   const g=el('glyph');
-  g.addEventListener('pointerdown',e=>{const r=cur();if(!isDraw(r)||r.done)return;e.preventDefault();stroke.on=true;stroke.pts=[toSvg(e)];try{g.setPointerCapture(e.pointerId);}catch(x){}renderStatus();liveStroke();});
+  g.addEventListener('pointerdown',e=>{const r=cur();if(!isDraw(r)||r.done)return;e.preventDefault();stroke.on=true;stroke.pts=[toSvg(e)];try{g.setPointerCapture(e.pointerId);}catch(x){}renderStatus();liveStroke();sfx('draw');});
   g.addEventListener('pointermove',e=>{if(!stroke.on)return;e.preventDefault();const p=toSvg(e),last=stroke.pts[stroke.pts.length-1];if(dist2(p,last)>=3){stroke.pts.push(p);liveStroke();}});
   const end=e=>{if(!stroke.on)return;stroke.on=false;const r=cur();
     if(stroke.pts.length<4||pathLen(stroke.pts)<80){stroke.pts=[];renderGlyph();renderStatus('Draw the whole word in one stroke, finger down to finger up',true);return;}
@@ -797,10 +830,12 @@ function bindDraw(){
 }
 function finishDraw(r,pts){
   const res=scoreStroke(pts,r.word);
-  haptic(res.acc>=70?'success':'medium');
+  haptic(res.acc>=70?'success':'medium');sfx('lift');
   r.done=true;r.acc=res.acc;r.hits=res.hits;r.stroke=resampleN(pts,48).map(p=>({x:Math.round(p.x),y:Math.round(p.y)}));r.won=res.acc>=70;r.bonus=0;
-  r.ink=inkForDraw(r);addInk(r.ink);
+  r.ink=inkForDraw(r);addInk(r.ink);setTimeout(()=>inkFloat(r.ink),500);
   if(S.mode==='daily'){recordDraw(r);if(S.rounds.every(x=>x.done)){r.bonus=recordDay();renderInk(true);}}
+  const dayDone=S.mode==='daily'&&S.rounds.every(x=>x.done);
+  setTimeout(()=>{if(res.acc>=70){sfx(dayDone?'big':'win');confetti(dayDone?160:(res.acc>=95?110:60));}else sfx('lose');},700+r.word.length*120);
   saveDaily();
   renderRounds();renderStatus();renderGuesses();
   revealDraw(r);
@@ -815,7 +850,7 @@ function drawGlyphMarkup(r,anim){
   return s;
 }
 function renderDrawGlyph(r){
-  const svg=el('glyph');svg.classList.add('draw');
+  const svg=el('glyph');svg.classList.add('draw');svg.setAttribute('viewBox','-20 -65 1040 430');
   let s=r.hard?lattice():cells(false);
   if(r.done)s+=drawGlyphMarkup(r,false);
   svg.innerHTML=s;
@@ -828,7 +863,7 @@ function revealDraw(r){
 function drawPanel(r){
   const word=[...r.word].map((c,i)=>`<span class="dl ${r.done?(r.hits[i]||{}).tier||'':''}">${c}</span>`).join('');
   if(!r.done) return `<div class="drawpanel"><div class="eyebrow">Draw this word</div><div class="drawword" aria-label="Word to draw: ${r.word}">${word}</div>
-    <p>Imagine the keyboard. Finger down on the first letter, glide through the rest, lift on the last. ${r.hard?'No grid on hard: the keys are where you remember them.':'The blank cells below are the keys.'}</p></div>`;
+    <p>The blank keyboard at the bottom is where you draw. Finger down on the first letter, glide through the rest, lift on the last.${r.hard?' No key grid on hard: the keys are where you remember them.':''}</p></div>`;
   const on=r.hits.filter(h=>h.tier==='ok').length;
   return `<div class="drawpanel"><div class="drawword">${word}</div><div class="acc"><b>${r.acc}%</b><span>${on} of ${r.word.length} letters on the key</span></div></div>`;
 }
@@ -839,8 +874,8 @@ function onKey(k){
   const r=cur(); if(r.done||isDraw(r)) return;
   if(limbo(r)) return resolveLimbo(r);
   if(k==='enter') return submit();
-  if(k==='back'){S.cur=S.cur.slice(0,-1);renderGuesses();renderTrace();haptic('light');return;}
-  if(/^[a-z]$/.test(k)&&S.cur.length<r.word.length){S.cur+=k;renderGuesses();renderTrace();haptic('light');}
+  if(k==='back'){S.cur=S.cur.slice(0,-1);renderGuesses();renderTrace();haptic('light');sfx('back');return;}
+  if(/^[a-z]$/.test(k)&&S.cur.length<r.word.length){S.cur+=k;renderGuesses();renderTrace();haptic('light');sfx('tap');}
 }
 document.addEventListener('keydown',e=>{
   if(e.metaKey||e.ctrlKey||e.altKey) return;
@@ -849,8 +884,8 @@ document.addEventListener('keydown',e=>{
 });
 function submit(){
   const r=cur(),n=r.word.length;
-  if(S.cur.length<n){renderStatus(`Needs ${n} letters`,true);renderGuesses(false,true);return;}
-  if(S.mode!=='custom'&&!VALID.has(S.cur)){renderStatus('Not in the word list',true);renderGuesses(false,true);haptic('error');return;}
+  if(S.cur.length<n){renderStatus(`Needs ${n} letters`,true);renderGuesses(false,true);sfx('bad');return;}
+  if(S.mode!=='custom'&&!VALID.has(S.cur)){renderStatus('Not in the word list',true);renderGuesses(false,true);haptic('error');sfx('bad');return;}
   const ev=evaluate(S.cur,r.word);
   r.g.push(S.cur);r.ev.push(ev);S.cur='';
   const won=ev.every(e=>e==='ok');
@@ -860,14 +895,16 @@ function submit(){
     if(price!==undefined&&getStats().ink>=price){saveDaily();renderGlyph();renderStatus();renderGuesses(true);renderKeyboard();setTimeout(()=>extraSheet(r,price),n*70+350);return;}
     finishRound(r,false);return;
   }
-  saveDaily();renderGlyph();renderStatus();renderGuesses(true);renderKeyboard();renderRounds();
+  saveDaily();renderGlyph();renderStatus();renderGuesses(true);renderKeyboard();renderRounds();sfx('reveal');
 }
 function finishRound(r,won){
   const n=r.word.length;
   r.done=true;r.won=won;r.bonus=0;
   haptic(won?'success':'error');
-  if(won){r.ink=inkFor(r);addInk(r.ink);}
+  if(won){r.ink=inkFor(r);addInk(r.ink);setTimeout(()=>inkFloat(r.ink),n*70+300);}
   if(S.mode==='daily'){recordRound(r);if(S.rounds.every(x=>x.done)){r.bonus=recordDay();renderInk(true);}}
+  const dayDone=S.mode==='daily'&&S.rounds.every(x=>x.done);
+  setTimeout(()=>{if(won){sfx(dayDone?'big':'win');confetti(dayDone?160:70);}else sfx('lose');},n*70+250);
   saveDaily();
   renderGlyph();renderStatus();renderGuesses(true);renderKeyboard();renderRounds();
   setTimeout(()=>{reveal(r);},n*70+450);
@@ -1068,7 +1105,7 @@ function selectBox(id){const b=document.getElementById(id);if(b){b.focus();b.sel
 /* ---------- Modals ---------- */
 function ic(n){const d={share:'<path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M12 15V3m0 0L8 7m4-4 4 4"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/>',link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5"/>'}[n];return `<svg viewBox="0 0 24 24">${d}</svg>`;}
 function openSheet(html,center){
-  closeSheet();
+  closeSheet();sfx('open');
   const o=document.createElement('div');o.className='scrim'+(center?' center':'');
   o.innerHTML=`<div class="sheet" role="dialog" aria-modal="true"><button class="x" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>${html}</div>`;
   o.addEventListener('click',e=>{if(e.target===o||e.target.closest('.x'))closeSheet();});
@@ -1110,15 +1147,18 @@ function statsSheet(){
   const b=document.getElementById('stShare');if(b)b.onclick=()=>{closeSheet();shareSheet();};
 }
 function moreSheet(){
-  openSheet(`<h2>More squiggles</h2>
-  <p>Today's three not enough? Practice from the word pool, or trace a word for a friend and send them the link.</p>
+  openSheet(`<h2>Settings</h2>
+  <p>Practice from the word pool, trace a word for a friend, or change how the game plays.</p>
   <div class="btns"><button class="btn primary" id="mPractice">Practice</button><button class="btn" id="mSend">${ic('link')}Send a squiggle</button></div>
+  <button class="switch" id="mSound" role="switch" aria-checked="${SFX.on}"><span class="sw"><span class="knob"></span></span><span class="swtext"><b>Sound</b><small>Taps, reveals and a little fanfare. Haptics stay on either way.</small></span></button>
   <button class="switch" id="mHard" role="switch" aria-checked="${S.hard}"><span class="sw"><span class="knob"></span></span><span class="swtext"><b>Hard mode</b><small>Three guesses, no start or end marker, no Place it; the draw round loses its key grid. Pays 1.5× ink. Applies to rounds you haven't started.</small></span></button>
-  <div class="btns"><button class="btn" id="mHow">How to play</button></div>`,true);
+  <div class="btns"><button class="btn" id="mHow">How to play</button><button class="btn" id="mStats">Your traces</button></div>`,true);
   document.getElementById('mPractice').onclick=()=>{closeSheet();practiceSheet();};
   document.getElementById('mSend').onclick=()=>{closeSheet();sendSheet();};
   document.getElementById('mHow').onclick=()=>{closeSheet();howSheet();};
+  document.getElementById('mStats').onclick=()=>{closeSheet();statsSheet();};
   const sw=document.getElementById('mHard');sw.onclick=()=>{setHard(!S.hard);sw.setAttribute('aria-checked',S.hard);toast(S.hard?'Hard mode on':'Hard mode off');};
+  const ss=document.getElementById('mSound');ss.onclick=()=>{SFX.on=!SFX.on;store('sq.sound',SFX.on);ss.setAttribute('aria-checked',SFX.on);if(SFX.on){audioCtx();sfx('win');}toast(SFX.on?'Sound on':'Sound off');};
 }
 function practiceSheet(){
   openSheet(`<h2>Practice</h2><p>Practice rounds don't touch your streak and pay half ink.</p>
