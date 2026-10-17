@@ -1,6 +1,6 @@
 // Squiggle service worker: keeps the web copy of the game playable offline.
 // Bump VERSION whenever index.html changes so phones pick up the update.
-const VERSION = 'squiggle-v11';
+const VERSION = 'squiggle-v12';
 const SHELL = [
   './',
   './index.html',
@@ -12,8 +12,6 @@ const SHELL = [
   './fonts/ibm-plex-sans-latin-500-normal.woff2',
   './fonts/ibm-plex-sans-latin-600-normal.woff2',
   './fonts/ibm-plex-sans-latin-700-normal.woff2',
-  './fonts/ibm-plex-mono-latin-500-normal.woff2',
-  './fonts/ibm-plex-mono-latin-600-normal.woff2'
 ];
 
 self.addEventListener('install', (event) => {

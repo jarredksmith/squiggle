@@ -15,7 +15,7 @@ The whole game is one HTML file. It runs as a web page, as a home-screen app, an
 | `manifest.webmanifest`, `sw.js`, `icons/` | Make the web copy installable and playable offline |
 | `privacy.html` | Privacy policy page (App Store Connect asks for a URL) |
 | `brand/` | `logo.svg` (the wordmark), app icon and splash sources |
-| `fonts/` | IBM Plex Sans and Mono (SIL OFL), bundled so the app needs no font service and works offline |
+| `fonts/` | IBM Plex Sans (SIL OFL), bundled so the app needs no font service and works offline |
 | `ios-app/` | Capacitor 8 wrapper. The Xcode project is committed; the web files are copied in at build time |
 | `.github/workflows/ios.yml` | Builds the app on a GitHub Mac and uploads it to TestFlight |
 
@@ -56,9 +56,9 @@ Each run's build number is the GitHub run number, so uploads never collide. The 
 
 The look is the slate-blue style guide: navy text `#0F2749` on `#F5F8FC`, primary blues `#295CBD` / `#5B8DEF`, coral `#FF6B5B` for the player's own marks (the start dot, the live trace), gold for ink. Dark mode is `#0B1426` / `#141F3A` with `#7C9DFF` / `#A78BFA`. Green and amber are reserved for feedback (on the key, one key away) and never used for decoration. All of it lives in the `:root` tokens at the top of the template.
 
-The wordmark is `brand/logo.svg`, inlined once as SVG `<defs>` and reused by `<use href="#sq-logo">` (home) and `#sq-swoosh` (the in-game header mark); the share card draws the same paths on canvas. The brush strokes behind the home screen are two SVG paths roughened by the `#sq-brush` filter (turbulence displacement for the edges, a streaky alpha mask for the dry-brush texture); their colour and opacity are the `--brush` / `--brushop` tokens. Icons and the splash come from `brand/icon-1024.png` and `brand/splash-2732.png`.
+The wordmark is `brand/logo.svg`, inlined once as SVG `<defs>` and reused by `<use href="#sq-logo">` (home) and `#sq-swoosh` (the in-game header mark); the share card draws the same paths on canvas. The brush strokes behind the home screen are two SVG paths roughened by the `#sq-brush` filter (turbulence displacement for the edges, a streaky alpha mask for the dry-brush texture); their colour and opacity are the `--brush` / `--brushop` tokens. The app icon is `brand/icon.svg`: the game's own trace on navy, white stroke, coral start dot (rendered to `brand/icon-1024.png`); the splash is the wordmark on `#F5F8FC`.
 
-Type is IBM Plex Sans for everything and IBM Plex Mono for the scoreboard numbers, the date chip and eyebrows. The web and app copies load the woff2 files from `fonts/`; the Claude artifact copy loads the same faces from Google Fonts.
+Type is IBM Plex Sans, one family at four weights, with tabular figures where numbers line up; nothing is set in a monospace. The web and app copies load the woff2 files from `fonts/`; the Claude artifact copy loads the same face from Google Fonts. Interface icons are Lucide (ISC), inlined, at one stroke weight.
 
 ## 3. Later
 

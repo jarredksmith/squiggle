@@ -15,15 +15,13 @@
 <link rel="icon" href="icons/icon-192.png">
 <!--/STANDALONE--><title>Squiggle</title>
 <!--ARTIFACT--><meta name="claude:viewport-fit-sides" content="cover"><!--/ARTIFACT-->
-<!--ARTIFACT--><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><!--/ARTIFACT-->
+<!--ARTIFACT--><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"><!--/ARTIFACT-->
 <style>
 <!--STANDALONE-->/* IBM Plex ships with the app (fonts/, SIL Open Font License), so it works offline and makes no font requests */
 @font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-latin-400-normal.woff2) format('woff2')}
 @font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/ibm-plex-sans-latin-500-normal.woff2) format('woff2')}
 @font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-latin-600-normal.woff2) format('woff2')}
 @font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/ibm-plex-sans-latin-700-normal.woff2) format('woff2')}
-@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/ibm-plex-mono-latin-500-normal.woff2) format('woff2')}
-@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/ibm-plex-mono-latin-600-normal.woff2) format('woff2')}
 <!--/STANDALONE-->
 /* Layout: one phone-width column. A paper card holds the keyboard-shaped tracing frame; guess tiles sit beneath it;
    the typing keyboard at the bottom shares the frame's exact geometry so the eye can travel straight down from a corner
@@ -33,12 +31,12 @@
   --cell:#EEF3FA; --cellline:#C8D8EC; --keycap:#FFFFFF; --keyboard:#E6EEF7; --keytext:#0F2749; --keyshadow:#B9C9DF;
   --ink:#295CBD; --ink2:#5B8DEF; --inksoft:rgba(41,92,189,.14); --guess:#FF6B5B; --gold:#F2B705; --goldsoft:rgba(242,183,5,.18); --goldink:#B8860B;
   --ok:#17A673; --near:#F08C00; --absent:#B5C3D8; --miss:#D9433F; --onstatus:#FFFFFF;
-  --accent:#295CBD; --onaccent:#FFFFFF; --scrim:rgba(15,39,73,.5);
-  --logo:#061B40; --brush:#C8D8EC; --brushop:.7;
-  --shadow:0 1px 0 rgba(15,39,73,.05), 0 10px 28px -14px rgba(15,39,73,.25);
+  --accent:#2F63C8; --onaccent:#FFFFFF; --scrim:rgba(15,39,73,.5);
+  --logo:#061B40; --brush:#C8D8EC; --brushop:.6;
+  --shadow:0 1px 0 rgba(15,39,73,.04), 0 12px 32px -16px rgba(15,39,73,.28);
+  --hair:inset 0 0 0 1px var(--line); --lift:inset 0 0 0 1px var(--line), 0 1px 2px rgba(15,39,73,.05);
   --display:'IBM Plex Sans','Helvetica Neue',Arial,sans-serif;
   --body:'IBM Plex Sans','Helvetica Neue',Arial,sans-serif;
-  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --radius:16px;
 }
 @media (prefers-color-scheme: dark){
@@ -49,7 +47,8 @@
     --ok:#2ED39A; --near:#FFAE3D; --absent:#3A4A6E; --miss:#FF6B7F; --onstatus:#0B1426;
     --accent:#7C9DFF; --onaccent:#0B1426; --scrim:rgba(0,0,0,.62);
     --logo:#EAF1FF; --brush:#1C2A4B; --brushop:.9;
-    --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.6);
+    --shadow:0 1px 0 rgba(0,0,0,.25), 0 14px 36px -16px rgba(0,0,0,.7);
+    --hair:inset 0 0 0 1px var(--line); --lift:inset 0 0 0 1px var(--line), 0 1px 2px rgba(0,0,0,.25);
     color-scheme:dark;
   }
 }
@@ -60,7 +59,8 @@
   --ok:#2ED39A; --near:#FFAE3D; --absent:#3A4A6E; --miss:#FF6B7F; --onstatus:#0B1426;
   --accent:#7C9DFF; --onaccent:#0B1426; --scrim:rgba(0,0,0,.62);
   --logo:#EAF1FF; --brush:#1C2A4B; --brushop:.9;
-  --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.6);
+  --shadow:0 1px 0 rgba(0,0,0,.25), 0 14px 36px -16px rgba(0,0,0,.7);
+  --hair:inset 0 0 0 1px var(--line); --lift:inset 0 0 0 1px var(--line), 0 1px 2px rgba(0,0,0,.25);
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -96,20 +96,20 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 /* Home: logo, date, a few buttons */
 .home{display:flex;flex-direction:column;align-items:center;gap:16px;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-block:4px 6px;position:relative;text-align:center}
 @media (max-height:740px){.home{gap:12px} .home .logo{width:min(70vw,280px);margin-top:10px} .mbtn{min-height:58px} .mrow .mbtn{min-height:52px}}
-.home .logo{width:min(82vw,330px);height:auto;overflow:visible;margin-top:min(5vh,34px);flex-shrink:0;color:var(--logo);filter:drop-shadow(0 10px 18px rgba(15,39,73,.12))}
-.home .tag{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--fg);opacity:.8;margin-top:-6px;padding-left:.28em}
-.home .daychip{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--fg)}
+.home .logo{width:min(82vw,330px);height:auto;overflow:visible;margin-top:min(5vh,34px);flex-shrink:0;color:var(--logo)}
+.home .tag{font-weight:600;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-top:-4px;padding-left:.24em}
+.home .daychip{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:999px;background:var(--surface);box-shadow:var(--hair);font-size:13px;font-weight:600;color:var(--fg);font-variant-numeric:tabular-nums}
 .home .daychip i{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}
 .home .daychip i.todo{background:var(--near)} .home .daychip i.fresh{background:var(--ink)}
 .menu{display:flex;flex-direction:column;gap:10px;width:100%;max-width:360px;margin-top:6px}
-.mbtn{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:12px 16px;border-radius:18px;background:var(--surface);box-shadow:var(--shadow);text-align:left}
+.mbtn{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:12px 16px;border-radius:18px;background:var(--surface);box-shadow:var(--lift);text-align:left}
 .mbtn .mi{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:0 0 40px;background:var(--bg);color:var(--ink)}
-.mbtn .mi svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.mbtn .mi svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .mbtn .mt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
 .mbtn .mt b{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.1;letter-spacing:-.01em}
 .mbtn .mt small{color:var(--muted);font-size:13px}
-.mbtn .chev{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:0 0 18px}
-.mbtn.primary{background:linear-gradient(135deg,var(--ink),var(--ink2));color:var(--onaccent);box-shadow:0 12px 26px -12px var(--ink)}
+.mbtn .chev{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 18px}
+.mbtn.primary{background:var(--accent);color:var(--onaccent);box-shadow:0 12px 26px -12px var(--accent)}
 .mbtn.primary .mi{background:rgba(255,255,255,.18);color:#fff} .mbtn.primary .mt small{color:rgba(255,255,255,.8)} .mbtn.primary .chev{stroke:rgba(255,255,255,.8)}
 .mbtn .mi.pink{background:rgba(255,107,91,.16);color:var(--guess)} .mbtn .mi.gold{background:var(--goldsoft);color:var(--goldink)} .mbtn .mi.mint{background:var(--inksoft);color:var(--ink)}
 .mrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -117,28 +117,28 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .homefoot{display:flex;gap:8px;flex-wrap:nowrap;justify-content:center;margin-top:auto;padding-top:6px;flex-shrink:0}
 .homefoot .chip{height:28px;padding:0 10px;font-size:12px}
 .menu,.hero,.daychip,.logo,.tag{flex-shrink:0}
-.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:999px;background:var(--surface);box-shadow:var(--hair);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
 .chip svg{width:14px;height:14px;fill:var(--gold)}
-.chip.link{font-weight:600;color:var(--muted)}
+.chip.link{font-weight:500;color:var(--muted)}
 .lcard,.lcard .mini{display:none}
 .brand{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:-.01em;line-height:1;display:flex;align-items:center;gap:8px}
 .brand svg{width:44px;height:15px;overflow:visible}
 .sub{color:var(--muted);font-size:13px;margin-top:3px;font-variant-numeric:tabular-nums;font-weight:500}
 .top .grow{flex:1;min-width:0}
-.iconbtn{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--surface);box-shadow:var(--shadow)}
+.iconbtn{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--surface);box-shadow:var(--lift)}
 .iconbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chip.streak svg{width:15px;height:15px;fill:none;stroke:var(--guess);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 /* Round pills */
 .rounds{display:flex;gap:8px;align-items:center}
 .pill{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;height:34px;border-radius:999px;
-  background:var(--surface);color:var(--muted);font-family:var(--display);font-weight:600;font-size:15px;box-shadow:var(--shadow);
-  border:2px solid transparent}
-.pill.cur{background:var(--ink);border-color:var(--ink);color:var(--onaccent)}
-.pill.won{background:var(--ok);color:var(--onstatus)}
-.pill.lost{background:var(--absent);color:var(--onstatus)}
+  background:var(--surface);color:var(--muted);font-family:var(--display);font-weight:600;font-size:15px;box-shadow:var(--hair)}
+.pill.cur{background:var(--accent);color:var(--onaccent);box-shadow:none}
+.pill.won{background:var(--ok);color:var(--onstatus);box-shadow:none}
+.pill.lost{background:var(--absent);color:var(--onstatus);box-shadow:none}
 .pill small{font-family:var(--body);font-weight:400;font-size:12px;opacity:.9}
 .rounds .modetag{flex:1;height:34px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:var(--surface);
-  font-family:var(--display);font-weight:600;color:var(--fg);box-shadow:var(--shadow);font-size:15px}
+  font-family:var(--display);font-weight:600;color:var(--fg);box-shadow:var(--hair);font-size:15px}
 
 /* Glyph card */
 .card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px}
@@ -162,7 +162,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .glyph .lab.hit circle{fill:var(--ok);stroke:var(--ok)} .glyph .lab.hit text{fill:var(--onstatus)}
 .glyph.draw{touch-action:none;cursor:crosshair}
 .glyph .rival{fill:none;stroke:var(--near);stroke-width:9;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:18 14;opacity:.9}
-.coach{background:var(--surface);border-left:4px solid var(--ink);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.45;color:var(--fg);box-shadow:var(--shadow);max-width:56ch;margin:0 auto 4px}
+.coach{background:var(--surface);border-left:4px solid var(--ink);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.45;color:var(--fg);box-shadow:var(--hair);max-width:56ch;margin:0 auto 4px}
 .coach b{color:var(--ink)}
 .cardpreview{width:100%;max-width:260px;height:auto;border-radius:14px;box-shadow:var(--shadow);align-self:center;display:block}
 /* Draw round reads top-down: prompt, canvas, result */
@@ -175,12 +175,12 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .pill svg{width:18px;height:18px}
 .drawpanel{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding-block:6px}
 .drawpanel p{margin:0;color:var(--muted);font-size:14px;max-width:38ch}
-.drawpanel .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.drawpanel .eyebrow{font-size:13px;color:var(--muted);font-weight:500}
 .drawword{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 .drawword .dl{width:44px;height:52px;border-radius:12px;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:28px;text-transform:uppercase;background:var(--surface);box-shadow:var(--shadow);color:var(--fg)}
 .drawword .dl.ok{background:var(--ok);color:var(--onstatus)} .drawword .dl.near{background:var(--near);color:var(--onstatus)} .drawword .dl.no{background:var(--absent);color:var(--onstatus)}
 .acc{display:flex;align-items:baseline;gap:10px;font-variant-numeric:tabular-nums}
-.acc b{font-family:var(--mono);font-weight:600;font-size:40px;line-height:1;color:var(--ink)}
+.acc b{font-family:var(--display);font-weight:700;font-size:40px;line-height:1;color:var(--ink)}
 .acc span{color:var(--muted);font-size:14px}
 .minilist.two{grid-template-columns:1fr 1fr} .minilist.two button{font-size:14px}
 .minilist.three{grid-template-columns:1fr 1fr 1fr} .minilist.three button{font-size:14px}
@@ -197,10 +197,10 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .status .msg{flex:1;min-width:0;font-size:14px;color:var(--muted)}
 .status .msg b{color:var(--fg);font-weight:700}
 .status .msg.err{color:var(--guess);font-weight:700}
-.hint{height:32px;padding:0 11px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:700;
+.hint{height:32px;padding:0 11px;border-radius:999px;background:var(--surface);box-shadow:var(--hair);font-size:13px;font-weight:600;
   display:flex;align-items:center;gap:6px;white-space:nowrap}
-.hint svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.hint.used{background:var(--ink);color:var(--onaccent)}
+.hint svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hint.used{background:var(--accent);color:var(--onaccent);box-shadow:none}
 .hint:disabled{opacity:.45;cursor:default}
 
 /* Guess rows */
@@ -233,7 +233,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .key:active{transform:translateY(1px);box-shadow:0 1px 0 var(--keyshadow)}
 .key.ok{background:var(--ok);color:var(--onstatus)}
 .key.wide{flex:1.6 1 0;font-size:13px;font-family:var(--body);font-weight:700}
-.key.wide svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.key.wide svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .kbrow.r2 .key.wide:first-child,.kbrow.r2 .key.wide:last-child{flex:1.6 1 0}
 .kbrow.r2{padding:0 2px}
 
@@ -254,18 +254,19 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .sheet .x{position:absolute;right:14px;top:12px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--bg)}
 .sheet .x svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round}
 .sheet{position:relative}
-.answer{font-family:var(--mono);font-weight:600;font-size:34px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);line-height:1}
+.answer{font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);line-height:1}
 .btns{display:flex;gap:10px;flex-wrap:wrap}
 .btn{flex:1 1 140px;height:48px;border-radius:14px;font-family:var(--display);font-weight:600;font-size:17px;display:flex;align-items:center;justify-content:center;gap:8px;
   background:var(--bg);color:var(--fg);box-shadow:inset 0 0 0 2px var(--line)}
-.btn.primary{background:linear-gradient(135deg,var(--ink),var(--ink2));color:var(--onaccent);box-shadow:0 8px 20px -10px var(--ink)}
+.btn.primary{background:var(--accent);color:var(--onaccent);box-shadow:0 8px 20px -10px var(--accent)}
 .btn.primary:active{filter:brightness(.96)}
-.btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .share{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;line-height:1.5;background:var(--bg);border-radius:12px;padding:12px;white-space:pre-wrap;word-break:break-word;border:0;width:100%;color:var(--fg);resize:none}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .stat{background:var(--bg);border-radius:12px;padding:10px 6px;text-align:center}
-.stat b{display:block;font-family:var(--mono);font-weight:600;font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
-.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.stat b{display:block;font-family:var(--display);font-weight:700;font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+.stat b i{font-style:normal;font-size:.55em;font-weight:600;color:var(--muted);margin-left:1px}
 .dist{display:flex;flex-direction:column;gap:5px;font-variant-numeric:tabular-nums}
 .dist .d{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:center;font-size:13px}
 .dist .bar{height:20px;border-radius:6px;background:var(--absent);color:var(--onstatus);font-weight:700;display:flex;align-items:center;justify-content:flex-end;padding:0 7px;min-width:24px;font-size:12px}
@@ -282,8 +283,8 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .minilist{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
 .minilist button{height:44px;border-radius:12px;background:var(--bg);box-shadow:inset 0 0 0 2px var(--line);font-family:var(--display);font-weight:600;font-size:16px}
 .minilist button.on{background:var(--accent);color:var(--onaccent);box-shadow:none}
-.ink{display:flex;align-items:center;gap:5px;height:38px;padding:0 12px;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);
-  font-family:var(--mono);font-weight:600;font-size:16px;font-variant-numeric:tabular-nums;color:var(--fg)}
+.ink{display:flex;align-items:center;gap:5px;height:38px;padding:0 12px;border-radius:12px;background:var(--surface);box-shadow:var(--lift);
+  font-family:var(--display);font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;color:var(--fg)}
 .ink svg{width:16px;height:16px;fill:var(--gold)}
 @keyframes inkpop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
 .ink.pop{animation:inkpop .45s ease}
@@ -292,23 +293,23 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .tile.ghost{background:transparent;box-shadow:inset 0 0 0 2px var(--ink2);color:var(--ink);opacity:.55}
 .tile.typed.given{background:var(--ink);color:var(--onaccent);box-shadow:none}
 .balance{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border-radius:14px;padding:10px 14px}
-.balance b{font-family:var(--mono);font-weight:600;font-size:22px;display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.balance b{font-family:var(--display);font-weight:700;font-size:22px;display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
 .balance b svg{width:18px;height:18px;fill:var(--gold)}
 .balance span{color:var(--muted);font-size:13px;text-align:right}
 .hints{display:flex;flex-direction:column;gap:8px}
 .hintcard{display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:14px;padding:11px 12px;text-align:left;width:100%;box-shadow:inset 0 0 0 2px transparent}
 .hintcard:not(:disabled):hover{box-shadow:inset 0 0 0 2px var(--line)}
 .hintcard .ic{width:40px;height:40px;border-radius:12px;background:var(--surface);display:grid;place-items:center;flex:0 0 40px;color:var(--ink)}
-.hintcard .ic svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.hintcard .ic svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .hintcard .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .hintcard .t b{font-size:15px} .hintcard .t small{color:var(--muted);font-size:12px;line-height:1.35}
-.hintcard .price{font-family:var(--mono);font-weight:600;font-size:13px;padding:6px 10px;border-radius:999px;background:var(--goldsoft);color:var(--fg);white-space:nowrap;display:flex;align-items:center;gap:4px}
+.hintcard .price{font-family:var(--display);font-weight:700;font-size:13px;padding:6px 10px;border-radius:999px;background:var(--goldsoft);color:var(--fg);white-space:nowrap;display:flex;align-items:center;gap:4px}
 .hintcard .price svg{fill:var(--gold)}
 .hintcard .price svg{width:12px;height:12px;fill:currentColor}
 .hintcard:disabled{opacity:.55;cursor:default}
 .hintcard.used{opacity:1} .hintcard.used .price{background:var(--ok);color:var(--onstatus)}
 .hintcard.poor .price{background:var(--absent);color:var(--onstatus)}
-.earn{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-weight:600;font-size:20px;color:var(--fg)}
+.earn{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:20px;color:var(--fg)}
 .earn svg{width:18px;height:18px;fill:var(--gold)}
 .earn small{font-family:var(--body);font-weight:400;font-size:13px;color:var(--muted)}
 .switch{display:flex;align-items:center;gap:12px;text-align:left;background:var(--bg);border-radius:14px;padding:12px 14px;width:100%}
@@ -366,15 +367,15 @@ window.SQUIGGLE_SHARE_URL='https://jarredksmith.github.io/squiggle/';
     </g>
   </svg>
   <header class="top">
-    <button class="iconbtn" id="btnHome" aria-label="Home" hidden><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10"/></svg></button>
+    <button class="iconbtn" id="btnHome" aria-label="Home" hidden><svg viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg></button>
     <button class="grow brandbtn" id="brandBtn" aria-label="Squiggle home">
       <div class="brand"><svg viewBox="117 58 208 66" aria-hidden="true"><use href="#sq-swoosh"/></svg><span class="wm">Squiggle</span></div>
       <div class="sub" id="sub"></div>
     </button>
     <button class="ink" id="inkPill" aria-label="Ink balance, opens hints"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c3.5 4.8 6 8 6 11.5a6 6 0 0 1-12 0c0-3.5 2.5-6.7 6-11.5z"/></svg><span id="inkVal">0</span></button>
-    <button class="iconbtn" id="btnHow" aria-label="How to play"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg></button>
-    <button class="iconbtn" id="btnStats" aria-label="Statistics"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></button>
-    <button class="iconbtn" id="btnMore" aria-label="More: practice and send a squiggle"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/></svg></button>
+    <button class="iconbtn" id="btnHow" aria-label="How to play"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><path d="M12 17h.01" /></svg></button>
+    <button class="iconbtn" id="btnStats" aria-label="Statistics"><svg viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="M18 17V9" /><path d="M13 17V5" /><path d="M8 17v-3" /></svg></button>
+    <button class="iconbtn" id="btnMore" aria-label="More: practice and send a squiggle"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg></button>
   </header>
 
   <section id="home" class="home" hidden></section>
@@ -388,7 +389,7 @@ window.SQUIGGLE_SHARE_URL='https://jarredksmith.github.io/squiggle/';
 
   <div class="status">
     <div class="msg" id="msg" aria-live="polite"></div>
-    <button class="hint" id="btnHints"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M8.5 14.5A6 6 0 1 1 15.5 14.5c-.6.6-1 1.5-1 2.5h-5c0-1-.4-1.9-1-2.5z"/></svg><span>Hints</span></button>
+    <button class="hint" id="btnHints"><svg viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" /><path d="M9 18h6" /><path d="M10 22h4" /></svg><span>Hints</span></button>
   </div>
 
   <section class="guesses" id="guesses" aria-label="Your guesses"></section>
@@ -526,7 +527,7 @@ const STR={en:{
   drawReject:'Draw the whole word in one stroke, finger down to finger up',drawThis:'Draw this word',drawHelp:'The blank keyboard at the bottom is where you draw. Finger down on the first letter, glide through the rest, lift on the last.',drawHelpHard:' No key grid on hard: the keys are where you remember them.',onKey:'{on} of {n} letters on the key',
   needs:'Needs {n} letters',notInList:'Not in the word list',extraTitle:'Out of guesses',extraBody:"The squiggle's still there. One more guess costs <b>{p} ink</b>; you have <b>{i}</b>.",extraBuy:'One more guess · {p}',giveUp:'Give up and reveal',notEnough:'Not enough ink',
   hFirst:'First letter',hFirstD:'Marks where the finger landed and which key it was.',hLast:'Last letter',hLastD:'Marks where the finger lifted.',hMid:'A middle letter',hMidD:"Reveals one of the letters between the ends: pinned on the squiggle and filled into the row you're typing.",hPlace:'Place it on the keys',hPlaceD:'Drops the squiggle onto the real keyboard grid. The big one.',hPlaceLocked:'Locked in hard mode.',used:'Used',locked:'Locked',earnHow:'Earn ink by solving: longer words and fewer guesses pay more, hard mode pays 1.5×, finishing the day adds a bonus.',
-  d95:'Pixel perfect.',d85:'Clean trace.',d70:'Close. Readable.',d50:"Rough, but it's in there.",d0:"That's a different word.",drawBody:'You drew <b>{w}</b> at <b>{a}%</b>: {on} of {n} letters landed on the key{hard}. Blue is the real trace.',onHard:', on hard',earnDraw:'{n} letters × 2 × {a}%',perfectBonus:' + 5 perfect',hardMult:' × 1.5 hard',halfOutside:' · half outside the daily',
+  d95:'Pixel perfect.',d85:'Clean trace.',d70:'Close. Readable.',d50:"Rough, but it's in there.",d0:"That's a different word.",drawBody:'You drew <b>{w}</b> at <b>{a}%</b>: {on} of {n} letters landed on the key{hard}. Blue is the real trace.',onHard:', on hard',earnDraw:'{n} letters × 2 × {a}%',perfectBonus:' + 5 perfect',hardMult:' × 1.5 hard',
   win1:'Read it in one.',win2:'Two. Sharp.',win3:'Three. Nice trace.',win4:'Four. Just made it.',winX:'Got there, with a little ink.',lost:'That one got away.',readBody:'You traced <b>{w}</b> in {g} {gw}{h}{hard}.',guess1:'guess',guessN:'guesses',withHints:' with {h} {hw}',hint1:'hint',hintN:'hints',onHard2:' on hard',lostBody:"It was <b>{w}</b>. Here's where it really sat on the keys.",earnRead:'{n} letters × {m} for speed',dayBonus:'day bonus',allThree:' · all three solved',streakN:' · streak {s}',
   nextDrawBtn:'Next: draw one',nextBtn:'Next squiggle · {n} letters',another:'Another one',makeOne:'Make one for them',
   tutIdea:"That's the idea.",tutReady:"You're ready.",tutWas:'It was {w}.',tutBody1:'The squiggle sat right on the keys that time. In the real game you only get the shape, so the next one floats free.',tutBody2:'Three squiggles a day to read, one word to draw. Solving earns ink, ink buys hints. Settings has practice, hard mode and a way to send squiggles to friends.',tutPlaySent:'Play the one you were sent',tutPlayToday:"Play today's squiggles",next:'Next',
@@ -538,7 +539,7 @@ const STR={en:{
   beatTitle:'Beat my trace',beatBody:"They get the word <b>{w}</b>, draw it blind, and see both traces side by side with the real one. Winner is whoever's line runs closer.",beatMsg:'I drew {w} at {a}%. Beat my trace: {link}',sendChallenge:'Send the challenge',copy:'Copy',
   canRead:'Can you read them?',lettersUp:'{n} LETTERS',drew:'Drew {w} at {a}%',
   howTitle:'How to play',how1:'Each squiggle is the line a finger draws when it <b>swipe-types a word</b> on a phone keyboard. The dot is where the finger lands; the arrowhead is where it lifts.',how2:"You see the shape at <b>true size</b> but not where it sat. A sweep that's five keys wide on the keyboard below is five keys wide here. Slide it around the keyboard in your head until the corners land on letters that make a word.",how3:'Type a word of the right length. As you type, your trace draws across the keys in pink, so you can compare its shape to the squiggle before you commit.',how4:'Feedback is <b>distance, not letters</b>. Each corner of your guess reports how far it landed from the real key. Nothing tells you whether a letter is "in the word somewhere". Only the shape does.',how5:"<b>Round four flips it.</b> You get the word and draw its squiggle from memory, one stroke on the blank keys. You're scored on how close your line runs to the real trace.",howP1:'Three squiggles to read (4, 6 and 8 letters, <b>four guesses</b> each) and one to draw. Solving earns <b>ink</b>: more for longer words and fewer guesses, 1.5× on hard, plus a bonus for finishing the day.',howP2:'Ink buys hints (first letter, last letter, a middle letter, or <b>Place it</b>, which drops the squiggle onto the real keys) and one more guess when you run out. Hints show on your share.',howP3:'<b>Hard mode</b> (in Settings): three guesses, no start or end marker, and Place it is locked.',startTracing:'Start tracing',legendOn:'On the key',legendNear:'Next door (a touching key)',legendCold:'Cold',
-  statsTitle:'Your traces',inkAll:'{n} ink earned all time',days:'Days',solvePct:'Solve %',streakL:'Streak',best:'Best',guessesPer:'Guesses per squiggle',drawnTitle:'Drawn squiggles',traces:'Traces',avg:'Avg %',bestPct:'Best %',perfectDays:'{n} perfect {dw} (all three read). Streak counts days you finished the ladder, draw included.',day1:'day',dayN:'days',
+  statsTitle:'Your traces',inkAll:'{n} ink earned all time',days:'Days',solvePct:'Solved',streakL:'Streak',best:'Best',guessesPer:'Guesses per squiggle',drawnTitle:'Drawn squiggles',traces:'Traces',avg:'Average',bestPct:'Best',perfectDays:'{n} perfect {dw} (all three read). Streak counts days you finished the ladder, draw included.',day1:'day',dayN:'days',
   settingsTitle:'Settings',settingsBody:'Practice from the word pool, trace a word for a friend, or change how the game plays.',appearance:'Appearance',system:'System',light:'Light',dark:'Dark',language:'Language',sound:'Sound',soundD:'Taps, reveals and a little fanfare. Haptics stay on either way.',hardMode:'Hard mode',hardD:"Three guesses, no start or end marker, no pins on the trace, no Place it; the draw round loses its key grid. Pays 1.5× ink. Applies to rounds you haven't started.",hardOn:'Hard mode on',hardOff:'Hard mode off',soundOn:'Sound on',soundOff:'Sound off',
   practiceTitle:'Practice',practiceBody:"Practice doesn't touch your streak and doesn't pay ink. Ink comes from the daily game.",whichWay:'Which way round?',readOne:'Read a squiggle',drawOne:'Draw a squiggle',howLong:'How long?',mix:'Mix',go:'Go',
   sendTitle:'Send a squiggle',sendBody:"Type any word or name, 3 to 10 letters. We'll trace it and give you a link. They'll see the shape, not the word.",sendPh:'e.g. tacos, Erin, Oklahoma',copyLink:'Copy link',canYouRead:'Can you read my squiggle? {link}',
@@ -555,7 +556,7 @@ es:{
   drawReject:'Dibuja toda la palabra de un solo trazo, sin levantar el dedo',drawThis:'Dibuja esta palabra',drawHelp:'El teclado en blanco de abajo es donde dibujas. Apoya el dedo en la primera letra, deslízalo por las demás y levántalo en la última.',drawHelpHard:' En difícil no hay cuadrícula: las teclas están donde las recuerdes.',onKey:'{on} de {n} letras sobre la tecla',
   needs:'Necesita {n} letras',notInList:'No está en la lista de palabras',extraTitle:'Sin intentos',extraBody:'El garabato sigue ahí. Un intento más cuesta <b>{p} de tinta</b>; tienes <b>{i}</b>.',extraBuy:'Un intento más · {p}',giveUp:'Rendirse y revelar',notEnough:'No hay tinta suficiente',
   hFirst:'Primera letra',hFirstD:'Marca dónde apoyó el dedo y qué tecla era.',hLast:'Última letra',hLastD:'Marca dónde levantó el dedo.',hMid:'Una letra del medio',hMidD:'Revela una de las letras intermedias: fijada en el garabato y puesta en la fila que escribes.',hPlace:'Colocar sobre las teclas',hPlaceD:'Pone el garabato sobre el teclado real. La grande.',hPlaceLocked:'Bloqueada en modo difícil.',used:'Usada',locked:'Bloqueada',earnHow:'Gana tinta resolviendo: las palabras largas y los pocos intentos pagan más, el modo difícil paga 1,5× y terminar el día da un bono.',
-  d95:'Perfecto.',d85:'Trazo limpio.',d70:'Cerca. Se lee.',d50:'Tosco, pero ahí está.',d0:'Eso es otra palabra.',drawBody:'Dibujaste <b>{w}</b> al <b>{a}%</b>: {on} de {n} letras cayeron sobre la tecla{hard}. El azul es el trazo real.',onHard:', en difícil',earnDraw:'{n} letras × 2 × {a}%',perfectBonus:' + 5 perfecto',hardMult:' × 1,5 difícil',halfOutside:' · la mitad fuera del diario',
+  d95:'Perfecto.',d85:'Trazo limpio.',d70:'Cerca. Se lee.',d50:'Tosco, pero ahí está.',d0:'Eso es otra palabra.',drawBody:'Dibujaste <b>{w}</b> al <b>{a}%</b>: {on} de {n} letras cayeron sobre la tecla{hard}. El azul es el trazo real.',onHard:', en difícil',earnDraw:'{n} letras × 2 × {a}%',perfectBonus:' + 5 perfecto',hardMult:' × 1,5 difícil',
   win1:'A la primera.',win2:'Dos. Fino.',win3:'Tres. Buen trazo.',win4:'Cuatro. Por los pelos.',winX:'Llegaste, con algo de tinta.',lost:'Ese se escapó.',readBody:'Trazaste <b>{w}</b> en {g} {gw}{h}{hard}.',guess1:'intento',guessN:'intentos',withHints:' con {h} {hw}',hint1:'pista',hintN:'pistas',onHard2:' en difícil',lostBody:'Era <b>{w}</b>. Así estaba sobre las teclas.',earnRead:'{n} letras × {m} por rapidez',dayBonus:'bono del día',allThree:' · los tres resueltos',streakN:' · racha {s}',
   nextDrawBtn:'Siguiente: dibuja uno',nextBtn:'Siguiente garabato · {n} letras',another:'Otro',makeOne:'Hazle uno',
   tutIdea:'Esa es la idea.',tutReady:'Ya estás listo.',tutWas:'Era {w}.',tutBody1:'Esa vez el garabato estaba justo sobre las teclas. En el juego real solo tienes la forma, así que el siguiente flota libre.',tutBody2:'Tres garabatos al día para leer y una palabra para dibujar. Resolver da tinta y la tinta compra pistas. En Ajustes hay práctica, modo difícil y una forma de enviar garabatos a tus amigos.',tutPlaySent:'Jugar el que te enviaron',tutPlayToday:'Jugar los de hoy',next:'Siguiente',
@@ -567,7 +568,7 @@ es:{
   beatTitle:'Supera mi trazo',beatBody:'Recibe la palabra <b>{w}</b>, la dibuja a ciegas y ve los dos trazos junto al real. Gana quien pase más cerca.',beatMsg:'Dibujé {w} al {a}%. Supera mi trazo: {link}',sendChallenge:'Enviar el reto',copy:'Copiar',
   canRead:'¿Puedes leerlos?',lettersUp:'{n} LETRAS',drew:'Dibujé {w} al {a}%',
   howTitle:'Cómo jugar',how1:'Cada garabato es la línea que dibuja un dedo al <b>escribir deslizando</b> una palabra en el teclado del móvil. El punto es donde apoya; la flecha, donde levanta.',how2:'Ves la forma a <b>tamaño real</b> pero no dónde estaba. Un barrido de cinco teclas en el teclado de abajo mide cinco teclas aquí. Muévela por el teclado en tu cabeza hasta que las esquinas caigan en letras que formen una palabra.',how3:'Escribe una palabra del largo correcto. Mientras escribes, tu trazo se dibuja en rosa sobre las teclas para comparar la forma antes de confirmar.',how4:'La pista es <b>distancia, no letras</b>. Cada esquina de tu intento dice a qué distancia cayó de la tecla real. Nada te dice si una letra está "en algún sitio de la palabra". Solo la forma.',how5:'<b>La cuarta ronda lo invierte.</b> Recibes la palabra y dibujas su garabato de memoria, de un trazo, sobre las teclas en blanco. Se puntúa lo cerca que pasa tu línea del trazo real.',howP1:'Tres garabatos para leer (4, 6 y 8 letras, <b>cuatro intentos</b> cada uno) y uno para dibujar. Resolver da <b>tinta</b>: más por palabras largas y pocos intentos, 1,5× en difícil, y un bono por terminar el día.',howP2:'La tinta compra pistas (primera letra, última letra, una del medio o <b>Colocar</b>, que pone el garabato sobre las teclas reales) y un intento más cuando se acaban. Las pistas se ven al compartir.',howP3:'<b>Modo difícil</b> (en Ajustes): tres intentos, sin marcas de inicio ni fin, y Colocar bloqueado.',startTracing:'Empezar',legendOn:'Sobre la tecla',legendNear:'Al lado (una tecla que la toca)',legendCold:'Frío',
-  statsTitle:'Tus trazos',inkAll:'{n} de tinta ganada en total',days:'Días',solvePct:'% resueltos',streakL:'Racha',best:'Mejor',guessesPer:'Intentos por garabato',drawnTitle:'Garabatos dibujados',traces:'Trazos',avg:'Media %',bestPct:'Mejor %',perfectDays:'{n} {dw} perfectos (los tres leídos). La racha cuenta los días que terminaste todo, dibujo incluido.',day1:'día',dayN:'días',
+  statsTitle:'Tus trazos',inkAll:'{n} de tinta ganada en total',days:'Días',solvePct:'Resueltos',streakL:'Racha',best:'Mejor',guessesPer:'Intentos por garabato',drawnTitle:'Garabatos dibujados',traces:'Trazos',avg:'Media',bestPct:'Mejor',perfectDays:'{n} {dw} perfectos (los tres leídos). La racha cuenta los días que terminaste todo, dibujo incluido.',day1:'día',dayN:'días',
   settingsTitle:'Ajustes',settingsBody:'Practica con el banco de palabras, traza una palabra para un amigo o cambia cómo se juega.',appearance:'Aspecto',system:'Sistema',light:'Claro',dark:'Oscuro',language:'Idioma',sound:'Sonido',soundD:'Toques, revelaciones y una pequeña fanfarria. La vibración sigue igual.',hardMode:'Modo difícil',hardD:'Tres intentos, sin marcas de inicio ni fin, sin chinchetas en el trazo, sin Colocar; la ronda de dibujo pierde la cuadrícula. Paga 1,5× de tinta. Se aplica a las rondas que no hayas empezado.',hardOn:'Modo difícil activado',hardOff:'Modo difícil desactivado',soundOn:'Sonido activado',soundOff:'Sonido desactivado',
   practiceTitle:'Práctica',practiceBody:'La práctica no toca tu racha ni da tinta. La tinta se gana en el juego del día.',whichWay:'¿En qué sentido?',readOne:'Leer un garabato',drawOne:'Dibujar un garabato',howLong:'¿Qué largo?',mix:'Mezcla',go:'Vamos',
   sendTitle:'Enviar un garabato',sendBody:'Escribe cualquier palabra o nombre, de 3 a 10 letras. Lo trazamos y te damos un enlace. Verán la forma, no la palabra.',sendPh:'p. ej. tacos, Lucía, Madrid',copyLink:'Copiar enlace',canYouRead:'¿Puedes leer mi garabato? {link}',
@@ -584,7 +585,7 @@ pt:{
   drawReject:'Desenhe a palavra inteira em um traço só, sem levantar o dedo',drawThis:'Desenhe esta palavra',drawHelp:'O teclado em branco embaixo é onde você desenha. Encoste o dedo na primeira letra, deslize pelas outras e levante na última.',drawHelpHard:' No difícil não há grade: as teclas ficam onde você lembra.',onKey:'{on} de {n} letras na tecla',
   needs:'Precisa de {n} letras',notInList:'Não está na lista de palavras',extraTitle:'Sem palpites',extraBody:'O rabisco ainda está aí. Mais um palpite custa <b>{p} de tinta</b>; você tem <b>{i}</b>.',extraBuy:'Mais um palpite · {p}',giveUp:'Desistir e revelar',notEnough:'Tinta insuficiente',
   hFirst:'Primeira letra',hFirstD:'Marca onde o dedo encostou e qual tecla era.',hLast:'Última letra',hLastD:'Marca onde o dedo levantou.',hMid:'Uma letra do meio',hMidD:'Revela uma das letras do meio: fixada no rabisco e colocada na linha que você digita.',hPlace:'Colocar nas teclas',hPlaceD:'Põe o rabisco sobre o teclado real. A grande.',hPlaceLocked:'Bloqueada no modo difícil.',used:'Usada',locked:'Bloqueada',earnHow:'Ganhe tinta resolvendo: palavras longas e poucos palpites pagam mais, o modo difícil paga 1,5× e terminar o dia dá um bônus.',
-  d95:'Perfeito.',d85:'Traço limpo.',d70:'Perto. Dá para ler.',d50:'Tosco, mas está aí.',d0:'Isso é outra palavra.',drawBody:'Você desenhou <b>{w}</b> em <b>{a}%</b>: {on} de {n} letras caíram na tecla{hard}. O azul é o traço real.',onHard:', no difícil',earnDraw:'{n} letras × 2 × {a}%',perfectBonus:' + 5 perfeito',hardMult:' × 1,5 difícil',halfOutside:' · metade fora do diário',
+  d95:'Perfeito.',d85:'Traço limpo.',d70:'Perto. Dá para ler.',d50:'Tosco, mas está aí.',d0:'Isso é outra palavra.',drawBody:'Você desenhou <b>{w}</b> em <b>{a}%</b>: {on} de {n} letras caíram na tecla{hard}. O azul é o traço real.',onHard:', no difícil',earnDraw:'{n} letras × 2 × {a}%',perfectBonus:' + 5 perfeito',hardMult:' × 1,5 difícil',
   win1:'De primeira.',win2:'Dois. Afiado.',win3:'Três. Belo traço.',win4:'Quatro. Por pouco.',winX:'Chegou lá, com um pouco de tinta.',lost:'Esse escapou.',readBody:'Você traçou <b>{w}</b> em {g} {gw}{h}{hard}.',guess1:'palpite',guessN:'palpites',withHints:' com {h} {hw}',hint1:'dica',hintN:'dicas',onHard2:' no difícil',lostBody:'Era <b>{w}</b>. Veja onde estava nas teclas.',earnRead:'{n} letras × {m} por rapidez',dayBonus:'bônus do dia',allThree:' · os três resolvidos',streakN:' · sequência {s}',
   nextDrawBtn:'Próximo: desenhe um',nextBtn:'Próximo rabisco · {n} letras',another:'Outro',makeOne:'Faça um para ele',
   tutIdea:'É essa a ideia.',tutReady:'Você está pronto.',tutWas:'Era {w}.',tutBody1:'Dessa vez o rabisco estava bem em cima das teclas. No jogo de verdade você só tem a forma, então o próximo flutua solto.',tutBody2:'Três rabiscos por dia para ler e uma palavra para desenhar. Resolver dá tinta e a tinta compra dicas. Em Ajustes há prática, modo difícil e um jeito de enviar rabiscos aos amigos.',tutPlaySent:'Jogar o que te enviaram',tutPlayToday:'Jogar os de hoje',next:'Próximo',
@@ -596,7 +597,7 @@ pt:{
   beatTitle:'Supere meu traço',beatBody:'Ele recebe a palavra <b>{w}</b>, desenha às cegas e vê os dois traços lado a lado com o real. Ganha quem passar mais perto.',beatMsg:'Desenhei {w} em {a}%. Supere meu traço: {link}',sendChallenge:'Enviar o desafio',copy:'Copiar',
   canRead:'Consegue ler?',lettersUp:'{n} LETRAS',drew:'Desenhei {w} em {a}%',
   howTitle:'Como jogar',how1:'Cada rabisco é a linha que um dedo desenha ao <b>digitar por deslize</b> uma palavra no teclado do celular. O ponto é onde encosta; a seta, onde levanta.',how2:'Você vê a forma em <b>tamanho real</b>, mas não onde estava. Um movimento de cinco teclas no teclado abaixo mede cinco teclas aqui. Mova-a pelo teclado na sua cabeça até os cantos caírem em letras que formem uma palavra.',how3:'Digite uma palavra do tamanho certo. Enquanto digita, seu traço aparece em rosa sobre as teclas para comparar a forma antes de confirmar.',how4:'A resposta é <b>distância, não letras</b>. Cada canto do seu palpite diz a que distância caiu da tecla real. Nada diz se uma letra está "em algum lugar da palavra". Só a forma.',how5:'<b>A quarta rodada inverte tudo.</b> Você recebe a palavra e desenha o rabisco de memória, em um traço, sobre as teclas em branco. A nota é o quanto sua linha passa perto do traço real.',howP1:'Três rabiscos para ler (4, 6 e 8 letras, <b>quatro palpites</b> cada) e um para desenhar. Resolver dá <b>tinta</b>: mais por palavras longas e poucos palpites, 1,5× no difícil, e um bônus por terminar o dia.',howP2:'A tinta compra dicas (primeira letra, última letra, uma do meio ou <b>Colocar</b>, que põe o rabisco sobre as teclas reais) e mais um palpite quando acabam. As dicas aparecem ao compartilhar.',howP3:'<b>Modo difícil</b> (em Ajustes): três palpites, sem marcas de início e fim, e Colocar bloqueado.',startTracing:'Começar',legendOn:'Na tecla',legendNear:'Ao lado (uma tecla encostada)',legendCold:'Frio',
-  statsTitle:'Seus traços',inkAll:'{n} de tinta ganha no total',days:'Dias',solvePct:'% resolvidos',streakL:'Sequência',best:'Melhor',guessesPer:'Palpites por rabisco',drawnTitle:'Rabiscos desenhados',traces:'Traços',avg:'Média %',bestPct:'Melhor %',perfectDays:'{n} {dw} perfeitos (os três lidos). A sequência conta os dias em que você terminou tudo, desenho incluído.',day1:'dia',dayN:'dias',
+  statsTitle:'Seus traços',inkAll:'{n} de tinta ganha no total',days:'Dias',solvePct:'Resolvidos',streakL:'Sequência',best:'Melhor',guessesPer:'Palpites por rabisco',drawnTitle:'Rabiscos desenhados',traces:'Traços',avg:'Média',bestPct:'Melhor',perfectDays:'{n} {dw} perfeitos (os três lidos). A sequência conta os dias em que você terminou tudo, desenho incluído.',day1:'dia',dayN:'dias',
   settingsTitle:'Ajustes',settingsBody:'Pratique com o banco de palavras, trace uma palavra para um amigo ou mude como o jogo funciona.',appearance:'Aparência',system:'Sistema',light:'Claro',dark:'Escuro',language:'Idioma',sound:'Som',soundD:'Toques, revelações e uma pequena fanfarra. A vibração continua igual.',hardMode:'Modo difícil',hardD:'Três palpites, sem marcas de início e fim, sem pinos no traço, sem Colocar; a rodada de desenho perde a grade. Paga 1,5× de tinta. Vale para rodadas que você ainda não começou.',hardOn:'Modo difícil ligado',hardOff:'Modo difícil desligado',soundOn:'Som ligado',soundOff:'Som desligado',
   practiceTitle:'Prática',practiceBody:'A prática não mexe na sua sequência nem rende tinta. Tinta vem do jogo do dia.',whichWay:'Em que sentido?',readOne:'Ler um rabisco',drawOne:'Desenhar um rabisco',howLong:'Que tamanho?',mix:'Misto',go:'Vamos',
   sendTitle:'Enviar um rabisco',sendBody:'Digite qualquer palavra ou nome, de 3 a 10 letras. Nós traçamos e te damos um link. Verão a forma, não a palavra.',sendPh:'ex.: tacos, Ana, Brasil',copyLink:'Copiar link',canYouRead:'Consegue ler meu rabisco? {link}',
@@ -886,7 +887,7 @@ function renderKeyboard(){
   r.g.forEach((g,gi)=>[...g].forEach((c,i)=>{const e=r.ev[gi][i];if(e==='ok')hit.add(c);else if(e==='near')warm.add(c);}));
   const kb=el('kb');
   if(!kb.dataset.built){
-    kb.innerHTML=ROWS.map((row,ri)=>`<div class="kbrow r${ri}"${ri===1&&row.length>=10?' style="padding:0 2px"':''}>`+(ri===2?`<button class="key wide" data-k="enter">${t('enter')}</button>`:'')+[...row].map(c=>`<button class="key" data-k="${c}">${c}</button>`).join('')+(ri===2?`<button class="key wide" data-k="back" aria-label="${t('del')}"><svg viewBox="0 0 24 24"><path d="M21 5H8l-5 7 5 7h13z"/><path d="m12 9 6 6M18 9l-6 6"/></svg></button>`:'')+'</div>').join('')+`<svg class="kbtrace" id="kbtrace" aria-hidden="true"></svg>`;
+    kb.innerHTML=ROWS.map((row,ri)=>`<div class="kbrow r${ri}"${ri===1&&row.length>=10?' style="padding:0 2px"':''}>`+(ri===2?`<button class="key wide" data-k="enter">${t('enter')}</button>`:'')+[...row].map(c=>`<button class="key" data-k="${c}">${c}</button>`).join('')+(ri===2?`<button class="key wide" data-k="back" aria-label="${t('del')}"><svg viewBox="0 0 24 24"><path d="M10 5a2 2 0 0 0-1.344.519l-6.328 5.74a1 1 0 0 0 0 1.481l6.328 5.741A2 2 0 0 0 10 19h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" /><path d="m12 9 6 6" /><path d="m18 9-6 6" /></svg></button>`:'')+'</div>').join('')+`<svg class="kbtrace" id="kbtrace" aria-hidden="true"></svg>`;
     kb.dataset.built='1';
     kb.onclick=e=>{const b=e.target.closest('.key');if(b)onKey(b.dataset.k);};
   }
@@ -947,8 +948,8 @@ function renderHome(){
   const dr=drawRound();
   const play=all
     ?`<button class="mbtn primary" id="hShare"><span class="mi">${ic('share')}</span><span class="mt"><b>${t('shareToday')}</b><small>${t('shareSub',{s:reads().filter(r=>r.won).length,d:dr&&dr.done?t('drawnAt',{a:dr.acc}):'',ink:dayInk()})}</small></span>${chev()}</button>
-       <button class="mbtn" id="hReview"><span class="mi"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></span><span class="mt"><b>${t('review')}</b><small>${t('reviewSub')}</small></span>${chev()}</button>`
-    :`<button class="mbtn primary" id="hPlay"><span class="mi"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span><span class="mt"><b>${doneN?t('cont'):t('play')}</b><small>${doneN?t('toGo',{n:S.rounds.length-doneN,next:isDraw(S.rounds[next])?t('nextDraw'):t('nextRead',{n:S.rounds[next].word.length})}):t('threeOne')}</small></span>${chev()}</button>`;
+       <button class="mbtn" id="hReview"><span class="mi"><svg viewBox="0 0 24 24"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg></span><span class="mt"><b>${t('review')}</b><small>${t('reviewSub')}</small></span>${chev()}</button>`
+    :`<button class="mbtn primary" id="hPlay"><span class="mi"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg></span><span class="mt"><b>${doneN?t('cont'):t('play')}</b><small>${doneN?t('toGo',{n:S.rounds.length-doneN,next:isDraw(S.rounds[next])?t('nextDraw'):t('nextRead',{n:S.rounds[next].word.length})}):t('threeOne')}</small></span>${chev()}</button>`;
   el('home').innerHTML=`
   <svg class="logo" viewBox="0 0 330 124" role="img" aria-label="Squiggle"><use href="#sq-logo"/></svg>
   <div class="tag">${t('appTag')}</div>
@@ -956,12 +957,12 @@ function renderHome(){
   <div class="menu">
     ${play}
     <div class="mrow">
-      <button class="mbtn" id="hPractice"><span class="mi mint"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8a2 2 0 0 0-3-3L5 16z"/><path d="M14 6l3 3"/></svg></span><span class="mt"><b>${t('practice')}</b><small>${t('practiceSub')}</small></span></button>
-      <button class="mbtn" id="hDuel"><span class="mi gold"><svg viewBox="0 0 24 24"><path d="M14 4l6 6-9 9H5v-6z"/><path d="M12 6l6 6"/></svg></span><span class="mt"><b>${t('challenge')}</b><small>${t('challengeSub')}</small></span></button>
+      <button class="mbtn" id="hPractice"><span class="mi mint"><svg viewBox="0 0 24 24"><path d="M13 21h8" /><path d="m15 5 4 4" /><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /></svg></span><span class="mt"><b>${t('practice')}</b><small>${t('practiceSub')}</small></span></button>
+      <button class="mbtn" id="hDuel"><span class="mi gold"><svg viewBox="0 0 24 24"><path d="M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2" /><path d="M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2" /><path d="M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3" /><path d="M4 22h16" /><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z" /><path d="M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3" /></svg></span><span class="mt"><b>${t('challenge')}</b><small>${t('challengeSub')}</small></span></button>
     </div>
     <button class="mbtn" id="hSend"><span class="mi pink">${ic('link')}</span><span class="mt"><b>${t('send')}</b><small>${t('sendSub')}</small></span>${chev()}</button>
   </div>
-  <div class="homefoot"><span class="chip">🔥 ${st.streak}</span><button class="chip link" id="hStats">${t('stats')}</button><button class="chip link" id="hHow">${t('how')}</button><button class="chip link" id="hMore">${t('settings')}</button></div>`;
+  <div class="homefoot"><span class="chip streak" aria-label="Streak">${ic('flame')}${st.streak}</span><button class="chip link" id="hStats">${t('stats')}</button><button class="chip link" id="hHow">${t('how')}</button><button class="chip link" id="hMore">${t('settings')}</button></div>`;
   const q=id=>document.getElementById(id);
   if(q('hPlay'))q('hPlay').onclick=()=>{sfx('open');S.round=next;S.cur='';render();};
   if(q('hShare'))q('hShare').onclick=()=>shareSheet();
@@ -971,11 +972,11 @@ function renderHome(){
   q('hSend').onclick=()=>sendSheet();
   q('hStats').onclick=()=>statsSheet();q('hHow').onclick=()=>howSheet();q('hMore').onclick=()=>moreSheet();
 }
-function chev(){return `<svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>`;}
+function chev(){return `<svg class="chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>`;}
 el('btnHome').onclick=goHome; el('brandBtn').onclick=goHome;
 
 /* ---------- Draw mode: you get the word, you draw its squiggle from memory ---------- */
-function penIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 20l4-1L19 8a2 2 0 0 0-3-3L5 16z"/><path d="M14 6l3 3"/></svg>`;}
+function penIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M13 21h8" /><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /></svg>`;}
 const dist2=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 function pathLen(p){let L=0;for(let i=1;i<p.length;i++)L+=dist2(p[i],p[i-1]);return L;}
 /* Uniform arc-length resample to exactly n points */
@@ -1135,13 +1136,13 @@ function hintsSheet(){
   const middle=[];for(let i=1;i<n-1;i++)if(!r.rev.includes(i))middle.push(i);
   const items=[
     {k:'first',t:t('hFirst'),d:t('hFirstD'),p:PRICE.first,used:r.rev.includes(0),ok:true,
-      ic:'<path d="M4 20 20 4M4 12V4h8"/>'},
+      ic:'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" />'},
     {k:'last',t:t('hLast'),d:t('hLastD'),p:PRICE.last,used:r.rev.includes(n-1),ok:true,
-      ic:'<path d="M20 4 4 20M20 12V4h-8"/>'},
+      ic:'<path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528" />'},
     {k:'letter',t:t('hMid'),d:t('hMidD'),p:PRICE.letter,used:middle.length===0,ok:middle.length>0,
-      ic:'<circle cx="12" cy="12" r="3"/><path d="M3 12h4M17 12h4"/>'},
+      ic:'<path d="m15 16 2.536-7.328a1.02 1.02 1 0 1 1.928 0L22 16" /><path d="M15.697 14h5.606" /><path d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16" /><path d="M3.304 13h6.392" />'},
     {k:'place',t:t('hPlace'),d:r.hard?t('hPlaceLocked'):t('hPlaceD'),p:PRICE.place,used:r.placed,ok:!r.hard,
-      ic:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8"/>'}
+      ic:'<path d="M10 8h.01" /><path d="M12 12h.01" /><path d="M14 8h.01" /><path d="M16 12h.01" /><path d="M18 8h.01" /><path d="M6 8h.01" /><path d="M7 16h10" /><path d="M8 12h.01" /><rect width="20" height="16" x="2" y="4" rx="2" />'}
   ];
   const cards=items.map(it=>{const poor=!it.used&&st.ink<it.p;const dis=it.used||!it.ok||poor;
     return `<button class="hintcard${it.used?' used':''}${poor?' poor':''}" data-k="${it.k}" ${dis?'disabled':''}><span class="ic"><svg viewBox="0 0 24 24">${it.ic}</svg></span><span class="t"><b>${it.t}</b><small>${it.d}</small></span><span class="price">${it.used?t('used'):(it.ok?inkIcon()+it.p:t('locked'))}</span></button>`;}).join('');
@@ -1176,13 +1177,13 @@ function resultSheet(r){
     const a=r.acc;title=a>=95?t('d95'):a>=85?t('d85'):a>=70?t('d70'):a>=50?t('d50'):t('d0');
     const on=r.hits.filter(h=>h.tier==='ok').length;
     body=t('drawBody',{w:W,a,on,n,hard:r.hard?t('onHard'):''});
-    earn=r.ink?`<div class="earn">${inkIcon()}+${r.ink} ${INK}<small>${t('earnDraw',{n,a})}${a>=95?t('perfectBonus'):''}${r.hard?t('hardMult'):''}${S.mode!=='daily'?t('halfOutside'):''}</small></div>`:'';
+    earn=r.ink?`<div class="earn">${inkIcon()}+${r.ink} ${INK}<small>${t('earnDraw',{n,a})}${a>=95?t('perfectBonus'):''}${r.hard?t('hardMult'):''}</small></div>`:'';
   } else {
     if(r.won){title=['',t('win1'),t('win2'),t('win3'),t('win4')][r.g.length]||t('winX');}
     else title=t('lost');
     const hints=r.rev.length+(r.placed?1:0);
     body=r.won?t('readBody',{w:W,g:r.g.length,gw:r.g.length===1?t('guess1'):t('guessN'),h:hints?t('withHints',{h:hints,hw:hints===1?t('hint1'):t('hintN')}):'',hard:r.hard?t('onHard2'):''}):t('lostBody',{w:W});
-    earn=r.won?`<div class="earn">${inkIcon()}+${r.ink} ${INK}<small>${t('earnRead',{n:r.word.length,m:Math.max(1,BASE_GUESSES+1-r.g.length)})}${r.hard?t('hardMult'):''}${S.mode!=='daily'?t('halfOutside'):''}</small></div>`:'';
+    earn=(r.won&&r.ink)?`<div class="earn">${inkIcon()}+${r.ink} ${INK}<small>${t('earnRead',{n:r.word.length,m:Math.max(1,BASE_GUESSES+1-r.g.length)})}${r.hard?t('hardMult'):''}</small></div>`:'';
   }
   const bonus=r.bonus?`<div class="earn">${inkIcon()}+${r.bonus} ${INK}<small>${t('dayBonus')}${reads().every(x=>x.won)?t('allThree'):''}${t('streakN',{s:getStats().streak})}</small></div>`:'';
   let btns='';
@@ -1319,11 +1320,11 @@ function copy(text,boxId){
 function selectBox(id){const b=document.getElementById(id);if(b){b.focus();b.select();toast(t('selectCopy'));}}
 
 /* ---------- Modals ---------- */
-function ic(n){const d={share:'<path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M12 15V3m0 0L8 7m4-4 4 4"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/>',link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5"/>'}[n];return `<svg viewBox="0 0 24 24">${d}</svg>`;}
+function ic(n){const d={share:'<path d="M12 2v13" /><path d="m16 6-4-4-4 4" /><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />',copy:'<rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />',link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />',flame:'<path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4" />'}[n];return `<svg viewBox="0 0 24 24">${d}</svg>`;}
 function openSheet(html,center){
   closeSheet();sfx('open');
   const o=document.createElement('div');o.className='scrim'+(center?' center':'');
-  o.innerHTML=`<div class="sheet" role="dialog" aria-modal="true"><button class="x" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>${html}</div>`;
+  o.innerHTML=`<div class="sheet" role="dialog" aria-modal="true"><button class="x" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg></button>${html}</div>`;
   o.addEventListener('click',e=>{if(e.target===o||e.target.closest('.x'))closeSheet();});
   el('overlay').appendChild(o);
   const f=o.querySelector('input,button.primary,button');if(f&&!o.querySelector('input'))f.focus({preventScroll:true});
@@ -1354,10 +1355,10 @@ function statsSheet(){
   const dist=['1','2','3','4','5','x'].map(k=>`<div class="d"><span>${k==='x'?'✕':(k==='5'?'5+':k)}</span><div class="bar${(curN!==null&&String(curN)===k)?' top':''}" style="width:${Math.max(8,100*st.dist[k]/max)}%">${st.dist[k]}</div></div>`).join('');
   openSheet(`<h2>${t('statsTitle')}</h2>
   <div class="balance"><b>${inkIcon()}${st.ink}</b><span>${t('inkAll',{n:st.inkEarned})}</span></div>
-  <div class="stats"><div class="stat"><b>${st.days}</b><span>${t('days')}</span></div><div class="stat"><b>${pct}</b><span>${t('solvePct')}</span></div><div class="stat"><b>${st.streak}</b><span>${t('streakL')}</span></div><div class="stat"><b>${st.maxStreak}</b><span>${t('best')}</span></div></div>
+  <div class="stats"><div class="stat"><b>${st.days}</b><span>${t('days')}</span></div><div class="stat"><b>${pct}<i>%</i></b><span>${t('solvePct')}</span></div><div class="stat"><b>${st.streak}</b><span>${t('streakL')}</span></div><div class="stat"><b>${st.maxStreak}</b><span>${t('best')}</span></div></div>
   <h3>${t('guessesPer')}</h3><div class="dist">${dist}</div>
   <h3>${t('drawnTitle')}</h3>
-  <div class="stats three"><div class="stat"><b>${st.traces||0}</b><span>${t('traces')}</span></div><div class="stat"><b>${st.traces?Math.round(st.traceSum/st.traces):0}</b><span>${t('avg')}</span></div><div class="stat"><b>${st.traceBest||0}</b><span>${t('bestPct')}</span></div></div>
+  <div class="stats three"><div class="stat"><b>${st.traces||0}</b><span>${t('traces')}</span></div><div class="stat"><b>${st.traces?Math.round(st.traceSum/st.traces):0}<i>%</i></b><span>${t('avg')}</span></div><div class="stat"><b>${st.traceBest||0}<i>%</i></b><span>${t('bestPct')}</span></div></div>
   <p>${t('perfectDays',{n:st.perfect,dw:st.perfect===1?t('day1'):t('dayN')})}</p>
   ${S.mode==='daily'&&S.rounds.every(x=>x.done)?`<div class="btns"><button class="btn primary" id="stShare">${ic('share')}${t('shareToday')}</button></div>`:''}`,true);
   const b=document.getElementById('stShare');if(b)b.onclick=()=>{closeSheet();shareSheet();};
