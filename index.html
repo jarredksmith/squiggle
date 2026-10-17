@@ -143,6 +143,11 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .top .grow{flex:1;min-width:0}
 .iconbtn{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--surface);box-shadow:var(--lift)}
 .iconbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ico{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mbtn .mi .ico,.hintcard .ic .ico{width:24px;height:24px}
+.ico .d{fill:var(--guess);stroke:none} .ico .r,.ico .c{stroke:var(--guess)} .ico .f{opacity:.32}
+.mbtn.primary .ico .d,.btn.primary .ico .d{fill:#FF6B5B} .mbtn.primary .ico .r,.btn.primary .ico .r,.mbtn.primary .ico .c,.btn.primary .ico .c{stroke:#FF6B5B}
+.mi.pink .ico .d{fill:var(--guess)}
 .chip.streak svg{width:15px;height:15px;fill:none;stroke:var(--guess);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 /* Round pills */
@@ -425,7 +430,7 @@ window.SQUIGGLE_SHARE_URL='https://jarredksmith.github.io/squiggle/';
   <div class="status">
     <div class="msg" id="msg" aria-live="polite"></div>
     <span class="clock" id="clock" hidden><svg viewBox="0 0 24 24"><line x1="10" x2="14" y1="2" y2="2" /><line x1="12" x2="15" y1="14" y2="11" /><circle cx="12" cy="14" r="8" /></svg><span id="clockVal">0:00</span></span>
-    <button class="hint" id="btnHints"><svg viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" /><path d="M9 18h6" /><path d="M10 22h4" /></svg><span>Hints</span></button>
+    <button class="hint" id="btnHints"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16 C7 6.5, 10 6.5, 12 11.5 S17 16.5, 20 8"/><path d="M21.3 11.3 L20 8 L16.9 9.8"/><circle class="d" cx="4" cy="16" r="2.1"/><circle class="r" cx="12" cy="11.5" r="3.4"/></svg><span>Hints</span></button>
   </div>
 
   <section class="guesses" id="guesses" aria-label="Your guesses"></section>
@@ -1079,9 +1084,9 @@ function renderHome(){
   const chip=all?`<i></i>${t('chipDone')}<span id="countdown">${untilTomorrow()}</span>`:doneN?`<i class="todo"></i>${t('chipProgress',{d:doneN,n:S.rounds.length})}`:`<i class="fresh"></i>#${S.day+1} · ${fmtDate(d)}`;
   const dr=drawRound();
   const play=all
-    ?`<button class="mbtn primary" id="hShare"><span class="mi">${ic('share')}</span><span class="mt"><b>${t('shareToday')}</b><small>${t('shareSub',{s:reads().filter(r=>r.won).length,d:dr&&dr.done?t('drawnAt',{a:dr.acc}):'',ink:dayInk()})}</small></span>${chev()}</button>
-       <button class="mbtn" id="hReview"><span class="mi"><svg viewBox="0 0 24 24"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg></span><span class="mt"><b>${t('review')}</b><small>${t('reviewSub')}</small></span>${chev()}</button>`
-    :`<button class="mbtn primary" id="hPlay"><span class="mi"><svg viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg></span><span class="mt"><b>${doneN?t('cont'):t('play')}</b><small>${doneN?t('toGo',{n:S.rounds.length-doneN,next:isDraw(S.rounds[next])?t('nextDraw'):t('nextRead',{n:S.rounds[next].word.length})}):t('threeOne')}</small></span>${chev()}</button>`;
+    ?`<button class="mbtn primary" id="hShare"><span class="mi">${sq('share')}</span><span class="mt"><b>${t('shareToday')}</b><small>${t('shareSub',{s:reads().filter(r=>r.won).length,d:dr&&dr.done?t('drawnAt',{a:dr.acc}):'',ink:dayInk()})}</small></span>${chev()}</button>
+       <button class="mbtn" id="hReview"><span class="mi">${sq('review')}</span><span class="mt"><b>${t('review')}</b><small>${t('reviewSub')}</small></span>${chev()}</button>`
+    :`<button class="mbtn primary" id="hPlay"><span class="mi">${sq('play')}</span><span class="mt"><b>${doneN?t('cont'):t('play')}</b><small>${doneN?t('toGo',{n:S.rounds.length-doneN,next:isDraw(S.rounds[next])?t('nextDraw'):t('nextRead',{n:S.rounds[next].word.length})}):t('threeOne')}</small></span>${chev()}</button>`;
   el('home').innerHTML=`
   <svg class="logo" viewBox="0 0 330 124" role="img" aria-label="Squiggle"><use href="#sq-logo"/></svg>
   <div class="tag">${t('appTag')}</div>
@@ -1089,11 +1094,11 @@ function renderHome(){
   <div class="menu">
     ${play}
     <div class="mrow three">
-      <button class="mbtn" id="hPractice"><span class="mi mint"><svg viewBox="0 0 24 24"><path d="M13 21h8" /><path d="m15 5 4 4" /><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /></svg></span><span class="mt"><b>${t('practice')}</b><small>${t('practiceSub')}</small></span></button>
-      <button class="mbtn" id="hDuel"><span class="mi gold"><svg viewBox="0 0 24 24"><path d="M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2" /><path d="M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2" /><path d="M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3" /><path d="M4 22h16" /><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z" /><path d="M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3" /></svg></span><span class="mt"><b>${t('challenge')}</b><small>${t('challengeSub')}</small></span></button>
-      <button class="mbtn" id="hPacks"><span class="mi pink"><svg viewBox="0 0 24 24"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></svg></span><span class="mt"><b>${t('packs')}</b><small>${t('packsSub')}</small></span></button>
+      <button class="mbtn" id="hPractice"><span class="mi mint">${sq('practice')}</span><span class="mt"><b>${t('practice')}</b><small>${t('practiceSub')}</small></span></button>
+      <button class="mbtn" id="hDuel"><span class="mi gold">${sq('challenge')}</span><span class="mt"><b>${t('challenge')}</b><small>${t('challengeSub')}</small></span></button>
+      <button class="mbtn" id="hPacks"><span class="mi pink">${sq('packs')}</span><span class="mt"><b>${t('packs')}</b><small>${t('packsSub')}</small></span></button>
     </div>
-    <button class="mbtn" id="hSend"><span class="mi pink">${ic('link')}</span><span class="mt"><b>${t('send')}</b><small>${t('sendSub')}</small></span>${chev()}</button>
+    <button class="mbtn" id="hSend"><span class="mi mint">${sq('send')}</span><span class="mt"><b>${t('send')}</b><small>${t('sendSub')}</small></span>${chev()}</button>
   </div>
   <div class="homefoot"><span class="chip streak" aria-label="Streak">${ic('flame')}${st.streak}</span><button class="chip link" id="hStats">${t('stats')}</button><button class="chip link" id="hHow">${t('how')}</button><button class="chip link" id="hMore">${t('settings')}</button></div>`;
   const q=id=>document.getElementById(id);
@@ -1110,7 +1115,7 @@ function chev(){return `<svg class="chev" viewBox="0 0 24 24"><path d="m9 18 6-6
 el('btnHome').onclick=goHome; el('brandBtn').onclick=goHome;
 
 /* ---------- Draw mode: you get the word, you draw its squiggle from memory ---------- */
-function penIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M13 21h8" /><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /></svg>`;}
+function penIcon(){return sq('draw','width:18px;height:18px');}
 const dist2=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 function pathLen(p){let L=0;for(let i=1;i<p.length;i++)L+=dist2(p[i],p[i-1]);return L;}
 /* Uniform arc-length resample to exactly n points */
@@ -1301,16 +1306,16 @@ function hintsSheet(){
   const st=getStats(),n=r.word.length,known=knownAt(r),middle=openMiddle(r);
   const items=[
     {k:'first',t:t('hFirst'),d:t('hFirstD'),p:PRICE.first,used:known.has(0),found:known.has(0)&&!r.rev.includes(0),ok:true,
-      ic:'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" />'},
+      ic:ICONS.first},
     {k:'last',t:t('hLast'),d:t('hLastD'),p:PRICE.last,used:known.has(n-1),found:known.has(n-1)&&!r.rev.includes(n-1),ok:true,
-      ic:'<path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528" />'},
+      ic:ICONS.last},
     {k:'letter',t:t('hMid'),d:t('hMidD'),p:PRICE.letter,used:middle.length===0,found:middle.length===0&&!r.rev.some(i=>i>0&&i<n-1),ok:middle.length>0,
-      ic:'<path d="m15 16 2.536-7.328a1.02 1.02 1 0 1 1.928 0L22 16" /><path d="M15.697 14h5.606" /><path d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16" /><path d="M3.304 13h6.392" />'},
+      ic:ICONS.letter},
     {k:'place',t:t('hPlace'),d:r.hard?t('hPlaceLocked'):t('hPlaceD'),p:PRICE.place,used:r.placed,ok:!r.hard,
-      ic:'<path d="M10 8h.01" /><path d="M12 12h.01" /><path d="M14 8h.01" /><path d="M16 12h.01" /><path d="M18 8h.01" /><path d="M6 8h.01" /><path d="M7 16h10" /><path d="M8 12h.01" /><rect width="20" height="16" x="2" y="4" rx="2" />'}
+      ic:ICONS.place}
   ];
   const cards=items.map(it=>{const poor=!it.used&&st.ink<it.p;const dis=it.used||!it.ok||poor;
-    return `<button class="hintcard${it.used?' used':''}${poor?' poor':''}" data-k="${it.k}" ${dis?'disabled':''}><span class="ic"><svg viewBox="0 0 24 24">${it.ic}</svg></span><span class="t"><b>${it.t}</b><small>${it.d}</small></span><span class="price">${it.used?(it.found?t('found'):t('used')):(it.ok?inkIcon()+it.p:t('locked'))}</span></button>`;}).join('');
+    return `<button class="hintcard${it.used?' used':''}${poor?' poor':''}" data-k="${it.k}" ${dis?'disabled':''}><span class="ic"><svg class="ico" viewBox="0 0 24 24">${it.ic}</svg></span><span class="t"><b>${it.t}</b><small>${it.d}</small></span><span class="price">${it.used?(it.found?t('found'):t('used')):(it.ok?inkIcon()+it.p:t('locked'))}</span></button>`;}).join('');
   openSheet(`<h2>${t('hints')}</h2>
   <div class="balance"><b>${inkIcon()}${st.ink}</b><span>${t('earnHow')}</span>${STORE.ready?`<button class="chip" id="hGetInk">${t('getInk')}</button>`:''}</div>
   <div class="hints">${cards}</div>`,true);
@@ -1363,7 +1368,7 @@ function resultSheet(r){
   if(S.mode==='daily'){
     const next=S.rounds.findIndex(x=>!x.done);
     if(next>=0) btns=`<button class="btn primary" id="sNext">${isDraw(S.rounds[next])?t('nextDrawBtn'):t('nextBtn',{n:S.rounds[next].word.length})}</button>`;
-    else btns=`<button class="btn primary" id="sShare">${ic('share')}${t('shareToday')}</button><button class="btn" id="sHome">${t('home')}</button>`;
+    else btns=`<button class="btn primary" id="sShare">${sq('share')}${t('shareToday')}</button><button class="btn" id="sHome">${t('home')}</button>`;
   } else if(S.mode==='practice'){
     btns=`<button class="btn primary" id="sAnother">${t('another')}</button><button class="btn" id="sHome">${t('home')}</button>`;
   } else if(S.mode==='sentence'){
@@ -1381,13 +1386,13 @@ function resultSheet(r){
     const me=r.acc,them=S.rival.acc;
     title=me>them?t('duelWin'):me<them?t('duelLose'):t('duelTie');
     body=t('duelBody',{w:W,me,them});
-    btns=`<button class="btn primary" id="sDuelBack">${ic('share')}${t('sendBack')}</button><button class="btn" id="sHome">${t('home')}</button>`;
+    btns=`<button class="btn primary" id="sDuelBack">${sq('share')}${t('sendBack')}</button><button class="btn" id="sHome">${t('home')}</button>`;
   } else if(S.mode==='custom'){
     title=r.won?t('friendWin'):t('lost');
     body=r.won?t('friendBodyWin',{w:W,g:r.g.length}):t('friendBodyLose',{w:W});
-    btns=`<button class="btn primary" id="sMake">${ic('link')}${t('sendOneBack')}</button><button class="btn" id="sHome">${t('home')}</button>`;
+    btns=`<button class="btn primary" id="sMake">${sq('send')}${t('sendOneBack')}</button><button class="btn" id="sHome">${t('home')}</button>`;
   } else if(isDraw(r)&&!isSentence(r)&&!r.tut){
-    btns+=`<button class="btn" id="sDuel">${ic('link')}${t('challengeFriend')}</button>`;
+    btns+=`<button class="btn" id="sDuel">${sq('send')}${t('challengeFriend')}</button>`;
   }
   const done=S.mode==='daily'&&S.rounds.every(x=>x.done);
   openSheet(`<h2>${title}</h2><div class="answer${isSentence(r)?' long':''}">${isSentence(r)?esc(r.shown):disp(r.word)}</div><p>${body}</p>${time}${earn}${bonus}${done?dayRecap():''}<div class="btns">${btns}</div>`);
@@ -1423,7 +1428,7 @@ function shareSheet(){
   let canvas=null;try{canvas=shareCard();}catch(e){canvas=null;}
   const img=canvas?`<img class="cardpreview" alt="${t('shareAlt')}" src="${canvas.toDataURL('image/png')}">`:'';
   openSheet(`<h2>${t('shareTitle')}</h2>${img}<textarea class="share" id="shareBox" rows="5" readonly>${esc(txt)}</textarea>
-  <div class="btns">${canvas?`<button class="btn primary" id="shareImg">${ic('share')}${t('sharePic')}</button>`:''}<button class="btn${canvas?'':' primary'}" id="shareNow">${ic('share')}${t('shareText')}</button></div>
+  <div class="btns">${canvas?`<button class="btn primary" id="shareImg">${sq('share')}${t('sharePic')}</button>`:''}<button class="btn${canvas?'':' primary'}" id="shareNow">${sq('share')}${t('shareText')}</button></div>
   <div class="btns"><button class="btn" id="copyShare">${ic('copy')}${t('copyText')}</button><button class="btn" id="sHome2">${t('home')}</button></div>`);
   if(canvas) document.getElementById('shareImg').onclick=async()=>{const ok=await sharePng(canvas,txt);if(!ok){toast(t('longPress'));}};
   document.getElementById('shareNow').onclick=async()=>{if(!(await shareOut(txt)))copy(txt,'shareBox');};
@@ -1435,7 +1440,7 @@ function duelSheet(r){
   openSheet(`<h2>${t('beatTitle')}</h2><p>${t('beatBody',{w:disp(r.word).toUpperCase()})}</p>
   <svg class="glyph" viewBox="-20 -20 1040 340" aria-hidden="true" style="background:var(--bg);border-radius:12px">${cells(false)}<path class="stroke" d="${strokePath(r.stroke)}"/></svg>
   <textarea class="share" id="duelBox" rows="3" readonly>${esc(msg)}</textarea>
-  <div class="btns"><button class="btn primary" id="duelShare">${ic('share')}${t('sendChallenge')}</button><button class="btn" id="duelCopy">${ic('copy')}${t('copy')}</button></div>`,true);
+  <div class="btns"><button class="btn primary" id="duelShare">${sq('share')}${t('sendChallenge')}</button><button class="btn" id="duelCopy">${ic('copy')}${t('copy')}</button></div>`,true);
   document.getElementById('duelShare').onclick=async()=>{if(!(await shareOut(msg)))copy(msg,'duelBox');};
   document.getElementById('duelCopy').onclick=()=>copy(msg,'duelBox');
 }
@@ -1498,6 +1503,9 @@ function copy(text,boxId){
 function selectBox(id){const b=document.getElementById(id);if(b){b.focus();b.select();toast(t('selectCopy'));}}
 
 /* ---------- Modals ---------- */
+/* ---------- Squiggle's own icons: every glyph is drawn with the game's trace (round-capped line, coral start dot, the arrowhead a squiggle ends with) ---------- */
+const ICONS={"play":"<path d=\"M4 16 C7 6.5, 10 6.5, 12 11.5 S17 16.5, 20 8\"/><path d=\"M21.3 11.3 L20 8 L16.9 9.8\"/><circle class=\"d\" cx=\"4\" cy=\"16\" r=\"2.1\"/>","practice":"<path d=\"M3.5 15 C5.5 8, 8.5 7, 10 10.5 C11.5 14, 7.5 16.5, 7.5 12.5 C7.5 8.5, 12 6.5, 14.5 9.5 S19 15, 21 9\"/><path d=\"M22.3 12.3 L21 9 L17.9 10.8\"/><circle class=\"d\" cx=\"3.5\" cy=\"15\" r=\"2.1\"/>","challenge":"<path d=\"M3.5 9.5 C6 4.5, 9 4.5, 11 7.5 S16 10.5, 20 5\"/><path d=\"M20.3 8.2 L20 5 L16.9 5.7\"/><circle class=\"d\" cx=\"3.5\" cy=\"9.5\" r=\"1.9\"/><path d=\"M20.5 14.5 C18 19.5, 15 19.5, 13 16.5 S8 13.5, 4 19\"/><path d=\"M3.7 15.8 L4 19 L7.1 18.3\"/><circle cx=\"20.5\" cy=\"14.5\" r=\"1.9\" fill=\"currentColor\" stroke=\"none\"/>","packs":"<path d=\"M8.5 7 h10.5 a2 2 0 0 1 2 2 v10 a2 2 0 0 1 -2 2 h-10.5 a2 2 0 0 1 -2 -2 v-10 a2 2 0 0 1 2 -2 z\"/><path class=\"f\" d=\"M3.5 15 v-10 a2 2 0 0 1 2 -2 h10\"/><path d=\"M9.5 16.5 C11 12, 12.5 12, 13.5 14 S16 15.5, 18 12\"/><circle class=\"d\" cx=\"9.5\" cy=\"16.5\" r=\"1.7\"/>","send":"<path d=\"M5 4 h14 a2 2 0 0 1 2 2 v9 a2 2 0 0 1 -2 2 h-8 l-4.5 3.5 v-3.5 h-1.5 a2 2 0 0 1 -2 -2 v-9 a2 2 0 0 1 2 -2 z\"/><path d=\"M7.5 13 C9 8.5, 10.5 8.5, 12 11 S14.5 13.5, 16.5 9\"/><circle class=\"d\" cx=\"7.5\" cy=\"13\" r=\"1.8\"/>","review":"<rect x=\"3\" y=\"15\" width=\"5.4\" height=\"5.4\" rx=\"1.5\"/><rect class=\"d\" x=\"9.3\" y=\"15\" width=\"5.4\" height=\"5.4\" rx=\"1.5\"/><rect x=\"15.6\" y=\"15\" width=\"5.4\" height=\"5.4\" rx=\"1.5\"/><path d=\"M4 11 C7 3.5, 10 3.5, 12 7.5 S17 11.5, 20 5\"/><path d=\"M20.9 8.1 L20 5 L17.1 6.3\"/>","share":"<path d=\"M5 11 v8 a2 2 0 0 0 2 2 h10 a2 2 0 0 0 2 -2 v-8\"/><path d=\"M12 16 C14.5 12.5, 9.5 10, 12 3.5\"/><path d=\"M13.8 6.1 L12 3.5 L9.6 5.6\"/><circle class=\"d\" cx=\"12\" cy=\"16\" r=\"1.9\"/>","hints":"<path d=\"M4 16 C7 6.5, 10 6.5, 12 11.5 S17 16.5, 20 8\"/><path d=\"M21.3 11.3 L20 8 L16.9 9.8\"/><circle class=\"d\" cx=\"4\" cy=\"16\" r=\"2.1\"/><circle class=\"r\" cx=\"12\" cy=\"11.5\" r=\"3.4\"/>","first":"<path d=\"M4 16 C7 6.5, 10 6.5, 12 11.5 S17 16.5, 20 8\"/><circle class=\"d\" cx=\"4\" cy=\"16\" r=\"3\"/>","last":"<path d=\"M4 16 C7 6.5, 10 6.5, 12 11.5 S17 16.5, 20 8\"/><path class=\"c\" d=\"M21.3 11.3 L20 8 L16.9 9.8\"/>","letter":"<path d=\"M4 16 C7 6.5, 10 6.5, 12 11.5 S17 16.5, 20 8\"/><circle class=\"r\" cx=\"12\" cy=\"11.5\" r=\"3.4\"/>","place":"<g class=\"f\"><rect x=\"2.5\" y=\"4\" width=\"5.5\" height=\"5.5\" rx=\"1.4\"/><rect x=\"9.25\" y=\"4\" width=\"5.5\" height=\"5.5\" rx=\"1.4\"/><rect x=\"16\" y=\"4\" width=\"5.5\" height=\"5.5\" rx=\"1.4\"/><rect x=\"5.5\" y=\"11\" width=\"5.5\" height=\"5.5\" rx=\"1.4\"/><rect x=\"12.25\" y=\"11\" width=\"5.5\" height=\"5.5\" rx=\"1.4\"/></g><path d=\"M5 14 C8 5, 11 5, 13 10 S18 13, 20 6.5\"/><path d=\"M21.3 9.8 L20 6.5 L16.9 8.3\"/><circle class=\"d\" cx=\"5\" cy=\"14\" r=\"1.8\"/>","draw":"<path d=\"M4 16 C7 6.5, 10 6.5, 12 11.5 S17 16.5, 20 8\"/><circle class=\"d\" cx=\"20\" cy=\"8\" r=\"2.9\"/>","beat":"<path d=\"M4 16 C7 6.5, 10 6.5, 12 11.5 S17 16.5, 20 8\"/><path d=\"M21.3 11.3 L20 8 L16.9 9.8\"/><circle class=\"d\" cx=\"4\" cy=\"16\" r=\"2.1\"/><path class=\"f\" d=\"M4 20 C7 12, 10 12, 12 15.5 S17 20, 20 13\"/>","sentence":"<path d=\"M4 7 C5.5 4.5, 7 4.5, 8 6.5 S10.5 8.5, 12 6\"/><path d=\"M4 13 C5.5 10.5, 7 10.5, 8 12.5 S10.5 14.5, 12 12 S15 9.5, 17 12\"/><path d=\"M4 19 C5.5 16.5, 7 16.5, 8 18.5 S10.5 20.5, 12 18 S16 15.5, 20 18\"/><circle class=\"d\" cx=\"4\" cy=\"7\" r=\"1.6\"/><circle class=\"d\" cx=\"4\" cy=\"13\" r=\"1.6\"/><circle class=\"d\" cx=\"4\" cy=\"19\" r=\"1.6\"/>"};
+const sq=(n,style)=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"${style?` style="${style}"`:''}>${ICONS[n]}</svg>`;
 function ic(n){const d={share:'<path d="M12 2v13" /><path d="m16 6-4-4-4 4" /><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />',copy:'<rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />',link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />',flame:'<path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4" />'}[n];return `<svg viewBox="0 0 24 24">${d}</svg>`;}
 function openSheet(html,center){
   closeSheet();sfx('open');
@@ -1538,13 +1546,13 @@ function statsSheet(){
   <h3>${t('drawnTitle')}</h3>
   <div class="stats three"><div class="stat"><b>${st.traces||0}</b><span>${t('traces')}</span></div><div class="stat"><b>${st.traces?Math.round(st.traceSum/st.traces):0}<i>%</i></b><span>${t('avg')}</span></div><div class="stat"><b>${st.traceBest||0}<i>%</i></b><span>${t('bestPct')}</span></div></div>
   <p>${t('perfectDays',{n:st.perfect,dw:st.perfect===1?t('day1'):t('dayN')})}${st.fastest?' '+t('fastest',{t:fmtClock(st.fastest)}):''}</p>
-  ${S.mode==='daily'&&S.rounds.every(x=>x.done)?`<div class="btns"><button class="btn primary" id="stShare">${ic('share')}${t('shareToday')}</button></div>`:''}`,true);
+  ${S.mode==='daily'&&S.rounds.every(x=>x.done)?`<div class="btns"><button class="btn primary" id="stShare">${sq('share')}${t('shareToday')}</button></div>`:''}`,true);
   const b=document.getElementById('stShare');if(b)b.onclick=()=>{closeSheet();shareSheet();};
 }
 function moreSheet(){
   openSheet(`<h2>${t('settingsTitle')}</h2>
   <p>${t('settingsBody')}</p>
-  <div class="btns"><button class="btn primary" id="mPractice">${t('practice')}</button><button class="btn" id="mSend">${ic('link')}${t('send')}</button></div>
+  <div class="btns"><button class="btn primary" id="mPractice">${t('practice')}</button><button class="btn" id="mSend">${sq('send')}${t('send')}</button></div>
   <h3>${t('language')}</h3>
   <div class="minilist three" id="mLang">${Object.keys(LANGS).map(c=>`<button data-l="${c}" class="${PREF_LANG===c?'on':''}">${LANGS[c].name}</button>`).join('')}</div>
   <h3>${t('appearance')}</h3>
@@ -1595,8 +1603,8 @@ function inkSheet(){
 function challengeSheet(){
   openSheet(`<h2>${t('challengeTitle')}</h2><p>${t('challengeBody')}</p>
   <div class="menu" style="max-width:none;margin-top:0">
-    <button class="mbtn" id="cTrace"><span class="mi gold"><svg viewBox="0 0 24 24"><path d="M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2" /><path d="M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2" /><path d="M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3" /><path d="M4 22h16" /><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z" /><path d="M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3" /></svg></span><span class="mt"><b>${t('beatTrace')}</b><small>${t('beatTraceSub')}</small></span>${chev()}</button>
-    <button class="mbtn" id="cSentence"><span class="mi mint"><svg viewBox="0 0 24 24"><path d="M21 5H3" /><path d="M15 12H3" /><path d="M17 19H3" /></svg></span><span class="mt"><b>${t('drawSentence')}</b><small>${t('drawSentenceSub')}</small></span>${chev()}</button>
+    <button class="mbtn" id="cTrace"><span class="mi gold">${sq('beat')}</span><span class="mt"><b>${t('beatTrace')}</b><small>${t('beatTraceSub')}</small></span>${chev()}</button>
+    <button class="mbtn" id="cSentence"><span class="mi mint">${sq('sentence')}</span><span class="mt"><b>${t('drawSentence')}</b><small>${t('drawSentenceSub')}</small></span>${chev()}</button>
   </div>`,true);
   document.getElementById('cTrace').onclick=()=>{closeSheet();startDrawPractice(6);};
   document.getElementById('cSentence').onclick=()=>{closeSheet();startSentence();};
@@ -1617,7 +1625,7 @@ function sendSheet(){
   openSheet(`<h2>${t('sendTitle')}</h2><p>${t('sendBody')}</p>
   <div class="field"><input id="sendWord" maxlength="10" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="${t('sendPh')}"></div>
   <svg class="glyph" id="sendPreview" viewBox="-20 -20 1040 340" aria-hidden="true" style="background:var(--bg);border-radius:12px"></svg>
-  <div class="btns"><button class="btn primary" id="sendCopy">${ic('link')}${t('copyLink')}</button></div>
+  <div class="btns"><button class="btn primary" id="sendCopy">${ic('copy')}${t('copyLink')}</button></div>
   <textarea class="share visually-hidden" id="sendBox" rows="2" readonly></textarea>`,true);
   const inp=document.getElementById('sendWord'),pv=document.getElementById('sendPreview'),cp=document.getElementById('sendCopy');
   const draw=()=>{const w=[...norm(inp.value)].filter(c=>L.alpha.includes(c)).join('');inp.value=w;pv.innerHTML=lattice()+(w.length>=2?targetGlyph(w,'send:'+w,false,false,false):'');cp.disabled=w.length<3;};
