@@ -2,10 +2,10 @@
   "appId": "com.jarredsmith.squiggle",
   "appName": "Squiggle",
   "webDir": "www",
-  "backgroundColor": "#F2F1FB",
+  "backgroundColor": "#F5F8FC",
   "ios": {
     "contentInset": "never",
-    "backgroundColor": "#F2F1FB",
+    "backgroundColor": "#F5F8FC",
     "scrollEnabled": false,
     "limitsNavigationsToAppBoundDomains": false
   },
