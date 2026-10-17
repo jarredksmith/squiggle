@@ -179,6 +179,17 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .drawword{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 .drawword .dl{width:44px;height:52px;border-radius:12px;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:28px;text-transform:uppercase;background:var(--surface);box-shadow:var(--shadow);color:var(--fg)}
 .drawword .dl.ok{background:var(--ok);color:var(--onstatus)} .drawword .dl.near{background:var(--near);color:var(--onstatus)} .drawword .dl.no{background:var(--absent);color:var(--onstatus)}
+.sentence{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 10px;max-width:36ch}
+.sentence .sw{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.3;color:var(--muted);padding:0 1px}
+.sentence .sw.past{color:var(--fg);opacity:.5}
+.sentence .sw.cur{color:var(--ink);box-shadow:inset 0 -3px 0 var(--ink)}
+.sentence.done{gap:6px 8px}
+.sentence.done .sw{display:inline-flex;flex-direction:column;align-items:center;padding:6px 10px 5px;border-radius:12px;background:var(--surface);box-shadow:var(--hair);color:var(--fg);font-size:16px;line-height:1.2}
+.sentence.done .sw small{font-size:12px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+.sentence.done .sw.ok small{color:var(--ok)} .sentence.done .sw.near small{color:var(--near)}
+.sentence.done .sw.sel{box-shadow:inset 0 0 0 2px var(--ink)}
+.glyph .live.fade,.glyph .livestart.fade{transition:opacity .3s ease;opacity:0}
+.answer.long{font-size:22px;letter-spacing:0;text-transform:none;line-height:1.3}
 .acc{display:flex;align-items:baseline;gap:10px;font-variant-numeric:tabular-nums}
 .acc b{font-family:var(--display);font-weight:700;font-size:40px;line-height:1;color:var(--ink)}
 .acc span{color:var(--muted);font-size:14px}
@@ -479,6 +490,7 @@ const LANGS={
     week:[['word','finger','keyboard'],['jump','spiral','squiggle'],['flow','puzzle','shortcut'],['maze','sketch','treasure'],['knot','doodle','mountain'],['path','zigzag','football'],['quiz','rhythm','notebook']],
     drawWeek:['planet','guitar','rocket','castle','bridge','garden','pillow'],
     tutorial:[{word:'pen',placed:true},{word:'cat',placed:false}],
+    sentences:['the cat sat down','rain on the roof','coffee before work','dogs chase the ball','birds sing at dawn','snow falls at night','we walked home late','the moon is full','lock the back door','bake the lemon cake','ships leave the harbor','my phone is dead','the kettle is boiling','fold the paper twice','trains run all night','keep the change','paint the fence white','open the window wide','the soup needs salt','wolves howl at midnight','plant seeds in spring','the river runs cold','pack the small bag','jazz on the radio','feed the goldfish','the bridge is closed','count the stars','ride the last train','the garden gate squeaks','bring an umbrella','draw one straight line','turn left at the bank','the bread is warm','swim across the lake','mice love cheese','the clock runs slow','ask the wizard','pick two red apples','frost on the glass','hold the ladder','the tide is out','pizza for dinner','the puppy is asleep','read the small print','my socks are wet','the storm is coming','light the candles','the owl is awake','wash the car today','dance in the kitchen','tigers sleep all day','send the letter soon','the ice is thin','close your eyes','we found the keys','sharpen every pencil','the kite is stuck','buy fresh bread','the dog ate my homework','meet me at noon'],
     pool:{4:'home fire moon lamp rope bird frog kite wave rock sand leaf tree bell drum pond snow gold milk wolf bear deer fish ship rain wind star lake road hill barn farm cake soup corn rice pear plum lime salt mint jazz folk ball bike boat coin ring glow dusk dawn echo zone hero king lion duck goat crab hawk swan iron wool silk clay door desk sofa wall roof gate yard path park pool sail mast deck port dock cave peak moss fern vine seed root bark twig nest wing claw tail fang horn hoof mane bull calf lamb foal colt mule pony toad newt slug worm moth wasp flea crow dove wren lark gull seal orca tuna carp clam tide reef surf foam mist haze hail gust heat book page word song tune note hymn poem tale myth joke game card yarn knit sock shoe boot coat cape belt vest gown robe mask ruby opal jade taco loaf tart bean leek beet date kiwi pork beef veal tofu kale oats chip cola soda hand foot knee heel nose chin brow skin bone neck back palm hair lock cord plug wire bulb fuse bowl dish fork oven sink rake hose cart tire axle gear bolt nail tape glue clip hook bait reel wood mesa dune cove isle gulf moor glen vale lava dust soil city town camp fort mill mine pier quay cafe shop mall bank lynx puma mole vole hare boar bass hake sole year week hour noon gift wish luck love hope calm show film play jump walk swim dive ride hike race goal team club band cozy warm cool dark bold soft tiny huge wide tall deep fast slow blue pink gray teal navy harp oboe lute tuba rust sage'.split(' '),
       6:'bridge castle garden forest meadow island planet rocket candle mirror window pillow jacket button zipper pocket ladder hammer anchor pencil marker crayon canvas violin guitar breeze frozen summer winter autumn spring sunset tunnel harbor desert jungle canyon saddle rabbit badger beaver turtle lizard monkey parrot pigeon salmon shrimp walnut peanut cherry banana orange tomato potato carrot pepper butter cheese cookie muffin waffle coffee pickle thread needle basket bucket shovel helmet magnet marble puddle bottle carpet closet drawer kettle teapot saucer napkin wrench trowel chisel mallet ribbon sandal donkey gopher ferret weasel walrus jaguar cougar bobcat coyote iguana python toucan falcon magpie osprey condor hornet beetle cicada spider mantis dragon almond cashew raisin squash turnip radish garlic celery lentil quinoa noodle pastry cereal yogurt omelet burger hotdog toffee sorbet gelato mousse eclair valley temple palace chapel church school office market bakery museum cinema arcade studio gazebo shower cloudy meteor nebula galaxy stream lagoon geyser pebble cymbal fiddle anthem ballad melody rhythm chorus subway glider engine doctor farmer sailor artist writer singer dancer knight wizard pirate cowboy jester squire finger tongue throat beanie bonnet hoodie blouse collar sleeve buckle wallet mitten fridge heater faucet toilet cellar garage pantry riddle secret ticket coupon letter number symbol signal target trophy banner poster bright golden silver purple yellow violet smooth gentle little clever fluffy sticky frosty breezy wander gather listen giggle tickle sprint bounce wobble dinner supper picnic brunch nugget wreath tinsel oyster mussel scampi grater laptop camera remote switch outlet locket brooch amulet kitten piglet teacup goblet'.split(' '),
       8:'backpack umbrella sandwich elephant kangaroo scorpion hedgehog squirrel reindeer flamingo pancakes popsicle lollipop cupcakes lemonade broccoli zucchini mushroom cucumber eggplant hazelnut cinnamon backyard driveway sidewalk campfire sailboat airplane elevator snowball rainbows sunshine starfish seashell seahorse dolphins whistles whiskers scissors password lanterns necklace bracelet calendar envelope magazine birdcage hammocks blizzard antelope tortoise platypus pangolin mongoose chipmunk parakeet cockatoo lovebird songbird bullfrog mackerel sturgeon barnacle stingray goldfish starling bluebird cardinal pheasant hamsters pelicans penguins dinosaur meatball meatloaf macaroni dumpling doughnut porridge coleslaw pastrami rosemary tarragon cardamom licorice marzipan tiramisu smoothie espresso molasses chestnut gumdrops caramels pumpkins avocados apricots plantain tamarind mulberry cornmeal lakeside hillside seashore woodland farmland riverbed sandbank mainland moorland vineyard campsite fishpond bathroom basement stairway doorbell doorstep fireside workshop windmill railroad carriage fountain pavilion treeline keychain lipstick headband bandanna raincoat overcoat cardigan sneakers slippers earmuffs wardrobe bookcase armchair mattress clarinet trombone bagpipes mandolin tricycle monorail snowshoe snowplow sunlight moonbeam daybreak twilight raindrop heatwave asteroid universe engineer sculptor musician magician champion explorer inventor gardener shepherd merchant reporter designer director birthday balloons carnival festival vacation daydream cheerful peaceful graceful colorful delicate charming dazzling thankful friendly splendid spyglass doorknob yearbook textbook cookbook handbook passport suitcase teaspoon saucepan colander stockpot eggshell baseball softball handball kickball swimming climbing paddling sledding lavender marigold daffodil bluebell primrose hyacinth snowdrop'.split(' ')},
@@ -486,6 +498,7 @@ const LANGS={
   es:{name:'Español',locale:'es',rows:['qwertyuiop','asdfghjklñ','zxcvbnm'],off:[0,0,1.5],alpha:'abcdefghijklmnopqrstuvwxyzñ',
     week:null,drawWeek:null,
     tutorial:[{word:'pan',placed:true},{word:'sol',placed:false}],
+    sentences:['el gato duerme hoy','llueve sobre el tejado','café antes del trabajo','los perros corren','cierra la puerta','la luna está llena','el pan está caliente','nieva por la noche','planta flores en abril','el tren sale tarde','lava el coche hoy','mi móvil está muerto','abre la ventana','la sopa necesita sal','pinta la valla blanca','baila en la cocina','cuenta las estrellas','lee la letra pequeña','enciende las velas','el reloj va lento','trae un paraguas','el río baja frío','dobla el papel','tengo los pies mojados','el puente está cerrado','come pizza esta noche','el búho está despierto','sube la escalera','nada hasta la isla','guarda el cambio','los lobos aúllan','el perro come queso','busca las llaves','hoy toca limpiar','el café está listo'],
     pool:{4:'casa vida agua mano cara cama café ropa boca baño aire foto pelo mesa cena caja luna rosa lago isla gato pato nube miel vino risa nido lobo rama hoja piso tren rayo remo sapo toro vaca mapa pino puma sofá niño pera piña lima kiwi coco mora taza vaso olla pala bota seda lana cuna cubo bola dado tiza nota pico rana foca mono dedo codo beso ruta muro hilo humo duna roca loma cima pozo lodo sopa atún jugo nata cera flor raíz lila lazo faro boya nave tubo tapa moto auto bici taxi vela palo bate meta copa cosa idea tema arte cine rima coro tono'.split(' '),
       6:'tiempo hombre dinero mañana nombre camino puerta semana ciudad equipo tierra cuerpo fiesta comida música tienda centro blanco bonito fuerza futuro pueblo cuarto planta jardín bosque cocina zapato camisa cabeza abuelo tomate pájaro piedra verano sábado espejo puente ventas cuento sueños mantel toalla champú espuma sillón cuadro conejo jirafa paloma águila delfín iguana sandía cereza pepino patata pastel helado azúcar harina aceite teatro parque volcán océano laguna colina tijera maleta guante abrigo lluvia viento trueno cometa médico doctor piloto pintor músico pirata grande rápido amable alegre fuerte oscuro regalo abrazo pelota muñeca boleto moneda número imagen tesoro velero molino'.split(' '),
       8:'problema personas historia teléfono pregunta hospital película palabras programa edificio estación estrella hermanos animales cuchillo universo proyecto invierno elefante mariposa sombrero ventanas caballos camiseta aventura princesa ciudades semillas escalera guitarra paraguas cangrejo pimiento desierto cocinero caliente montañas cuaderno almohada calabaza pirámide volcanes tormenta chimenea farmacia jardines campeona diamante libélula hormigas pingüino ardillas ballenas calcetín pantalón chaqueta cinturón trompeta tambores sinfonía orquesta bailarín cantante escritor misterio sorpresa tristeza mediodía amanecer arcoíris catarata planetas satélite camiones vehículo gasolina gimnasio castillo catedral carnaval festival sándwich tortilla empanada ensalada caramelo merienda desayuno almuerzo galletas refresco limonada'.split(' ')},
@@ -493,6 +506,7 @@ const LANGS={
   pt:{name:'Português',locale:'pt-BR',rows:['qwertyuiop','asdfghjkl','zxcvbnm'],off:[0,0.5,1.5],alpha:'abcdefghijklmnopqrstuvwxyz',
     week:null,drawWeek:null,
     tutorial:[{word:'pão',placed:true},{word:'sol',placed:false}],
+    sentences:['os gatos dormem hoje','chove no telhado','café antes do trabalho','fecha esta porta','planta flores na primavera','esse trem sai tarde','lava este carro hoje','meu celular morreu','abre as janelas','esta sopa precisa de sal','pinta este muro branco','dança na cozinha','conta as estrelas','acende as velas','esse relógio atrasa','traz uma sombrinha','dobra este papel','minhas meias molharam','esta ponte fechou','pizza no jantar','esse cachorro dorme','sobe pela escada','nada até esta ilha','fica com este troco','as ondas batem forte','um sapo pulou','este pão está quente','vamos andar na praia','ela canta no banho','neva de noite','busca as chaves','hoje tem bolo','os lobos uivam','este café esfriou','leva um casaco'],
     pool:{4:'casa vida água mesa café cama boca foto bebê jogo fogo sala loja chão olho nome medo amor rosa lago gato pato lobo rato sapo vaca bolo mapa pipa cubo rede faca sofá ilha nave vela moto pera maçã coco figo bife sopa suco copo vaso pote lata saco bola dado pena cola fita laço bota meia luva saia boné capa onda duna neve gelo raiz flor erva mato lama poço dedo pele osso urso leão foca galo bode mula onça tatu anta muro vila cais pico vale mata roda pneu remo trem táxi bote hora time meta copa belo alto raro rico novo doce frio seco caju'.split(' '),
       6:'cidade cabeça amigos mulher garota pessoa semana quarto escola guerra música número equipe comida médico cabelo futuro viagem espaço menino menina doutor janela sapato camisa tomate abelha árvore jardim sábado banana cavalo girafa baleia bonito cinema dentro tucano xícara panela colher toalha tapete quadro escada cereja goiaba batata cebola alface feijão farofa pastel queijo pipoca açúcar coelho macaco jacaré coruja ovelha aranha vulcão oceano igreja teatro parque agulha óculos chapéu casaco trovão cometa pintor piloto pirata rainha grande rápido gentil alegre quente escuro abraço boneca peteca imagem canção almoço gorila câmera cantor enorme'.split(' '),
       8:'trabalho dinheiro problema primeiro história crianças mulheres telefone pergunta hospital palavras mensagem programa surpresa resposta conversa notícias cachorro floresta montanha estrelas vermelho natureza universo caminhão detalhes paciente parceiro elefante aventura princesa guitarra presente girassol banheiro biscoito golfinho papagaio borracha carteira mandioca melancia macarrão limonada leopardo capivara tamanduá formigas farmácia academia catedral pirâmide nascente nevoeiro trovoada planetas satélite foguetes lanterna cobertor almofada pulseira chaveiro chinelos sandália camiseta uniforme capacete trompete saxofone pandeiro bombeiro policial dentista escritor carteiro festival carnaval mistério fogueira patinete triciclo carrinho maratona capoeira basquete colorido delicado'.split(' ')},
@@ -519,9 +533,9 @@ setLang(PREF_LANG,false);
 const STR={en:{
   appTag:'Daily word trace',play:'Play',cont:'Continue',threeOne:'Three to read, one to draw',toGo:'{n} to go · {next}',nextDraw:'draw round next',nextRead:'{n}-letter squiggle next',
   shareToday:'Share today',shareSub:'{s} of 3 read{d} · {ink} ink',drawnAt:', drawn at {a}%',review:'Review today',reviewSub:'See the traces and your guesses',
-  practice:'Practice',practiceSub:'Read or draw',challenge:'Challenge',challengeSub:'Beat a trace',send:'Send a squiggle',sendSub:'Trace a word or name, text the link',
+  practice:'Practice',practiceSub:'Read or draw',challenge:'Challenge',challengeSub:'Trace or sentence',send:'Send a squiggle',sendSub:'Trace a word or name, text the link',
   stats:'Stats',how:'How to play',settings:'Settings',chipDone:'Done · new squiggles in ',chipProgress:'{d} of {n} done',
-  mPractice:'Practice',mFriend:'From a friend',mDuel:'Duel',mLearn:'Learn',learnStep:'Learn · step {i} of {n}',letters:'{n} letters',skip:'Skip',home:'Home',now:'now',missed:'missed',finishFirst:'Finish the current squiggle first',
+  mPractice:'Practice',mFriend:'From a friend',mDuel:'Duel',mLearn:'Learn',mSentence:'Sentence',subSentence:'Draw each word, score at the end',wordsN:'{n} words',challengeTitle:'Challenge',challengeBody:'No ink here, just bragging rights.',beatTrace:'Beat a trace',beatTraceSub:'Draw one word, then send it to a friend to beat',drawSentence:'Draw a sentence',drawSentenceSub:'Three to five words, blind. The score comes at the end.',stSentence:'<b>Word {i} of {n}</b> · one stroke, then lift',stSentenceDone:'Tap a word to compare its traces',drawSentenceEyebrow:'Draw this sentence, one word at a time',sentenceHelp:'Nothing is scored until the last word. Finger down on the first letter, glide through the rest, lift.',sentenceBody:'You traced <b>{n} words</b> at <b>{a}%</b> on average. Best: <b>{bw}</b> at {ba}%. Roughest: <b>{ww}</b> at {wa}%.',anotherSentence:'Another sentence',sentenceBodyEven:'You traced <b>{n} words</b> at <b>{a}%</b>, every one of them about the same.',avgOf:'average over {n} words',learnStep:'Learn · step {i} of {n}',letters:'{n} letters',skip:'Skip',home:'Home',now:'now',missed:'missed',finishFirst:'Finish the current squiggle first',
   stDrawDone:'<b>Blue</b> is the real trace, <b>pink</b> is yours',stDraw:'Draw it in <b>one stroke</b>, then lift',hard:'hard',inkPlus:' · +{n} ink',solvedIn:'Solved in <b>{n}</b>',wordWas:'The word was <b>{w}</b>.',outOf:'<b>Out of guesses.</b> Buy one more, or reveal.',guessOf:'<b>{n} letters</b> · guess {g} of {a}',
   oneMore:'One more?',hints:'Hints',subPractice:'Practice · as many as you like',subDuel:'Beat their trace · they scored {a}%',subTutorial:'Two quick ones to learn the trick',subFriend:'Someone traced this one for you',
   drawReject:'Draw the whole word in one stroke, finger down to finger up',drawThis:'Draw this word',drawHelp:'The blank keyboard at the bottom is where you draw. Finger down on the first letter, glide through the rest, lift on the last.',drawHelpHard:' No key grid on hard: the keys are where you remember them.',onKey:'{on} of {n} letters on the key',
@@ -548,9 +562,9 @@ const STR={en:{
 es:{
   appTag:'Trazo de palabras diario',play:'Jugar',cont:'Continuar',threeOne:'Tres para leer, una para dibujar',toGo:'Faltan {n} · {next}',nextDraw:'sigue la ronda de dibujo',nextRead:'sigue un garabato de {n} letras',
   shareToday:'Compartir hoy',shareSub:'{s} de 3 leídos{d} · {ink} de tinta',drawnAt:', dibujado al {a}%',review:'Repasar hoy',reviewSub:'Ver los trazos y tus intentos',
-  practice:'Practicar',practiceSub:'Leer o dibujar',challenge:'Reto',challengeSub:'Supera un trazo',send:'Enviar un garabato',sendSub:'Traza una palabra o nombre y manda el enlace',
+  practice:'Practicar',practiceSub:'Leer o dibujar',challenge:'Reto',challengeSub:'Trazo o frase',send:'Enviar un garabato',sendSub:'Traza una palabra o nombre y manda el enlace',
   stats:'Estadísticas',how:'Cómo jugar',settings:'Ajustes',chipDone:'Listo · nuevos garabatos en ',chipProgress:'{d} de {n} hechos',
-  mPractice:'Práctica',mFriend:'De un amigo',mDuel:'Duelo',mLearn:'Aprender',learnStep:'Aprender · paso {i} de {n}',letters:'{n} letras',skip:'Saltar',home:'Inicio',now:'ahora',missed:'fallado',finishFirst:'Termina primero el garabato actual',
+  mPractice:'Práctica',mFriend:'De un amigo',mDuel:'Duelo',mLearn:'Aprender',mSentence:'Frase',subSentence:'Dibuja cada palabra; la puntuación, al final',wordsN:'{n} palabras',challengeTitle:'Reto',challengeBody:'Aquí no hay tinta, solo presumir.',beatTrace:'Supera un trazo',beatTraceSub:'Dibuja una palabra y mándasela a un amigo para que la supere',drawSentence:'Dibuja una frase',drawSentenceSub:'De tres a cinco palabras, a ciegas. La puntuación llega al final.',stSentence:'<b>Palabra {i} de {n}</b> · un trazo y levanta',stSentenceDone:'Toca una palabra para comparar sus trazos',drawSentenceEyebrow:'Dibuja esta frase, palabra por palabra',sentenceHelp:'No se puntúa nada hasta la última palabra. Dedo en la primera letra, desliza por el resto, levanta.',sentenceBody:'Trazaste <b>{n} palabras</b> con un <b>{a}%</b> de media. Mejor: <b>{bw}</b> al {ba}%. Peor: <b>{ww}</b> al {wa}%.',anotherSentence:'Otra frase',sentenceBodyEven:'Trazaste <b>{n} palabras</b> al <b>{a}%</b>, todas más o menos igual.',avgOf:'media de {n} palabras',learnStep:'Aprender · paso {i} de {n}',letters:'{n} letras',skip:'Saltar',home:'Inicio',now:'ahora',missed:'fallado',finishFirst:'Termina primero el garabato actual',
   stDrawDone:'<b>Azul</b> es el trazo real, <b>rosa</b> es el tuyo',stDraw:'Dibújalo de <b>un solo trazo</b> y levanta el dedo',hard:'difícil',inkPlus:' · +{n} de tinta',solvedIn:'Resuelto en <b>{n}</b>',wordWas:'La palabra era <b>{w}</b>.',outOf:'<b>Sin intentos.</b> Compra uno más o revela.',guessOf:'<b>{n} letras</b> · intento {g} de {a}',
   oneMore:'¿Uno más?',hints:'Pistas',subPractice:'Práctica · todas las que quieras',subDuel:'Supera su trazo · sacó {a}%',subTutorial:'Dos rápidos para pillarle el truco',subFriend:'Alguien trazó este para ti',
   drawReject:'Dibuja toda la palabra de un solo trazo, sin levantar el dedo',drawThis:'Dibuja esta palabra',drawHelp:'El teclado en blanco de abajo es donde dibujas. Apoya el dedo en la primera letra, deslízalo por las demás y levántalo en la última.',drawHelpHard:' En difícil no hay cuadrícula: las teclas están donde las recuerdes.',onKey:'{on} de {n} letras sobre la tecla',
@@ -577,9 +591,9 @@ es:{
 pt:{
   appTag:'Traço de palavras diário',play:'Jogar',cont:'Continuar',threeOne:'Três para ler, uma para desenhar',toGo:'Faltam {n} · {next}',nextDraw:'rodada de desenho a seguir',nextRead:'rabisco de {n} letras a seguir',
   shareToday:'Compartilhar hoje',shareSub:'{s} de 3 lidos{d} · {ink} de tinta',drawnAt:', desenhado em {a}%',review:'Rever hoje',reviewSub:'Ver os traços e seus palpites',
-  practice:'Praticar',practiceSub:'Ler ou desenhar',challenge:'Desafio',challengeSub:'Supere um traço',send:'Enviar um rabisco',sendSub:'Trace uma palavra ou nome e mande o link',
+  practice:'Praticar',practiceSub:'Ler ou desenhar',challenge:'Desafio',challengeSub:'Traço ou frase',send:'Enviar um rabisco',sendSub:'Trace uma palavra ou nome e mande o link',
   stats:'Estatísticas',how:'Como jogar',settings:'Ajustes',chipDone:'Feito · novos rabiscos em ',chipProgress:'{d} de {n} feitos',
-  mPractice:'Prática',mFriend:'De um amigo',mDuel:'Duelo',mLearn:'Aprender',learnStep:'Aprender · passo {i} de {n}',letters:'{n} letras',skip:'Pular',home:'Início',now:'agora',missed:'errou',finishFirst:'Termine o rabisco atual primeiro',
+  mPractice:'Prática',mFriend:'De um amigo',mDuel:'Duelo',mLearn:'Aprender',mSentence:'Frase',subSentence:'Desenhe cada palavra; a nota vem no fim',wordsN:'{n} palavras',challengeTitle:'Desafio',challengeBody:'Aqui não tem tinta, só direito de se gabar.',beatTrace:'Supere um traço',beatTraceSub:'Desenhe uma palavra e mande para um amigo superar',drawSentence:'Desenhe uma frase',drawSentenceSub:'De três a cinco palavras, às cegas. A nota vem no fim.',stSentence:'<b>Palavra {i} de {n}</b> · um traço e levante',stSentenceDone:'Toque numa palavra para comparar os traços',drawSentenceEyebrow:'Desenhe esta frase, uma palavra por vez',sentenceHelp:'Nada é pontuado até a última palavra. Dedo na primeira letra, deslize pelo resto, levante.',sentenceBody:'Você traçou <b>{n} palavras</b> com <b>{a}%</b> de média. Melhor: <b>{bw}</b> em {ba}%. Pior: <b>{ww}</b> em {wa}%.',anotherSentence:'Outra frase',sentenceBodyEven:'Você traçou <b>{n} palavras</b> em <b>{a}%</b>, todas mais ou menos iguais.',avgOf:'média de {n} palavras',learnStep:'Aprender · passo {i} de {n}',letters:'{n} letras',skip:'Pular',home:'Início',now:'agora',missed:'errou',finishFirst:'Termine o rabisco atual primeiro',
   stDrawDone:'<b>Azul</b> é o traço real, <b>rosa</b> é o seu',stDraw:'Desenhe em <b>um traço só</b> e levante o dedo',hard:'difícil',inkPlus:' · +{n} de tinta',solvedIn:'Resolvido em <b>{n}</b>',wordWas:'A palavra era <b>{w}</b>.',outOf:'<b>Sem palpites.</b> Compre mais um ou revele.',guessOf:'<b>{n} letras</b> · palpite {g} de {a}',
   oneMore:'Mais um?',hints:'Dicas',subPractice:'Prática · quantas quiser',subDuel:'Supere o traço · fizeram {a}%',subTutorial:'Dois rápidos para pegar o jeito',subFriend:'Alguém traçou este para você',
   drawReject:'Desenhe a palavra inteira em um traço só, sem levantar o dedo',drawThis:'Desenhe esta palavra',drawHelp:'O teclado em branco embaixo é onde você desenha. Encoste o dedo na primeira letra, deslize pelas outras e levante na última.',drawHelpHard:' No difícil não há grade: as teclas ficam onde você lembra.',onKey:'{on} de {n} letras na tecla',
@@ -646,6 +660,17 @@ function drawFromDeck(len){
   }
 }
 function randomWord(len){const Ls=len?[len]:[4,6,8];return drawFromDeck(Ls[Math.floor(Math.random()*Ls.length)]);}
+/* Sentences deal from their own saved deck, the same way */
+function pickSentence(){
+  const list=L.sentences,key='sq.deck.'+LANG+'.sentence';let d=store(key);
+  if(!d||d.n!==list.length||!Array.isArray(d.o)||d.i>=d.o.length){
+    const last=d&&Array.isArray(d.o)&&d.o.length?d.o[d.o.length-1]:-1,o=list.map((_,i)=>i);
+    for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]];}
+    if(o.length>1&&o[0]===last)[o[0],o[1]]=[o[1],o[0]];
+    d={n:list.length,o,i:0};
+  }
+  const out=list[d.o[d.i++]];store(key,d);return out;
+}
 
 /* Link code for send-a-squiggle: a light scramble so the word isn't readable in the URL */
 const CODE='abcdefghijklmnopqrstuvwxyz0';
@@ -772,12 +797,14 @@ const BASE_GUESSES=4, HARD_GUESSES=3;
 const PRICE={first:10,last:10,letter:15,place:25,extra:[20,35]};
 const START_INK=30, DAY_BONUS=20;
 const S={mode:'daily',day:todayIndex(),round:0,rounds:[],cur:'',practiceLen:null,customCode:null,hard:!!store('sq.hard'),rival:null,after:null,view:'game'};
-const MODE_LABEL=()=>({practice:t('mPractice'),custom:t('mFriend'),duel:t('mDuel'),tutorial:t('mLearn')});
+const MODE_LABEL=()=>({practice:t('mPractice'),custom:t('mFriend'),duel:t('mDuel'),tutorial:t('mLearn'),sentence:t('mSentence')});
 const el=id=>document.getElementById(id);
 
 function makeRound(word){return {type:'read',word,g:[],ev:[],rev:[],placed:false,hard:S.hard,extra:0,done:false,won:false,ink:0};}
 function makeDraw(word){return {type:'draw',word,g:[],ev:[],rev:[],placed:false,hard:S.hard,extra:0,done:false,won:false,ink:0,acc:0,hits:[],stroke:[]};}
-const isDraw=r=>r&&r.type==='draw';
+const isDraw=r=>r&&(r.type==='draw'||r.type==='sentence');
+const isSentence=r=>r&&r.type==='sentence';
+function makeSentence(words,shown){return {type:'sentence',words,shown,shownWords:shown.split(' '),idx:0,items:[],view:0,word:words[0],g:[],ev:[],rev:[],placed:false,hard:S.hard,extra:0,done:false,won:false,ink:0,acc:0,hits:[],stroke:[]};}
 function baseGuesses(r){return r.hard?HARD_GUESSES:BASE_GUESSES;}
 function allowed(r){return baseGuesses(r)+r.extra;}
 function setHard(on){S.hard=on;store('sq.hard',on);S.rounds.forEach(r=>{if(!r.done&&r.g.length===0)r.hard=on;});saveDaily();if(S.view==='home')renderHome();else render();}
@@ -840,7 +867,7 @@ function renderGlyph(fresh){
 }
 function renderRounds(){
   const host=el('rounds');
-  if(S.mode!=='daily'){const tag=S.mode==='tutorial'?t('learnStep',{i:S.round+1,n:S.rounds.length}):`${MODE_LABEL()[S.mode]||S.mode} · ${t('letters',{n:cur().word.length})}`;
+  if(S.mode!=='daily'){const tag=S.mode==='tutorial'?t('learnStep',{i:S.round+1,n:S.rounds.length}):S.mode==='sentence'?`${t('mSentence')} · ${t('wordsN',{n:cur().words.length})}`:`${MODE_LABEL()[S.mode]||S.mode} · ${t('letters',{n:cur().word.length})}`;
     host.innerHTML=`<div class="modetag">${tag}</div><button class="pill" id="backDaily" style="flex:0 0 auto;padding:0 14px"><small>${S.mode==='tutorial'?t('skip'):t('home')}</small></button>`;
     el('backDaily').onclick=()=>{if(S.mode==='tutorial'){finishTutorialIfAny();}else goHome();};return;}
   host.innerHTML=S.rounds.map((r,i)=>{const st=r.done?(r.won?'won':'lost'):(i===S.round?'cur':'');
@@ -855,7 +882,8 @@ function renderStatus(msg,err){
   if(msg!==undefined){m.textContent=msg;m.classList.toggle('err',!!err);}
   else{m.classList.remove('err');
     const hardTag=r.hard?` · <b>${t('hard')}</b>`:'';
-    if(isDraw(r)) m.innerHTML=r.done?t('stDrawDone')+(r.ink?t('inkPlus',{n:r.ink}):'')+'.':t('stDraw')+hardTag;
+    if(isSentence(r)) m.innerHTML=r.done?t('stSentenceDone'):t('stSentence',{i:r.idx+1,n:r.words.length})+hardTag;
+    else if(isDraw(r)) m.innerHTML=r.done?t('stDrawDone')+(r.ink?t('inkPlus',{n:r.ink}):'')+'.':t('stDraw')+hardTag;
     else if(r.done) m.innerHTML=r.won?t('solvedIn',{n:r.g.length})+(r.ink?t('inkPlus',{n:r.ink}):'')+'.':t('wordWas',{w:disp(r.word).toUpperCase()});
     else if(limbo(r)) m.innerHTML=t('outOf');
     else m.innerHTML=t('guessOf',{n:r.word.length,g:r.g.length+1,a:allowed(r)})+hardTag;}
@@ -867,7 +895,7 @@ function limbo(r){return !isDraw(r)&&!r.done&&r.g.length>=allowed(r);}
 function resolveLimbo(r){const price=PRICE.extra[r.extra];if(price!==undefined&&getStats().ink>=price)extraSheet(r,price);else finishRound(r,false);}
 function renderGuesses(fresh,shake){
   const r=cur(),n=r.word.length,host=el('guesses');let s='';
-  if(isDraw(r)){host.innerHTML=drawPanel(r);return;}
+  if(isDraw(r)){host.innerHTML=drawPanel(r);if(isSentence(r)&&r.done)host.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{r.view=+b.dataset.i;renderGlyph();renderGuesses();sfx('tap');});return;}
   if(r.tut&&!r.done){s+=`<div class="coach">${r.g.length?r.tut.coach2:r.tut.coach}</div>`;}
   if(!r.done)fillKnown(r); /* a revealed first letter is in place before you type, so the cursor visibly sits after it */
   for(let gi=0;gi<allowed(r);gi++){
@@ -921,6 +949,7 @@ window.addEventListener('resize',()=>{if(el('kbtrace'))renderTrace();});
 function renderSub(){
   if(S.mode==='daily'){const d=new Date(EPOCH);d.setDate(d.getDate()+S.day);el('sub').textContent=`#${S.day+1} · ${fmtDate(d)}${S.hard?' · hard':''}`;}
   else if(S.mode==='practice') el('sub').textContent=t('subPractice');
+  else if(S.mode==='sentence') el('sub').textContent=t('subSentence');
   else if(S.mode==='duel') el('sub').textContent=t('subDuel',{a:S.rival?S.rival.acc:0});
   else if(S.mode==='tutorial') el('sub').textContent=t('subTutorial');
   else el('sub').textContent=t('subFriend');
@@ -968,7 +997,7 @@ function renderHome(){
   if(q('hShare'))q('hShare').onclick=()=>shareSheet();
   if(q('hReview'))q('hReview').onclick=()=>{S.round=0;S.cur='';render();};
   q('hPractice').onclick=()=>practiceSheet();
-  q('hDuel').onclick=()=>startDrawPractice(6);
+  q('hDuel').onclick=()=>challengeSheet();
   q('hSend').onclick=()=>sendSheet();
   q('hStats').onclick=()=>statsSheet();q('hHow').onclick=()=>howSheet();q('hMore').onclick=()=>moreSheet();
 }
@@ -1016,7 +1045,7 @@ function scoreStroke(raw,word){
   const acc=Math.round(100*(0.6*letterScore+0.4*shapeScore));
   return {acc,hits,dev:Math.round(dev)};
 }
-window.__squiggle={scoreStroke,resampleN,POS,startPractice,startCustom,cur,randomWord,dailyWords,dailyDrawWord,pool:()=>L.pool,dict:()=>DICT,shareCard};
+window.__squiggle={scoreStroke,resampleN,POS,startPractice,startCustom,cur,randomWord,dailyWords,dailyDrawWord,pool:()=>L.pool,dict:()=>DICT,shareCard,startSentence,resampleN};
 function inkForDraw(r){if(S.mode!=='daily')return 0;let base=Math.round(r.word.length*2*r.acc/100);if(r.acc>=95)base+=5;if(r.hard)base=Math.round(base*1.5);return base;}
 function recordDraw(r){const st=getStats();st.traces=(st.traces||0)+1;st.traceSum=(st.traceSum||0)+r.acc;st.traceBest=Math.max(st.traceBest||0,r.acc);store('sq.stats.v2',st);}
 
@@ -1038,6 +1067,7 @@ function bindDraw(){
   g.addEventListener('pointerup',end);g.addEventListener('pointercancel',end);
 }
 function finishDraw(r,pts){
+  if(isSentence(r))return finishSentenceWord(r,pts);
   const res=scoreStroke(pts,r.word);
   haptic(res.acc>=70?'success':'medium');sfx('lift');
   r.done=true;r.acc=res.acc;r.hits=res.hits;r.stroke=resampleN(pts,48).map(p=>({x:Math.round(p.x),y:Math.round(p.y)}));r.won=res.acc>=70;r.bonus=0;
@@ -1061,15 +1091,23 @@ function drawGlyphMarkup(r,anim){
 function renderDrawGlyph(r){
   const svg=el('glyph');svg.classList.add('draw');svg.setAttribute('viewBox','-20 -65 1040 430');
   let s=r.hard?lattice():cells(false);
-  if(r.done)s+=drawGlyphMarkup(r,false);
+  if(r.done)s+=drawGlyphMarkup(isSentence(r)?viewItem(r):r,false);
   svg.innerHTML=s;
 }
 function revealDraw(r){
-  const svg=el('glyph');svg.innerHTML=(r.hard?lattice():cells(false))+drawGlyphMarkup(r,true);
+  const svg=el('glyph');svg.innerHTML=(r.hard?lattice():cells(false))+drawGlyphMarkup(isSentence(r)?viewItem(r):r,true);
   const wait=matchMedia('(prefers-reduced-motion: reduce)').matches?300:(600+r.word.length*120+500);
   setTimeout(()=>resultSheet(r),wait);
 }
 function drawPanel(r){
+  if(isSentence(r)){
+    const chips=r.words.map((w,i)=>{const it=r.items[i],label=esc(r.shownWords[i]||w);
+      if(r.done){const st=it.acc>=85?'ok':it.acc>=60?'near':'no';return `<button class="sw ${st}${i===r.view?' sel':''}" data-i="${i}">${label}<small>${it.acc}%</small></button>`;}
+      return `<span class="sw ${i<r.idx?'past':i===r.idx?'cur':''}">${label}</span>`;}).join('');
+    if(!r.done){const word=[...r.word].map(c=>`<span class="dl">${c}</span>`).join('');
+      return `<div class="drawpanel"><div class="eyebrow">${t('drawSentenceEyebrow')}</div><div class="sentence">${chips}</div><div class="drawword" aria-label="${esc(r.shownWords[r.idx]||r.word)}">${word}</div><p>${t('sentenceHelp')}${r.hard?t('drawHelpHard'):''}</p></div>`;}
+    return `<div class="drawpanel"><div class="sentence done">${chips}</div><div class="acc"><b>${r.acc}%</b><span>${t('avgOf',{n:r.words.length})}</span></div></div>`;
+  }
   const word=[...r.word].map((c,i)=>`<span class="dl ${r.done?(r.hits[i]||{}).tier||'':''}">${c}</span>`).join('');
   const shown=disp(r.word),eyebrow=t('drawThis')+(shown!==r.word?` · ${shown.toUpperCase()}`:'');
   if(!r.done) return `<div class="drawpanel"><div class="eyebrow">${eyebrow}</div><div class="drawword" aria-label="${shown}">${word}</div>
@@ -1078,6 +1116,25 @@ function drawPanel(r){
   return `<div class="drawpanel"><div class="drawword">${word}</div><div class="acc"><b>${r.acc}%</b><span>${t('onKey',{on,n:r.word.length})}</span></div></div>`;
 }
 function startDrawPractice(len){S.mode='practice';S.practiceLen=len;S.practiceType='draw';S.rounds=[makeDraw(randomWord(len||6))];S.round=0;S.cur='';render();}
+function startSentence(){S.mode='sentence';const shown=pickSentence();S.rounds=[makeSentence(shown.split(' ').map(norm),shown)];S.round=0;S.cur='';render();}
+/* A sentence is drawn blind: each word is scored as it's lifted but nothing shows until the last one */
+function finishSentenceWord(r,pts){
+  const res=scoreStroke(pts,r.word);
+  r.items.push({word:r.word,acc:res.acc,hits:res.hits,stroke:resampleN(pts,48).map(p=>({x:Math.round(p.x),y:Math.round(p.y)}))});
+  haptic('light');sfx('lift');
+  if(r.idx<r.words.length-1){
+    r.idx++;r.word=r.words[r.idx];
+    el('glyph').querySelectorAll('.live,.livestart').forEach(x=>x.classList.add('fade'));
+    setTimeout(()=>{renderGlyph();renderStatus();renderGuesses();},320);
+    return;
+  }
+  r.done=true;r.acc=Math.round(r.items.reduce((a,it)=>a+it.acc,0)/r.items.length);r.won=r.acc>=70;r.view=0;r.bonus=0;r.ink=0;
+  haptic(r.won?'success':'medium');
+  setTimeout(()=>{if(r.won){sfx('win');confetti(r.acc>=90?110:60);}else sfx('lose');},900);
+  renderRounds();renderStatus();renderGuesses();
+  revealDraw(r);
+}
+const viewItem=r=>{const it=r.items[r.view]||r.items[0];return {word:it.word,stroke:it.stroke,hits:it.hits};};
 
 /* ---------- Input ---------- */
 /* Revealed letters live in the row being typed: a ghost until the cursor reaches them, then they snap in and you type on past */
@@ -1173,7 +1230,11 @@ function resultSheet(r){
   const n=r.word.length;
   let title,body,earn;
   const W=disp(r.word).toUpperCase(),INK=t('ink');
-  if(isDraw(r)){
+  if(isSentence(r)){
+    const a=r.acc;title=a>=95?t('d95'):a>=85?t('d85'):a>=70?t('d70'):a>=50?t('d50'):t('d0');
+    const best=r.items.reduce((b,it)=>it.acc>b.acc?it:b,r.items[0]),worst=r.items.reduce((b,it)=>it.acc<b.acc?it:b,r.items[0]),sw=it=>esc(r.shownWords[r.items.indexOf(it)]||it.word);
+    body=best.acc===worst.acc?t('sentenceBodyEven',{n:r.items.length,a}):t('sentenceBody',{n:r.items.length,a,bw:sw(best),ba:best.acc,ww:sw(worst),wa:worst.acc});earn='';
+  } else if(isDraw(r)){
     const a=r.acc;title=a>=95?t('d95'):a>=85?t('d85'):a>=70?t('d70'):a>=50?t('d50'):t('d0');
     const on=r.hits.filter(h=>h.tier==='ok').length;
     body=t('drawBody',{w:W,a,on,n,hard:r.hard?t('onHard'):''});
@@ -1193,6 +1254,8 @@ function resultSheet(r){
     else btns=`<button class="btn primary" id="sShare">${ic('share')}${t('shareToday')}</button><button class="btn" id="sHome">${t('home')}</button>`;
   } else if(S.mode==='practice'){
     btns=`<button class="btn primary" id="sAnother">${t('another')}</button><button class="btn" id="sHome">${t('home')}</button>`;
+  } else if(S.mode==='sentence'){
+    btns=`<button class="btn primary" id="sAnotherS">${t('anotherSentence')}</button><button class="btn" id="sHome">${t('home')}</button>`;
   } else {
     btns=`<button class="btn primary" id="sMake">${t('makeOne')}</button><button class="btn" id="sHome">${t('home')}</button>`;
   }
@@ -1211,14 +1274,15 @@ function resultSheet(r){
     title=r.won?t('friendWin'):t('lost');
     body=r.won?t('friendBodyWin',{w:W,g:r.g.length}):t('friendBodyLose',{w:W});
     btns=`<button class="btn primary" id="sMake">${ic('link')}${t('sendOneBack')}</button><button class="btn" id="sHome">${t('home')}</button>`;
-  } else if(isDraw(r)&&!r.tut){
+  } else if(isDraw(r)&&!isSentence(r)&&!r.tut){
     btns+=`<button class="btn" id="sDuel">${ic('link')}${t('challengeFriend')}</button>`;
   }
   const done=S.mode==='daily'&&S.rounds.every(x=>x.done);
-  openSheet(`<h2>${title}</h2><div class="answer">${disp(r.word)}</div><p>${body}</p>${earn}${bonus}${done?dayRecap():''}<div class="btns">${btns}</div>`);
+  openSheet(`<h2>${title}</h2><div class="answer${isSentence(r)?' long':''}">${isSentence(r)?esc(r.shown):disp(r.word)}</div><p>${body}</p>${earn}${bonus}${done?dayRecap():''}<div class="btns">${btns}</div>`);
   const q=id=>document.getElementById(id);
   if(q('sTut')) q('sTut').onclick=()=>{closeSheet();if(S.round<S.rounds.length-1){S.round++;S.cur='';render();}else{finishTutorialIfAny();}};
   if(q('sDuel')) q('sDuel').onclick=()=>{closeSheet();duelSheet(r);};
+  if(q('sAnotherS')) q('sAnotherS').onclick=()=>{closeSheet();startSentence();};
   if(q('sDuelBack')) q('sDuelBack').onclick=()=>{closeSheet();duelSheet(r);};
   if(q('sNext')) q('sNext').onclick=()=>{closeSheet();S.round=S.rounds.findIndex(x=>!x.done);S.cur='';render();};
   if(q('sShare')) q('sShare').onclick=()=>{closeSheet();shareSheet();};
@@ -1382,6 +1446,15 @@ function moreSheet(){
   const sw=document.getElementById('mHard');sw.onclick=()=>{setHard(!S.hard);sw.setAttribute('aria-checked',S.hard);toast(S.hard?t('hardOn'):t('hardOff'));};
   const th=document.getElementById('mTheme');th.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;setTheme(b.dataset.t);th.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));});
   const ss=document.getElementById('mSound');ss.onclick=()=>{SFX.on=!SFX.on;store('sq.sound',SFX.on);ss.setAttribute('aria-checked',SFX.on);if(SFX.on){audioCtx();sfx('win');}toast(SFX.on?t('soundOn'):t('soundOff'));};
+}
+function challengeSheet(){
+  openSheet(`<h2>${t('challengeTitle')}</h2><p>${t('challengeBody')}</p>
+  <div class="menu" style="max-width:none;margin-top:0">
+    <button class="mbtn" id="cTrace"><span class="mi gold"><svg viewBox="0 0 24 24"><path d="M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2" /><path d="M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2" /><path d="M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3" /><path d="M4 22h16" /><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z" /><path d="M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3" /></svg></span><span class="mt"><b>${t('beatTrace')}</b><small>${t('beatTraceSub')}</small></span>${chev()}</button>
+    <button class="mbtn" id="cSentence"><span class="mi mint"><svg viewBox="0 0 24 24"><path d="M21 5H3" /><path d="M15 12H3" /><path d="M17 19H3" /></svg></span><span class="mt"><b>${t('drawSentence')}</b><small>${t('drawSentenceSub')}</small></span>${chev()}</button>
+  </div>`,true);
+  document.getElementById('cTrace').onclick=()=>{closeSheet();startDrawPractice(6);};
+  document.getElementById('cSentence').onclick=()=>{closeSheet();startSentence();};
 }
 function practiceSheet(){
   openSheet(`<h2>${t('practiceTitle')}</h2><p>${t('practiceBody')}</p>

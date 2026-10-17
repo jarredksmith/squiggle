@@ -56,7 +56,7 @@ Each run's build number is the GitHub run number, so uploads never collide. The 
 
 The look is the slate-blue style guide: navy text `#0F2749` on `#F5F8FC`, primary blues `#295CBD` / `#5B8DEF`, coral `#FF6B5B` for the player's own marks (the start dot, the live trace), gold for ink. Dark mode is `#0B1426` / `#141F3A` with `#7C9DFF` / `#A78BFA`. Green and amber are reserved for feedback (on the key, one key away) and never used for decoration. All of it lives in the `:root` tokens at the top of the template.
 
-The wordmark is `brand/logo.svg`, inlined once as SVG `<defs>` and reused by `<use href="#sq-logo">` (home) and `#sq-swoosh` (the in-game header mark); the share card draws the same paths on canvas. The brush strokes behind the home screen are two SVG paths roughened by the `#sq-brush` filter (turbulence displacement for the edges, a streaky alpha mask for the dry-brush texture); their colour and opacity are the `--brush` / `--brushop` tokens. The app icon is `brand/icon.svg`: the game's own trace on navy, white stroke, coral start dot (rendered to `brand/icon-1024.png`); the splash is the wordmark on `#F5F8FC`.
+The wordmark is `brand/logo.svg`, inlined once as SVG `<defs>` and reused by `<use href="#sq-logo">` (home) and `#sq-swoosh` (the in-game header mark); the share card draws the same paths on canvas. The brush strokes behind the home screen are two SVG paths roughened by the `#sq-brush` filter (turbulence displacement for the edges, a streaky alpha mask for the dry-brush texture); their colour and opacity are the `--brush` / `--brushop` tokens. The app icon is `brand/icon.svg`: the wordmark's own script S in white on navy with the coral dot (rendered to `brand/icon-1024.png`); the splash is the wordmark on `#F5F8FC`.
 
 Type is IBM Plex Sans, one family at four weights, with tabular figures where numbers line up; nothing is set in a monospace. The web and app copies load the woff2 files from `fonts/`; the Claude artifact copy loads the same face from Google Fonts. Interface icons are Lucide (ISC), inlined, at one stroke weight.
 
@@ -83,6 +83,10 @@ Code hooks to add when this starts: an `economy` object in the template holding 
 English, Spanish and Portuguese ship today. Each language in `LANGS` (top of the template) is a keyboard layout (rows and row offsets, as the iOS keyboard lays them out: Spanish has Ñ on a ten-key middle row), an alphabet, word pools for the daily ladder, a two-word tutorial and a dictionary. Words are stored in their written form and traced through their base keys, so CAFÉ traces C-A-F-E and the reveal still shows the accent; ñ is its own key in Spanish, ç traces through C in Portuguese. UI strings live in `STR`. Friend and duel links carry a language tag (`#c-es-…`) so a Spanish squiggle opens on the Spanish keyboard wherever it lands. The first run picks the device language when it is one of the three; Settings changes it any time, and each language keeps its own daily state.
 
 To add a language: a layout, an alphabet, pools (100 to 300 words each of 4, 6 and 8 letters), two tutorial words, a strings block, and a `words-xx.txt` wired into `scripts/build.mjs`.
+
+## Challenge modes
+
+**Beat a trace** draws one word and turns it into a duel link. **Draw a sentence** shows a three-to-five-word sentence and takes one stroke per word, blind: each word is scored as the finger lifts, nothing is shown until the last one, then the average and each word's accuracy appear and any word can be tapped to compare traces. Sentences live in `LANGS[lang].sentences` (no one-letter words, since a single key can't be traced; no punctuation) and deal from their own saved deck like the word pools. Neither mode pays ink.
 
 ## Word pools
 
