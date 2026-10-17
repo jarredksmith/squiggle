@@ -1061,7 +1061,7 @@ function scoreStroke(raw,word){
   const acc=Math.round(100*(0.6*letterScore+0.4*shapeScore));
   return {acc,hits,dev:Math.round(dev)};
 }
-window.__squiggle={scoreStroke,resampleN,POS,startPractice,startCustom,cur,randomWord,dailyWords,dailyDrawWord,pool:()=>L.pool,dict:()=>DICT,shareCard,startSentence,resampleN};
+window.__squiggle={scoreStroke,resampleN,POS,startPractice,startCustom,cur,randomWord,dailyWords,dailyDrawWord,pool:()=>L.pool,dict:()=>DICT,shareCard,startSentence,resampleN,rounds:()=>S.rounds,render};
 function inkForDraw(r){if(S.mode!=='daily')return 0;let base=Math.round(r.word.length*2*r.acc/100);if(r.acc>=95)base+=5;if(r.hard)base=Math.round(base*1.5);return base;}
 function recordDraw(r){const st=getStats();st.traces=(st.traces||0)+1;st.traceSum=(st.traceSum||0)+r.acc;st.traceBest=Math.max(st.traceBest||0,r.acc);store('sq.stats.v2',st);}
 
