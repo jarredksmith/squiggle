@@ -1,6 +1,6 @@
 # Squiggle
 
-A daily word game. Each squiggle is the line a finger draws when it swipe-types a word on a phone keyboard. Three to read every day (4, 6 and 8 letters, four guesses each), then one word to draw from memory, scored against the real trace. Solving earns ink; ink buys hints and extra guesses. Only the daily game pays ink: practice, friend squiggles and duels are unlimited, so they are free to play and pay nothing.
+A daily word game. Each squiggle is the line a finger draws when it swipe-types a word on a phone keyboard. Three to read every day (4, 6 and 8 letters, four guesses each), then one word to draw from memory, scored against the real trace. Solving earns ink; ink buys hints and extra guesses. Reading rounds are timed (active time only: the clock stops when you leave the round or the app), and the times ride along on the result sheet, the share text and the share card so friends can race. Only the daily game pays ink: practice, friend squiggles and duels are unlimited, so they are free to play and pay nothing.
 
 The whole game is one HTML file. It runs as a web page, as a home-screen app, and inside a native iPhone wrapper, from the same source.
 

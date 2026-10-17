@@ -208,6 +208,9 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .status .msg{flex:1;min-width:0;font-size:14px;color:var(--muted)}
 .status .msg b{color:var(--fg);font-weight:700}
 .status .msg.err{color:var(--guess);font-weight:700}
+.clock{height:32px;padding:0 10px 0 9px;border-radius:999px;background:var(--surface);box-shadow:var(--hair);font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px;font-variant-numeric:tabular-nums;color:var(--fg)}
+.clock svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--muted)}
+.clock.done{color:var(--muted)}
 .hint{height:32px;padding:0 11px;border-radius:999px;background:var(--surface);box-shadow:var(--hair);font-size:13px;font-weight:600;
   display:flex;align-items:center;gap:6px;white-space:nowrap}
 .hint svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -235,7 +238,9 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .kbtrace .trloop{fill:none;stroke:var(--guess);stroke-width:4;opacity:.9}
 .kbtrace .trstart{fill:var(--guess)}
 /* After a guess lands, its trace stays on the keys, faded, until the next one starts: that is the honest frame to compare shapes in */
-.kbtrace.last{opacity:.45} .kbtrace.last .tr{stroke-dasharray:8 7}
+.kbtrace.last{opacity:.45;animation:tracefade .7s ease 5s forwards} .kbtrace.last .tr{stroke-dasharray:8 7}
+@keyframes tracefade{to{opacity:0}}
+@media (prefers-reduced-motion: reduce){.kbtrace.last{animation:none}}
 .key.near::after{content:"";position:absolute;inset:-3px;border-radius:12px;border:3px solid var(--near)}
 .kbrow{display:flex;gap:5px;justify-content:center}
 .kbrow.r1{padding:0 calc(5% + 2px)} .kbrow.r2{padding:0 calc(15% + 2px)}
@@ -322,6 +327,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .hintcard.poor .price{background:var(--absent);color:var(--onstatus)}
 .earn{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:20px;color:var(--fg)}
 .earn svg{width:18px;height:18px;fill:var(--gold)}
+.earn.time svg{fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .earn small{font-family:var(--body);font-weight:400;font-size:13px;color:var(--muted)}
 .switch{display:flex;align-items:center;gap:12px;text-align:left;background:var(--bg);border-radius:14px;padding:12px 14px;width:100%}
 .switch .sw{flex:0 0 46px;height:28px;border-radius:999px;background:var(--absent);position:relative;transition:background .2s}
@@ -400,6 +406,7 @@ window.SQUIGGLE_SHARE_URL='https://jarredksmith.github.io/squiggle/';
 
   <div class="status">
     <div class="msg" id="msg" aria-live="polite"></div>
+    <span class="clock" id="clock" hidden><svg viewBox="0 0 24 24"><line x1="10" x2="14" y1="2" y2="2" /><line x1="12" x2="15" y1="14" y2="11" /><circle cx="12" cy="14" r="8" /></svg><span id="clockVal">0:00</span></span>
     <button class="hint" id="btnHints"><svg viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" /><path d="M9 18h6" /><path d="M10 22h4" /></svg><span>Hints</span></button>
   </div>
 
@@ -540,7 +547,7 @@ const STR={en:{
   oneMore:'One more?',hints:'Hints',subPractice:'Practice · as many as you like',subDuel:'Beat their trace · they scored {a}%',subTutorial:'Two quick ones to learn the trick',subFriend:'Someone traced this one for you',
   drawReject:'Draw the whole word in one stroke, finger down to finger up',drawThis:'Draw this word',drawHelp:'The blank keyboard at the bottom is where you draw. Finger down on the first letter, glide through the rest, lift on the last.',drawHelpHard:' No key grid on hard: the keys are where you remember them.',onKey:'{on} of {n} letters on the key',
   needs:'Needs {n} letters',notInList:'Not in the word list',extraTitle:'Out of guesses',extraBody:"The squiggle's still there. One more guess costs <b>{p} ink</b>; you have <b>{i}</b>.",extraBuy:'One more guess · {p}',giveUp:'Give up and reveal',notEnough:'Not enough ink',
-  hFirst:'First letter',hFirstD:'Marks where the finger landed and which key it was.',hLast:'Last letter',hLastD:'Marks where the finger lifted.',hMid:'A middle letter',hMidD:"Reveals one of the letters between the ends: pinned on the squiggle and filled into the row you're typing.",hPlace:'Place it on the keys',hPlaceD:'Drops the squiggle onto the real keyboard grid. The big one.',hPlaceLocked:'Locked in hard mode.',used:'Used',locked:'Locked',earnHow:'Earn ink by solving: longer words and fewer guesses pay more, hard mode pays 1.5×, finishing the day adds a bonus.',
+  hFirst:'First letter',hFirstD:'Marks where the finger landed and which key it was.',hLast:'Last letter',hLastD:'Marks where the finger lifted.',hMid:'A middle letter',hMidD:"Reveals one of the letters between the ends: pinned on the squiggle and filled into the row you're typing.",hPlace:'Place it on the keys',hPlaceD:'Drops the squiggle onto the real keyboard grid. The big one.',hPlaceLocked:'Locked in hard mode.',used:'Used',found:'Found',locked:'Locked',earnHow:'Earn ink by solving: longer words and fewer guesses pay more, hard mode pays 1.5×, finishing the day adds a bonus.',
   d95:'Pixel perfect.',d85:'Clean trace.',d70:'Close. Readable.',d50:"Rough, but it's in there.",d0:"That's a different word.",drawBody:'You drew <b>{w}</b> at <b>{a}%</b>: {on} of {n} letters landed on the key{hard}. Blue is the real trace.',onHard:', on hard',earnDraw:'{n} letters × 2 × {a}%',perfectBonus:' + 5 perfect',hardMult:' × 1.5 hard',
   win1:'Read it in one.',win2:'Two. Sharp.',win3:'Three. Nice trace.',win4:'Four. Just made it.',winX:'Got there, with a little ink.',lost:'That one got away.',readBody:'You traced <b>{w}</b> in {g} {gw}{h}{hard}.',guess1:'guess',guessN:'guesses',withHints:' with {h} {hw}',hint1:'hint',hintN:'hints',onHard2:' on hard',lostBody:"It was <b>{w}</b>. Here's where it really sat on the keys.",earnRead:'{n} letters × {m} for speed',dayBonus:'day bonus',allThree:' · all three solved',streakN:' · streak {s}',
   nextDrawBtn:'Next: draw one',nextBtn:'Next squiggle · {n} letters',another:'Another one',makeOne:'Make one for them',
@@ -548,7 +555,7 @@ const STR={en:{
   tut1:'This is the line a finger drew swipe-typing a 3-letter word. The dot is where it landed: on <b>{a}</b>. It slid to <b>{b}</b>, then to <b>{c}</b>. Type <b>{w}</b> and press Enter.',tut1b:'Green means on the key, amber means next door, grey means cold. Try <b>{w}</b>.',tut2:'Now the real thing. Same idea, but you only see the <b>shape</b>, not where it sat. Slide it around the keyboard in your head: which three keys make this shape?',tut2b:'Each corner reports how far it landed from the real key. Look at the keyboard and try again.',
   duelWin:'You win.',duelLose:'They win.',duelTie:'Dead heat.',duelBody:'You traced <b>{w}</b> at <b>{me}%</b>, they traced it at <b>{them}%</b>. Blue is the real trace, pink is yours, amber is theirs.',sendBack:'Send your trace back',
   friendWin:'You read it.',friendBodyWin:'A friend traced <b>{w}</b> for you and you got it in {g}. Send one back.',friendBodyLose:'They traced <b>{w}</b>. Send one back and even the score.',sendOneBack:'Send one back',challengeFriend:'Challenge a friend',
-  recap:'<b>{s} of 3</b> solved in {t} guesses{d}, <b>{ink} ink</b> earned.',recapDraw:', <b>{w}</b> drawn at <b>{a}%</b>',ink:'ink',
+  recap:'<b>{s} of 3</b> solved in {t} guesses{d}, <b>{ink} ink</b> earned.',recapTime:'{t} on the clock.',timeOn:'on this squiggle',fastest:'Fastest solve: {t}.',recapDraw:', <b>{w}</b> drawn at <b>{a}%</b>',ink:'ink',
   shareTitle:"Share today's trace",shareAlt:"Share card: today's three squiggles and your results",sharePic:'Share the picture',shareText:'Share text',copyText:'Copy text',longPress:'Long-press the picture to save it',copied:'Copied',selectCopy:'Select and copy the text',
   beatTitle:'Beat my trace',beatBody:"They get the word <b>{w}</b>, draw it blind, and see both traces side by side with the real one. Winner is whoever's line runs closer.",beatMsg:'I drew {w} at {a}%. Beat my trace: {link}',sendChallenge:'Send the challenge',copy:'Copy',
   canRead:'Can you read them?',lettersUp:'{n} LETTERS',drew:'Drew {w} at {a}%',
@@ -569,7 +576,7 @@ es:{
   oneMore:'¿Uno más?',hints:'Pistas',subPractice:'Práctica · todas las que quieras',subDuel:'Supera su trazo · sacó {a}%',subTutorial:'Dos rápidos para pillarle el truco',subFriend:'Alguien trazó este para ti',
   drawReject:'Dibuja toda la palabra de un solo trazo, sin levantar el dedo',drawThis:'Dibuja esta palabra',drawHelp:'El teclado en blanco de abajo es donde dibujas. Apoya el dedo en la primera letra, deslízalo por las demás y levántalo en la última.',drawHelpHard:' En difícil no hay cuadrícula: las teclas están donde las recuerdes.',onKey:'{on} de {n} letras sobre la tecla',
   needs:'Necesita {n} letras',notInList:'No está en la lista de palabras',extraTitle:'Sin intentos',extraBody:'El garabato sigue ahí. Un intento más cuesta <b>{p} de tinta</b>; tienes <b>{i}</b>.',extraBuy:'Un intento más · {p}',giveUp:'Rendirse y revelar',notEnough:'No hay tinta suficiente',
-  hFirst:'Primera letra',hFirstD:'Marca dónde apoyó el dedo y qué tecla era.',hLast:'Última letra',hLastD:'Marca dónde levantó el dedo.',hMid:'Una letra del medio',hMidD:'Revela una de las letras intermedias: fijada en el garabato y puesta en la fila que escribes.',hPlace:'Colocar sobre las teclas',hPlaceD:'Pone el garabato sobre el teclado real. La grande.',hPlaceLocked:'Bloqueada en modo difícil.',used:'Usada',locked:'Bloqueada',earnHow:'Gana tinta resolviendo: las palabras largas y los pocos intentos pagan más, el modo difícil paga 1,5× y terminar el día da un bono.',
+  hFirst:'Primera letra',hFirstD:'Marca dónde apoyó el dedo y qué tecla era.',hLast:'Última letra',hLastD:'Marca dónde levantó el dedo.',hMid:'Una letra del medio',hMidD:'Revela una de las letras intermedias: fijada en el garabato y puesta en la fila que escribes.',hPlace:'Colocar sobre las teclas',hPlaceD:'Pone el garabato sobre el teclado real. La grande.',hPlaceLocked:'Bloqueada en modo difícil.',used:'Usada',found:'Ya la tienes',locked:'Bloqueada',earnHow:'Gana tinta resolviendo: las palabras largas y los pocos intentos pagan más, el modo difícil paga 1,5× y terminar el día da un bono.',
   d95:'Perfecto.',d85:'Trazo limpio.',d70:'Cerca. Se lee.',d50:'Tosco, pero ahí está.',d0:'Eso es otra palabra.',drawBody:'Dibujaste <b>{w}</b> al <b>{a}%</b>: {on} de {n} letras cayeron sobre la tecla{hard}. El azul es el trazo real.',onHard:', en difícil',earnDraw:'{n} letras × 2 × {a}%',perfectBonus:' + 5 perfecto',hardMult:' × 1,5 difícil',
   win1:'A la primera.',win2:'Dos. Fino.',win3:'Tres. Buen trazo.',win4:'Cuatro. Por los pelos.',winX:'Llegaste, con algo de tinta.',lost:'Ese se escapó.',readBody:'Trazaste <b>{w}</b> en {g} {gw}{h}{hard}.',guess1:'intento',guessN:'intentos',withHints:' con {h} {hw}',hint1:'pista',hintN:'pistas',onHard2:' en difícil',lostBody:'Era <b>{w}</b>. Así estaba sobre las teclas.',earnRead:'{n} letras × {m} por rapidez',dayBonus:'bono del día',allThree:' · los tres resueltos',streakN:' · racha {s}',
   nextDrawBtn:'Siguiente: dibuja uno',nextBtn:'Siguiente garabato · {n} letras',another:'Otro',makeOne:'Hazle uno',
@@ -577,7 +584,7 @@ es:{
   tut1:'Esta es la línea que dibujó un dedo al escribir deslizando una palabra de 3 letras. El punto es donde apoyó: en la <b>{a}</b>. Se deslizó a la <b>{b}</b> y luego a la <b>{c}</b>. Escribe <b>{w}</b> y pulsa Intro.',tut1b:'Verde es sobre la tecla, ámbar es la de al lado, gris es frío. Prueba <b>{w}</b>.',tut2:'Ahora en serio. La misma idea, pero solo ves la <b>forma</b>, no dónde estaba. Muévela por el teclado en tu cabeza: ¿qué tres teclas forman esta figura?',tut2b:'Cada esquina te dice a qué distancia cayó de la tecla real. Mira el teclado e inténtalo otra vez.',
   duelWin:'Ganas tú.',duelLose:'Gana el otro.',duelTie:'Empate.',duelBody:'Trazaste <b>{w}</b> al <b>{me}%</b>; el otro al <b>{them}%</b>. Azul es el trazo real, rosa el tuyo, ámbar el suyo.',sendBack:'Devolver tu trazo',
   friendWin:'Lo leíste.',friendBodyWin:'Un amigo trazó <b>{w}</b> para ti y lo sacaste en {g}. Devuélvele uno.',friendBodyLose:'Trazaron <b>{w}</b>. Devuelve uno y empata.',sendOneBack:'Devolver uno',challengeFriend:'Retar a un amigo',
-  recap:'<b>{s} de 3</b> resueltos en {t} intentos{d}, <b>{ink} de tinta</b> ganada.',recapDraw:', <b>{w}</b> dibujado al <b>{a}%</b>',ink:'tinta',
+  recap:'<b>{s} de 3</b> resueltos en {t} intentos{d}, <b>{ink} de tinta</b> ganada.',recapTime:'{t} de reloj.',timeOn:'en este garabato',fastest:'El más rápido: {t}.',recapDraw:', <b>{w}</b> dibujado al <b>{a}%</b>',ink:'tinta',
   shareTitle:'Compartir el trazo de hoy',shareAlt:'Tarjeta para compartir: los tres garabatos de hoy y tus resultados',sharePic:'Compartir la imagen',shareText:'Compartir texto',copyText:'Copiar texto',longPress:'Mantén pulsada la imagen para guardarla',copied:'Copiado',selectCopy:'Selecciona y copia el texto',
   beatTitle:'Supera mi trazo',beatBody:'Recibe la palabra <b>{w}</b>, la dibuja a ciegas y ve los dos trazos junto al real. Gana quien pase más cerca.',beatMsg:'Dibujé {w} al {a}%. Supera mi trazo: {link}',sendChallenge:'Enviar el reto',copy:'Copiar',
   canRead:'¿Puedes leerlos?',lettersUp:'{n} LETRAS',drew:'Dibujé {w} al {a}%',
@@ -598,7 +605,7 @@ pt:{
   oneMore:'Mais um?',hints:'Dicas',subPractice:'Prática · quantas quiser',subDuel:'Supere o traço · fizeram {a}%',subTutorial:'Dois rápidos para pegar o jeito',subFriend:'Alguém traçou este para você',
   drawReject:'Desenhe a palavra inteira em um traço só, sem levantar o dedo',drawThis:'Desenhe esta palavra',drawHelp:'O teclado em branco embaixo é onde você desenha. Encoste o dedo na primeira letra, deslize pelas outras e levante na última.',drawHelpHard:' No difícil não há grade: as teclas ficam onde você lembra.',onKey:'{on} de {n} letras na tecla',
   needs:'Precisa de {n} letras',notInList:'Não está na lista de palavras',extraTitle:'Sem palpites',extraBody:'O rabisco ainda está aí. Mais um palpite custa <b>{p} de tinta</b>; você tem <b>{i}</b>.',extraBuy:'Mais um palpite · {p}',giveUp:'Desistir e revelar',notEnough:'Tinta insuficiente',
-  hFirst:'Primeira letra',hFirstD:'Marca onde o dedo encostou e qual tecla era.',hLast:'Última letra',hLastD:'Marca onde o dedo levantou.',hMid:'Uma letra do meio',hMidD:'Revela uma das letras do meio: fixada no rabisco e colocada na linha que você digita.',hPlace:'Colocar nas teclas',hPlaceD:'Põe o rabisco sobre o teclado real. A grande.',hPlaceLocked:'Bloqueada no modo difícil.',used:'Usada',locked:'Bloqueada',earnHow:'Ganhe tinta resolvendo: palavras longas e poucos palpites pagam mais, o modo difícil paga 1,5× e terminar o dia dá um bônus.',
+  hFirst:'Primeira letra',hFirstD:'Marca onde o dedo encostou e qual tecla era.',hLast:'Última letra',hLastD:'Marca onde o dedo levantou.',hMid:'Uma letra do meio',hMidD:'Revela uma das letras do meio: fixada no rabisco e colocada na linha que você digita.',hPlace:'Colocar nas teclas',hPlaceD:'Põe o rabisco sobre o teclado real. A grande.',hPlaceLocked:'Bloqueada no modo difícil.',used:'Usada',found:'Já achou',locked:'Bloqueada',earnHow:'Ganhe tinta resolvendo: palavras longas e poucos palpites pagam mais, o modo difícil paga 1,5× e terminar o dia dá um bônus.',
   d95:'Perfeito.',d85:'Traço limpo.',d70:'Perto. Dá para ler.',d50:'Tosco, mas está aí.',d0:'Isso é outra palavra.',drawBody:'Você desenhou <b>{w}</b> em <b>{a}%</b>: {on} de {n} letras caíram na tecla{hard}. O azul é o traço real.',onHard:', no difícil',earnDraw:'{n} letras × 2 × {a}%',perfectBonus:' + 5 perfeito',hardMult:' × 1,5 difícil',
   win1:'De primeira.',win2:'Dois. Afiado.',win3:'Três. Belo traço.',win4:'Quatro. Por pouco.',winX:'Chegou lá, com um pouco de tinta.',lost:'Esse escapou.',readBody:'Você traçou <b>{w}</b> em {g} {gw}{h}{hard}.',guess1:'palpite',guessN:'palpites',withHints:' com {h} {hw}',hint1:'dica',hintN:'dicas',onHard2:' no difícil',lostBody:'Era <b>{w}</b>. Veja onde estava nas teclas.',earnRead:'{n} letras × {m} por rapidez',dayBonus:'bônus do dia',allThree:' · os três resolvidos',streakN:' · sequência {s}',
   nextDrawBtn:'Próximo: desenhe um',nextBtn:'Próximo rabisco · {n} letras',another:'Outro',makeOne:'Faça um para ele',
@@ -606,7 +613,7 @@ pt:{
   tut1:'Esta é a linha que um dedo desenhou digitando por deslize uma palavra de 3 letras. O ponto é onde encostou: no <b>{a}</b>. Deslizou até o <b>{b}</b> e depois até o <b>{c}</b>. Digite <b>{w}</b> e aperte Enter.',tut1b:'Verde é na tecla, âmbar é a do lado, cinza é frio. Tente <b>{w}</b>.',tut2:'Agora pra valer. A mesma ideia, mas você só vê a <b>forma</b>, não onde estava. Mova-a pelo teclado na sua cabeça: que três teclas formam este desenho?',tut2b:'Cada canto diz a que distância caiu da tecla real. Olhe o teclado e tente de novo.',
   duelWin:'Você venceu.',duelLose:'Venceram você.',duelTie:'Empate.',duelBody:'Você traçou <b>{w}</b> em <b>{me}%</b>; o outro em <b>{them}%</b>. Azul é o traço real, rosa o seu, âmbar o dele.',sendBack:'Devolver seu traço',
   friendWin:'Você leu.',friendBodyWin:'Um amigo traçou <b>{w}</b> para você e você acertou em {g}. Devolva um.',friendBodyLose:'Traçaram <b>{w}</b>. Devolva um e empate.',sendOneBack:'Devolver um',challengeFriend:'Desafiar um amigo',
-  recap:'<b>{s} de 3</b> resolvidos em {t} palpites{d}, <b>{ink} de tinta</b> ganha.',recapDraw:', <b>{w}</b> desenhado em <b>{a}%</b>',ink:'tinta',
+  recap:'<b>{s} de 3</b> resolvidos em {t} palpites{d}, <b>{ink} de tinta</b> ganha.',recapTime:'{t} no relógio.',timeOn:'neste rabisco',fastest:'Mais rápido: {t}.',recapDraw:', <b>{w}</b> desenhado em <b>{a}%</b>',ink:'tinta',
   shareTitle:'Compartilhar o traço de hoje',shareAlt:'Cartão de compartilhamento: os três rabiscos de hoje e seus resultados',sharePic:'Compartilhar a imagem',shareText:'Compartilhar texto',copyText:'Copiar texto',longPress:'Segure a imagem para salvar',copied:'Copiado',selectCopy:'Selecione e copie o texto',
   beatTitle:'Supere meu traço',beatBody:'Ele recebe a palavra <b>{w}</b>, desenha às cegas e vê os dois traços lado a lado com o real. Ganha quem passar mais perto.',beatMsg:'Desenhei {w} em {a}%. Supere meu traço: {link}',sendChallenge:'Enviar o desafio',copy:'Copiar',
   canRead:'Consegue ler?',lettersUp:'{n} LETRAS',drew:'Desenhei {w} em {a}%',
@@ -800,7 +807,15 @@ const S={mode:'daily',day:todayIndex(),round:0,rounds:[],cur:'',practiceLen:null
 const MODE_LABEL=()=>({practice:t('mPractice'),custom:t('mFriend'),duel:t('mDuel'),tutorial:t('mLearn'),sentence:t('mSentence')});
 const el=id=>document.getElementById(id);
 
-function makeRound(word){return {type:'read',word,g:[],ev:[],rev:[],placed:false,hard:S.hard,extra:0,done:false,won:false,ink:0};}
+function makeRound(word){return {type:'read',word,g:[],ev:[],rev:[],placed:false,hard:S.hard,extra:0,done:false,won:false,ink:0,ms:0,t0:null};}
+/* Reading rounds are timed on active time only: the clock runs while the round is on screen and the page is visible */
+function clockStart(r){if(!r||r.done||isDraw(r)||r.tut||r.t0)return;r.t0=Date.now();clockTick();}
+function clockStop(r){if(!r||!r.t0)return;r.ms=(r.ms||0)+(Date.now()-r.t0);r.t0=null;}
+function clockMs(r){return (r.ms||0)+(r.t0?Date.now()-r.t0:0);}
+function fmtClock(ms){const s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60);return h?`${h}:${String(m%60).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`:`${m}:${String(s%60).padStart(2,'0')}`;}
+let clockTimer=null;
+function clockTick(){clearInterval(clockTimer);clockTimer=setInterval(()=>{const r=cur(),c=el('clockVal');if(!r||!r.t0||!c){clearInterval(clockTimer);return;}c.textContent=fmtClock(clockMs(r));},500);}
+document.addEventListener('visibilitychange',()=>{const r=cur();if(!r)return;if(document.hidden){clockStop(r);saveDaily();}else if(S.view==='game')clockStart(r);});
 function makeDraw(word){return {type:'draw',word,g:[],ev:[],rev:[],placed:false,hard:S.hard,extra:0,done:false,won:false,ink:0,acc:0,hits:[],stroke:[]};}
 const isDraw=r=>r&&(r.type==='draw'||r.type==='sentence');
 const isSentence=r=>r&&r.type==='sentence';
@@ -815,7 +830,7 @@ const drawRound=()=>S.rounds.find(isDraw);
 function loadDaily(){
   const saved=store('sq.daily.v6.'+LANG);
   S.mode='daily'; S.day=todayIndex(); S.cur=''; S.rival=null;
-  if(saved&&saved.day===S.day&&Array.isArray(saved.rounds)&&saved.rounds.length===4){S.rounds=saved.rounds;S.round=Math.min(saved.round,3);}
+  if(saved&&saved.day===S.day&&Array.isArray(saved.rounds)&&saved.rounds.length===4){S.rounds=saved.rounds;S.round=Math.min(saved.round,3);S.rounds.forEach(r=>{r.t0=null;});} /* a clock left running by a killed app doesn't count the absence */
   else{S.rounds=[...dailyWords(S.day).map(makeRound),makeDraw(dailyDrawWord(S.day))];S.round=0;}
 }
 function saveDaily(){if(S.mode==='daily')store('sq.daily.v6.'+LANG,{day:S.day,round:S.round,rounds:S.rounds});}
@@ -845,7 +860,7 @@ function startTutorial(){S.mode='tutorial';S.rival=null;S.rounds=L.tutorial.map(
 /* ---------- Stats ---------- */
 function getStats(){const st=store('sq.stats.v2')||{days:0,perfect:0,streak:0,maxStreak:0,lastDay:null,rounds:0,solved:0,dist:{1:0,2:0,3:0,4:0,5:0,x:0}};
   if(typeof st.ink!=='number'){st.ink=START_INK;st.inkEarned=0;}return st;}
-function recordRound(r){const st=getStats();st.rounds++;if(r.won){st.solved++;st.dist[Math.min(5,r.g.length)]++;}else st.dist.x++;store('sq.stats.v2',st);}
+function recordRound(r){const st=getStats();st.rounds++;if(r.won){st.solved++;st.dist[Math.min(5,r.g.length)]++;if(r.ms)st.fastest=Math.min(st.fastest||Infinity,r.ms);}else st.dist.x++;store('sq.stats.v2',st);}
 function recordDay(){const st=getStats();if(st.lastDay===S.day)return 0;st.days++;const perfect=reads().every(r=>r.won);if(perfect)st.perfect++;
   st.streak=(st.lastDay===S.day-1)?st.streak+1:1;st.maxStreak=Math.max(st.maxStreak,st.streak);st.lastDay=S.day;
   const bonus=(perfect?DAY_BONUS:0)+Math.min(st.streak,10)*2;st.ink+=bonus;st.inkEarned+=bonus;store('sq.stats.v2',st);return bonus;}
@@ -888,6 +903,7 @@ function renderStatus(msg,err){
     else if(limbo(r)) m.innerHTML=t('outOf');
     else m.innerHTML=t('guessOf',{n:r.word.length,g:r.g.length+1,a:allowed(r)})+hardTag;}
   hb.hidden=isDraw(r)||!!r.tut;
+  const ck=el('clock');ck.hidden=isDraw(r)||!!r.tut;ck.classList.toggle('done',!!r.done);el('clockVal').textContent=fmtClock(clockMs(r));
   hb.disabled=r.done;hb.classList.toggle('used',r.rev.length>0||r.placed);
   hb.lastChild.textContent=limbo(r)?t('oneMore'):t('hints');
 }
@@ -928,7 +944,7 @@ function renderKeyboard(){
 function renderTrace(){
   const svg=el('kbtrace'),kb=el('kb');if(!svg)return;
   const r=cur(),typed=r&&!r.done&&[...S.cur].some((c,i)=>!r.rev.includes(i)),last=(r&&!r.done&&!typed&&r.g.length)?r.g[r.g.length-1]:'',w=(r&&!r.done)?(typed?S.cur:(last||S.cur)):'';
-  svg.classList.toggle('last',!!last&&!typed);
+  svg.classList.remove('last');if(last&&!typed){void svg.getBoundingClientRect();svg.classList.add('last');}
   if(w.length<1){svg.innerHTML='';return;}
   const R=kb.getBoundingClientRect();if(!R.width){svg.innerHTML='';return;}
   svg.setAttribute('viewBox',`0 0 ${R.width} ${R.height}`);
@@ -954,13 +970,13 @@ function renderSub(){
   else if(S.mode==='tutorial') el('sub').textContent=t('subTutorial');
   else el('sub').textContent=t('subFriend');
 }
-function render(opts){opts=opts||{};showGame();el('app').classList.toggle('drawmode',isDraw(cur()));renderSub();renderInk();renderRounds();renderGlyph();renderStatus();renderGuesses(opts.fresh,opts.shake);renderKeyboard();}
+function render(opts){opts=opts||{};showGame();S.rounds.forEach(x=>{if(x!==cur())clockStop(x);});clockStart(cur());el('app').classList.toggle('drawmode',isDraw(cur()));renderSub();renderInk();renderRounds();renderGlyph();renderStatus();renderGuesses(opts.fresh,opts.shake);renderKeyboard();}
 
 /* ---------- Home ---------- */
 let homeTimer=null;
 function showGame(){S.view='game';el('app').classList.remove('onhome');el('home').hidden=true;el('game').hidden=false;el('btnHome').hidden=false;clearInterval(homeTimer);homeTimer=null;}
 function goHome(){
-  closeSheet();
+  closeSheet();if(cur())clockStop(cur());saveDaily();
   if(S.mode!=='daily'){if(S.mode==='tutorial'){S.after=null;}if(LANG!==PREF_LANG)setLang(PREF_LANG,false);loadDaily();}
   else if(LANG!==PREF_LANG){setLang(PREF_LANG,false);loadDaily();}
   S.view='home';S.cur='';
@@ -1167,7 +1183,7 @@ function submit(){
   saveDaily();renderGlyph(true);renderStatus();renderGuesses(true);renderKeyboard();renderRounds();sfx('reveal');
 }
 function finishRound(r,won){
-  const n=r.word.length;
+  const n=r.word.length;clockStop(r);
   r.done=true;r.won=won;r.bonus=0;
   haptic(won?'success':'error');
   if(won){r.ink=inkFor(r);addInk(r.ink);setTimeout(()=>inkFloat(r.ink),n*70+300);}
@@ -1187,22 +1203,24 @@ function extraSheet(r,price){
 function inkIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true" style="fill:currentColor;stroke:none"><path d="M12 2.5c3.5 4.8 6 8 6 11.5a6 6 0 0 1-12 0c0-3.5 2.5-6.7 6-11.5z"/></svg>`;}
 
 /* ---------- Hints shop ---------- */
+/* Positions already settled, by a reveal or by a guess that landed on the key */
+function knownAt(r){const k=new Set(r.rev);r.g.forEach((g,gi)=>r.ev[gi].forEach((e,i)=>{if(e==='ok')k.add(i);}));return k;}
+function openMiddle(r){const known=knownAt(r),out=[];for(let i=1;i<r.word.length-1;i++)if(!known.has(i))out.push(i);return out;}
 function hintsSheet(){
   const r=cur();if(r.done)return;
-  const st=getStats(),n=r.word.length;
-  const middle=[];for(let i=1;i<n-1;i++)if(!r.rev.includes(i))middle.push(i);
+  const st=getStats(),n=r.word.length,known=knownAt(r),middle=openMiddle(r);
   const items=[
-    {k:'first',t:t('hFirst'),d:t('hFirstD'),p:PRICE.first,used:r.rev.includes(0),ok:true,
+    {k:'first',t:t('hFirst'),d:t('hFirstD'),p:PRICE.first,used:known.has(0),found:known.has(0)&&!r.rev.includes(0),ok:true,
       ic:'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" />'},
-    {k:'last',t:t('hLast'),d:t('hLastD'),p:PRICE.last,used:r.rev.includes(n-1),ok:true,
+    {k:'last',t:t('hLast'),d:t('hLastD'),p:PRICE.last,used:known.has(n-1),found:known.has(n-1)&&!r.rev.includes(n-1),ok:true,
       ic:'<path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528" />'},
-    {k:'letter',t:t('hMid'),d:t('hMidD'),p:PRICE.letter,used:middle.length===0,ok:middle.length>0,
+    {k:'letter',t:t('hMid'),d:t('hMidD'),p:PRICE.letter,used:middle.length===0,found:middle.length===0&&!r.rev.some(i=>i>0&&i<n-1),ok:middle.length>0,
       ic:'<path d="m15 16 2.536-7.328a1.02 1.02 1 0 1 1.928 0L22 16" /><path d="M15.697 14h5.606" /><path d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16" /><path d="M3.304 13h6.392" />'},
     {k:'place',t:t('hPlace'),d:r.hard?t('hPlaceLocked'):t('hPlaceD'),p:PRICE.place,used:r.placed,ok:!r.hard,
       ic:'<path d="M10 8h.01" /><path d="M12 12h.01" /><path d="M14 8h.01" /><path d="M16 12h.01" /><path d="M18 8h.01" /><path d="M6 8h.01" /><path d="M7 16h10" /><path d="M8 12h.01" /><rect width="20" height="16" x="2" y="4" rx="2" />'}
   ];
   const cards=items.map(it=>{const poor=!it.used&&st.ink<it.p;const dis=it.used||!it.ok||poor;
-    return `<button class="hintcard${it.used?' used':''}${poor?' poor':''}" data-k="${it.k}" ${dis?'disabled':''}><span class="ic"><svg viewBox="0 0 24 24">${it.ic}</svg></span><span class="t"><b>${it.t}</b><small>${it.d}</small></span><span class="price">${it.used?t('used'):(it.ok?inkIcon()+it.p:t('locked'))}</span></button>`;}).join('');
+    return `<button class="hintcard${it.used?' used':''}${poor?' poor':''}" data-k="${it.k}" ${dis?'disabled':''}><span class="ic"><svg viewBox="0 0 24 24">${it.ic}</svg></span><span class="t"><b>${it.t}</b><small>${it.d}</small></span><span class="price">${it.used?(it.found?t('found'):t('used')):(it.ok?inkIcon()+it.p:t('locked'))}</span></button>`;}).join('');
   openSheet(`<h2>${t('hints')}</h2>
   <div class="balance"><b>${inkIcon()}${st.ink}</b><span>${t('earnHow')}</span></div>
   <div class="hints">${cards}</div>`,true);
@@ -1210,9 +1228,10 @@ function hintsSheet(){
 }
 function buyHint(k){
   const r=cur(),n=r.word.length;
-  if(k==='first'){if(!spend(PRICE.first))return;r.rev.push(0);}
-  else if(k==='last'){if(!spend(PRICE.last))return;r.rev.push(n-1);}
-  else if(k==='letter'){const middle=[];for(let i=1;i<n-1;i++)if(!r.rev.includes(i))middle.push(i);if(!middle.length)return;if(!spend(PRICE.letter))return;r.rev.push(middle[Math.floor(Math.random()*middle.length)]);}
+  const known=knownAt(r);
+  if(k==='first'){if(known.has(0))return;if(!spend(PRICE.first))return;r.rev.push(0);}
+  else if(k==='last'){if(known.has(n-1))return;if(!spend(PRICE.last))return;r.rev.push(n-1);}
+  else if(k==='letter'){const middle=openMiddle(r);if(!middle.length)return;if(!spend(PRICE.letter))return;r.rev.push(middle[Math.floor(Math.random()*middle.length)]);}
   else if(k==='place'){if(r.hard||r.placed)return;if(!spend(PRICE.place))return;r.placed=true;}
   r.rev.forEach(i=>{if(S.cur.length>i&&S.cur[i]!==r.word[i])S.cur=S.cur.slice(0,i)+r.word[i]+S.cur.slice(i+1);});fillKnown(r);
   closeSheet();saveDaily();renderGlyph();renderStatus();renderGuesses();renderKeyboard();
@@ -1246,6 +1265,7 @@ function resultSheet(r){
     body=r.won?t('readBody',{w:W,g:r.g.length,gw:r.g.length===1?t('guess1'):t('guessN'),h:hints?t('withHints',{h:hints,hw:hints===1?t('hint1'):t('hintN')}):'',hard:r.hard?t('onHard2'):''}):t('lostBody',{w:W});
     earn=(r.won&&r.ink)?`<div class="earn">${inkIcon()}+${r.ink} ${INK}<small>${t('earnRead',{n:r.word.length,m:Math.max(1,BASE_GUESSES+1-r.g.length)})}${r.hard?t('hardMult'):''}</small></div>`:'';
   }
+  const time=(!isDraw(r)&&!r.tut&&r.ms)?`<div class="earn time"><svg viewBox="0 0 24 24"><line x1="10" x2="14" y1="2" y2="2" /><line x1="12" x2="15" y1="14" y2="11" /><circle cx="12" cy="14" r="8" /></svg>${fmtClock(r.ms)}<small>${t('timeOn')}</small></div>`:'';
   const bonus=r.bonus?`<div class="earn">${inkIcon()}+${r.bonus} ${INK}<small>${t('dayBonus')}${reads().every(x=>x.won)?t('allThree'):''}${t('streakN',{s:getStats().streak})}</small></div>`:'';
   let btns='';
   if(S.mode==='daily'){
@@ -1278,7 +1298,7 @@ function resultSheet(r){
     btns+=`<button class="btn" id="sDuel">${ic('link')}${t('challengeFriend')}</button>`;
   }
   const done=S.mode==='daily'&&S.rounds.every(x=>x.done);
-  openSheet(`<h2>${title}</h2><div class="answer${isSentence(r)?' long':''}">${isSentence(r)?esc(r.shown):disp(r.word)}</div><p>${body}</p>${earn}${bonus}${done?dayRecap():''}<div class="btns">${btns}</div>`);
+  openSheet(`<h2>${title}</h2><div class="answer${isSentence(r)?' long':''}">${isSentence(r)?esc(r.shown):disp(r.word)}</div><p>${body}</p>${time}${earn}${bonus}${done?dayRecap():''}<div class="btns">${btns}</div>`);
   const q=id=>document.getElementById(id);
   if(q('sTut')) q('sTut').onclick=()=>{closeSheet();if(S.round<S.rounds.length-1){S.round++;S.cur='';render();}else{finishTutorialIfAny();}};
   if(q('sDuel')) q('sDuel').onclick=()=>{closeSheet();duelSheet(r);};
@@ -1293,13 +1313,15 @@ function resultSheet(r){
 }
 function dayRecap(){
   const rs=reads(),solved=rs.filter(r=>r.won).length,total=rs.reduce((a,r)=>a+r.g.length,0),ink=dayInk(),dr=drawRound();
-  return `<p>${t('recap',{s:solved,t:total,d:dr&&dr.done?t('recapDraw',{w:disp(dr.word).toUpperCase(),a:dr.acc}):'',ink})}</p>`;
+  const ms=rs.reduce((a,r)=>a+(r.ms||0),0);
+  return `<p>${t('recap',{s:solved,t:total,d:dr&&dr.done?t('recapDraw',{w:disp(dr.word).toUpperCase(),a:dr.acc}):'',ink})}${ms?' '+t('recapTime',{t:fmtClock(ms)}):''}</p>`;
 }
 function dayInk(){return S.rounds.reduce((a,r)=>a+(r.ink||0)+(r.bonus||0),0);}
 function shareText(){
   const rs=reads(),dr=drawRound();
-  const lines=[`Squiggle #${S.day+1}${LANG!=='en'?' · '+LANG.toUpperCase():''} · ${rs.map(r=>r.won?r.g.length:'X').join('/')}${dr&&dr.done?` · ✎${dr.acc}%`:''}${S.rounds.every(r=>r.hard)?' · '+t('hard'):''} · ${dayInk()} ${t('ink')}`];
-  rs.forEach(r=>{let row='';for(let i=0;i<r.g.length;i++){row+=(i===r.g.length-1&&r.won)?'🟩':'⬜';}if(!r.won)row+='🟥';const h=r.rev.length+(r.placed?1:0);if(h)row+=' '+'💡'.repeat(Math.min(h,4));if(r.hard&&!S.rounds.every(x=>x.hard))row+=' ★';lines.push(`${r.word.length}  ${row}`);});
+  const ms=rs.reduce((a,r)=>a+(r.ms||0),0);
+  const lines=[`Squiggle #${S.day+1}${LANG!=='en'?' · '+LANG.toUpperCase():''} · ${rs.map(r=>r.won?r.g.length:'X').join('/')}${ms?` · ⏱ ${fmtClock(ms)}`:''}${dr&&dr.done?` · ✎${dr.acc}%`:''}${S.rounds.every(r=>r.hard)?' · '+t('hard'):''} · ${dayInk()} ${t('ink')}`];
+  rs.forEach(r=>{let row='';for(let i=0;i<r.g.length;i++){row+=(i===r.g.length-1&&r.won)?'🟩':'⬜';}if(!r.won)row+='🟥';const h=r.rev.length+(r.placed?1:0);if(h)row+=' '+'💡'.repeat(Math.min(h,4));if(r.hard&&!S.rounds.every(x=>x.hard))row+=' ★';lines.push(`${r.word.length}  ${row}${r.ms?' '+fmtClock(r.ms):''}`);});
   if(dr&&dr.done) lines.push(`✎  ${dr.hits.map(h=>h.tier==='ok'?'🟩':h.tier==='near'?'🟨':'⬜').join('')} ${dr.acc}%${dr.hard&&!S.rounds.every(x=>x.hard)?' ★':''}`);
   lines.push(SHARE_URL);
   return lines.join('\n');
@@ -1352,7 +1374,7 @@ function shareCard(){
     if(!r.hard){x.fillStyle=C.ink;x.beginPath();x.arc(pts[0].x,pts[0].y,17,0,Math.PI*2);x.fill();x.lineWidth=13;x.stroke(new Path2D(endChevron(pts)));}
     x.restore();
     const cx=60+cw*0.72;
-    x.fillStyle=C.muted;x.font=`700 26px ${B}`;x.fillText(t('lettersUp',{n:r.word.length}),cx,y+60);
+    x.fillStyle=C.muted;x.font=`700 26px ${B}`;x.fillText(t('lettersUp',{n:r.word.length})+(r.ms?' · '+fmtClock(r.ms):''),cx,y+60);
     x.fillStyle=r.won?C.fg:C.miss;x.font=`700 74px ${F}`;x.fillText(r.won?`${r.g.length}/${baseGuesses(r)}`:'✕',cx,y+cardH/2+30);
     let sx=cx;const sy=y+cardH-66;
     for(let g=0;g<r.g.length;g++){x.fillStyle=(g===r.g.length-1&&r.won)?C.ok:C.cell;roundRect(x,sx,sy,30,30,7);x.fill();sx+=38;}
@@ -1423,7 +1445,7 @@ function statsSheet(){
   <h3>${t('guessesPer')}</h3><div class="dist">${dist}</div>
   <h3>${t('drawnTitle')}</h3>
   <div class="stats three"><div class="stat"><b>${st.traces||0}</b><span>${t('traces')}</span></div><div class="stat"><b>${st.traces?Math.round(st.traceSum/st.traces):0}<i>%</i></b><span>${t('avg')}</span></div><div class="stat"><b>${st.traceBest||0}<i>%</i></b><span>${t('bestPct')}</span></div></div>
-  <p>${t('perfectDays',{n:st.perfect,dw:st.perfect===1?t('day1'):t('dayN')})}</p>
+  <p>${t('perfectDays',{n:st.perfect,dw:st.perfect===1?t('day1'):t('dayN')})}${st.fastest?' '+t('fastest',{t:fmtClock(st.fastest)}):''}</p>
   ${S.mode==='daily'&&S.rounds.every(x=>x.done)?`<div class="btns"><button class="btn primary" id="stShare">${ic('share')}${t('shareToday')}</button></div>`:''}`,true);
   const b=document.getElementById('stShare');if(b)b.onclick=()=>{closeSheet();shareSheet();};
 }
