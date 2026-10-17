@@ -88,6 +88,19 @@ To add a language: a layout, an alphabet, pools (100 to 300 words each of 4, 6 a
 
 **Beat a trace** draws one word and turns it into a duel link. **Draw a sentence** shows a three-to-five-word sentence and takes one stroke per word, blind: each word is scored as the finger lifts, nothing is shown until the last one, then the average and each word's accuracy appear and any word can be tapped to compare traces. Sentences live in `LANGS[lang].sentences` (no one-letter words, since a single key can't be traced; no punctuation) and deal from their own saved deck like the word pools. Neither mode pays ink.
 
+## Packs, the store and reminders
+
+**Packs** (`PACKS` in the template, English only so far) are a set of single words (4 to 10 letters, read and draw rounds), a set of titles (sentence mode), a price in ink, an App Store product id, and a look: the token overrides for light and dark (`--bg`, `--ink`, `--accent`, `--guess`, `--brush` and the rest). Owning a pack opens its own daily ladder (one short, one middle, one long word plus a draw, walking fixed shuffles so friends with the pack get the same four; saved under `sq.pack.<id>`; pays half ink; no streak), practice from its words, titles to draw, and the look, which the Packs sheet switches on and off (`data-pack` on the root). Pack words count as valid guesses while a pack is in play. A pack with a `season` window shows an "In season" tag. To add one: an entry in `PACKS` with the fields above, validated the same way as the pools (letters only, no one-letter words in titles).
+
+**Store.** Ink (`squiggle.ink.100`, `.300`, `.1000`, consumables) and packs (`squiggle.pack.<id>`, non-consumables with a RevenueCat entitlement named after the pack id) are sold through StoreKit by way of RevenueCat's Capacitor plugin. The app ships complete without it: nothing store-related shows until `NP.Purchases` exists and `window.SQUIGGLE_RC_KEY` is set. To switch it on for a release:
+
+1. App Store Connect → the app → In-App Purchases: create the six products with those ids, prices and display names; attach screenshots and submit them for review with the binary.
+2. RevenueCat: a project with the App Store app, the products, one entitlement per pack (id = pack id), and a default offering that includes every product. Copy the public Apple API key.
+3. `cd ios-app && npm i @revenuecat/purchases-capacitor && npx cap sync ios`, then set `window.SQUIGGLE_RC_KEY='appl_…'` next to `SQUIGGLE_SHARE_URL` in the template's standalone head.
+4. App Privacy in App Store Connect changes from *Data Not Collected* to purchases and a device identifier, used for app functionality, not linked to identity (that is what the SDK collects). Keep 1.0 free of the plugin so its privacy answer stays true; make this 1.1.
+
+**Reminders** use `@capacitor/local-notifications`: a daily notification at the hour chosen in Settings and an 8:30 pm nudge on days the ladder is still open (scheduled a week ahead on every open, today's cancelled when the day completes). The web copy hides the setting. Promotional pushes ("the Halloween pack is here") need a push service with a server behind it; OneSignal's Capacitor plugin is the least work when that day comes, and it would add another App Privacy line.
+
 ## Word pools
 
 Daily words walk a fixed shuffle of each pool (`cycle()` in the template), so a word can't come back until every other word of that length has had its day: with today's English pools that is about 290 days for 4 letters, 250 for 6 and 210 for 8. Practice deals from a shuffled deck saved on the device, skips today's daily words, and only reshuffles once the whole pool has been played. Adding words to a pool changes the daily sequence from that day on, which is fine; removing or reordering words in the first week's `week` list is not, since those are already in people's history.
