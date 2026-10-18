@@ -7,6 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Squiggle">
+<meta name="apple-itunes-app" content="app-id=6823700861">
 <meta name="theme-color" content="#F5F8FC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0B1426" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Three squiggles a day. Each one is the line a finger draws swipe-typing a word. Read it, then draw one of your own.">
@@ -1653,11 +1654,15 @@ function finishTutorialIfAny(){
 function start(){
   bindDraw();REMIND.sync();
   const h=location.hash||'';
+  if(NATIVE&&NP.App&&NP.App.getLaunchUrl){NP.App.getLaunchUrl().then(r=>{if(r&&r.url)openAppUrl(r.url);}).catch(()=>{});}
   if(!store('sq.seen')){store('sq.seen',1);S.after=openLinkable(h)?h:null;startTutorial();return;}
   if(!openLink(h)){loadDaily();goHome();}
 }
 function openLinkable(h){return /^#(c|d)-/.test(h||'');}
 window.addEventListener('hashchange',()=>{openLink(location.hash||'');});
+/* Universal Links (iOS app): a friend's link opens the app instead of the web page; the URL arrives here, not in location.hash */
+function openAppUrl(url){try{const h=new URL(url).hash;if(!openLinkable(h))return;if(S.mode==='tutorial'){S.after=h;return;}openLink(h);}catch(e){}}
+if(NATIVE&&NP.App){NP.App.addListener('appUrlOpen',e=>{if(e&&e.url)openAppUrl(e.url);});}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){window.claude.hot.snapshot(()=>({cur:S.cur}));}
 const boot=()=>{start();try{const d=window.claude&&window.claude.hot&&window.claude.hot.data;if(d&&d.cur){S.cur=d.cur;renderGuesses();}}catch(e){}};
 if(window.claude&&window.claude.hot&&window.claude.hot.ready) window.claude.hot.ready(boot); else boot();

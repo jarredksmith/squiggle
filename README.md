@@ -88,6 +88,16 @@ To add a language: a layout, an alphabet, pools (100 to 300 words each of 4, 6 a
 
 **Beat a trace** draws one word and turns it into a duel link. **Draw a sentence** shows a three-to-five-word sentence and takes one stroke per word, blind: each word is scored as the finger lifts, nothing is shown until the last one, then the average and each word's accuracy appear and any word can be tapped to compare traces. Sentences live in `LANGS[lang].sentences` (no one-letter words, since a single key can't be traced; no punctuation) and deal from their own saved deck like the word pools. Neither mode pays ink.
 
+## Friend links open the app (Universal Links)
+
+`#c-…` (send a squiggle) and `#d-…` (beat a trace) links point at the web copy, `https://jarredksmith.github.io/squiggle/`. On an iPhone with the app installed, iOS opens the app instead; without it, the web page loads as before. Three parts make that work:
+
+- `https://jarredksmith.github.io/.well-known/apple-app-site-association` — a JSON file at the root of the domain (so it lives in the `jarredksmith.github.io` repo, not here, next to a `.nojekyll` marker) saying links under `/squiggle/` whose hash starts with `c-` or `d-` belong to `SVYYTM3LTN.com.jarredsmith.squiggle`. Apple's CDN caches it for up to a day; `https://app-site-association.cdn-apple.com/a/v1/jarredksmith.github.io` shows what Apple currently has.
+- `ios-app/ios/App/App/App.entitlements` — the Associated Domains entitlement, `applinks:jarredksmith.github.io`. The workflow signs the archive with the cloud-managed distribution certificate so the entitlement is embedded and the App ID gets the capability.
+- `openAppUrl()` in the template — Capacitor's `appUrlOpen` event (and `getLaunchUrl()` for cold starts) hands the URL's hash to the same `openLink()` the web version uses.
+
+The web copy also carries a Smart App Banner (`apple-itunes-app` meta, web build only), which Safari shows once the app is on the App Store.
+
 ## Packs, the store and reminders
 
 **Packs** (`PACKS` in the template, English only so far) are a set of single words (4 to 10 letters, read and draw rounds), a set of titles (sentence mode), a price in ink, an App Store product id, and a look: the token overrides for light and dark (`--bg`, `--ink`, `--accent`, `--guess`, `--brush` and the rest). Owning a pack opens its own daily ladder (one short, one middle, one long word plus a draw, walking fixed shuffles so friends with the pack get the same four; saved under `sq.pack.<id>`; pays half ink; no streak), practice from its words, titles to draw, and the look, which the Packs sheet switches on and off (`data-pack` on the root). Pack words count as valid guesses while a pack is in play. A pack with a `season` window shows an "In season" tag. To add one: an entry in `PACKS` with the fields above, validated the same way as the pools (letters only, no one-letter words in titles).

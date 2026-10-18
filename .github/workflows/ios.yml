@@ -73,12 +73,22 @@ jobs:
 
       - name: Build for the App Store
         if: env.SIGNING == 'true'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
+          # Signed at archive time (cloud-managed Apple Distribution certificate via the API key) so the
+          # entitlements in App/App.entitlements, such as Associated Domains for Universal Links, are
+          # embedded and the App ID is given the matching capability. An unsigned archive would drop them.
           set -o pipefail
           xcodebuild -project "$PROJECT" -scheme App -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" \
             DEVELOPMENT_TEAM="$TEAM" CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
-            CODE_SIGNING_ALLOWED=NO archive | tail -n 40
+            CODE_SIGN_STYLE=Automatic CODE_SIGN_IDENTITY="Apple Distribution" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            archive | tail -n 40
 
       - name: Sign and upload to TestFlight
         if: env.SIGNING == 'true'
