@@ -73,22 +73,27 @@ jobs:
 
       - name: Build for the App Store
         if: env.SIGNING == 'true'
-        env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
-          # Signed at archive time (cloud-managed Apple Distribution certificate via the API key) so the
-          # entitlements in App/App.entitlements, such as Associated Domains for Universal Links, are
-          # embedded and the App ID is given the matching capability. An unsigned archive would drop them.
           set -o pipefail
           xcodebuild -project "$PROJECT" -scheme App -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" \
             DEVELOPMENT_TEAM="$TEAM" CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
-            CODE_SIGN_STYLE=Automatic CODE_SIGN_IDENTITY="Apple Distribution" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" \
-            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
-            archive | tail -n 40
+            CODE_SIGNING_ALLOWED=NO archive | tail -n 40
+
+      - name: Stamp the entitlements onto the archive
+        if: env.SIGNING == 'true'
+        run: |
+          # The archive is built unsigned (no development certificate on the runner), which also leaves
+          # out App/App.entitlements. Export reads an app's entitlements from its signature, so give the
+          # archived app an ad-hoc signature that carries them; export then re-signs everything with the
+          # distribution certificate and a profile that includes the matching capability.
+          set -e
+          APP="$RUNNER_TEMP/App.xcarchive/Products/Applications/App.app"
+          ENT="ios-app/ios/App/App/App.entitlements"
+          find "$APP/Frameworks" -name '*.framework' -maxdepth 1 -print0 2>/dev/null | xargs -0 -n1 codesign --force --sign - || true
+          codesign --force --sign - --entitlements "$ENT" "$APP"
+          echo "Entitlements now in the archive:"
+          codesign -d --entitlements :- "$APP" 2>/dev/null | head -n 30
 
       - name: Sign and upload to TestFlight
         if: env.SIGNING == 'true'
