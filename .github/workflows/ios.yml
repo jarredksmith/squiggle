@@ -15,6 +15,7 @@ on:
       - manifest.webmanifest
       - icons/**
       - fonts/**
+      - packs/**
       - ios-app/**
       - .github/workflows/ios.yml
 

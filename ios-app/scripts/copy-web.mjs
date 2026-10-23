@@ -13,4 +13,5 @@ mkdirSync(out, { recursive: true });
 for (const f of ['index.html', 'manifest.webmanifest']) cpSync(join(root, f), join(out, f));
 cpSync(join(root, 'icons'), join(out, 'icons'), { recursive: true });
 cpSync(join(root, 'fonts'), join(out, 'fonts'), { recursive: true });
+cpSync(join(root, 'packs'), join(out, 'packs'), { recursive: true });
 console.log('Copied the web game into', out);
