@@ -181,6 +181,9 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .glyph .pin circle,.glyph .pin rect{stroke:var(--surface);stroke-width:5}
 .glyph .pin.ok circle,.glyph .pin.ok rect{fill:var(--ok)} .glyph .pin.near circle,.glyph .pin.near rect{fill:var(--near)}
 .glyph .pin text{fill:var(--onstatus);font-family:var(--display);font-weight:700;font-size:38px;text-anchor:middle;dominant-baseline:central}
+.glyph .cdot{stroke:var(--surface);stroke-width:5} .glyph .cdot.ok{fill:var(--ok)} .glyph .cdot.near{fill:var(--near)}
+.glyph .cdot.anim{transform-box:fill-box;transform-origin:center;animation:pop .36s cubic-bezier(.2,1.4,.4,1) both}
+.glyph .selring{fill:none;stroke:var(--guess);stroke-width:6}
 .glyph .pin.anim{transform-box:fill-box;transform-origin:center;animation:pop .36s cubic-bezier(.2,1.4,.4,1) both}
 .glyph .clean{fill:none;stroke:var(--ink);stroke-width:9;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
 .glyph .lab circle{fill:var(--surface);stroke:var(--ink);stroke-width:5}
@@ -257,12 +260,20 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .tile.ok{background:var(--ok);color:var(--onstatus)} .tile.near{background:var(--near);color:var(--onstatus)} .tile.no{background:var(--absent);color:var(--onstatus)}
 .tile.empty{background:transparent;box-shadow:inset 0 0 0 2px var(--line)}
 .tile.typed{box-shadow:inset 0 0 0 2px var(--ink)}
+/* The box you're on: the keyboard and the squiggle both describe this one. Tap any box in the row to move to it. */
+.row.live .tile{cursor:pointer;position:relative}
+.tile.sel{box-shadow:inset 0 0 0 3px var(--guess);transform:translateY(-2px)}
+.tile.sel::after{content:"";position:absolute;left:28%;right:28%;bottom:-7px;height:3px;border-radius:2px;background:var(--guess)}
+.tile.typed.given.sel{box-shadow:inset 0 0 0 3px var(--guess)}
 @keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
 .row.fresh .tile{animation:flip .5s ease both;animation-delay:calc(var(--i) * 70ms)}
 @keyframes badpulse{0%,100%{box-shadow:inset 0 0 0 2px var(--line)}50%{box-shadow:inset 0 0 0 3px var(--miss)}}
 .row.shake .tile{animation:badpulse .5s ease}
 @media (prefers-reduced-motion: reduce){.row.fresh .tile,.row.shake .tile{animation:none}}
 
+.ln{display:inline-block;width:18px;height:5px;border-radius:3px;background:var(--ink);vertical-align:middle;margin:0 5px 2px 0}
+.ln.you{background:var(--guess)} .ln.rival{background:repeating-linear-gradient(90deg,var(--near) 0 6px,transparent 6px 10px)}
+* + .ln{margin-left:6px}
 /* Keyboard */
 .kb{margin-top:auto;background:var(--keyboard);border-radius:var(--radius);padding:8px 6px 10px;display:flex;flex-direction:column;gap:7px;position:relative}
 .kbtrace{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
@@ -273,6 +284,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .kbtrace.last{opacity:.45;animation:tracefade .7s ease 5s forwards} .kbtrace.last .tr{stroke-dasharray:8 7}
 @keyframes tracefade{to{opacity:0}}
 @media (prefers-reduced-motion: reduce){.kbtrace.last{animation:none}}
+.key.cold{opacity:.38}
 .key.near::after{content:"";position:absolute;inset:-3px;border-radius:12px;border:3px solid var(--near)}
 .kbrow{display:flex;gap:5px;justify-content:center}
 .kbrow.r1{padding:0 calc(5% + 2px)} .kbrow.r2{padding:0 calc(15% + 2px)}
@@ -580,23 +592,23 @@ const STR={en:{
   practice:'Practice',practiceSub:'Read or draw',challenge:'Challenge',challengeSub:'Trace or sentence',send:'Send a squiggle',sendSub:'Trace a word or name, text the link',
   stats:'Stats',how:'How to play',settings:'Settings',chipDone:'Done · new squiggles in ',chipProgress:'{d} of {n} done',
   mPractice:'Practice',mFriend:'From a friend',mDuel:'Duel',mLearn:'Learn',mSentence:'Sentence',packs:'Packs',packsSub:'Words and looks',packsTitle:'Packs',packsBody:'A pack is a set of words and a look. Earn one with ink or buy it. Owning it opens a daily ladder of its own, practice from its words, titles to draw, and its colours across the app.',packPlay:"Today's ladder",packContinue:'Continue · {d} of 4',packReview:'Review today',packTitles:'Draw a title',packLook:'Use this look',packLookD:'Its colours and backdrop everywhere in the app',unlockFor:'Unlock for {n} ink',buyFor:'Buy · {p}',inSeason:'In season',packCount:'{w} words, {p} titles',restore:'Restore purchases',restored:'{n} pack{n} restored',restoredNone:'Nothing to restore',packsEnglish:'Packs are in English for now.',getInk:'Get ink',packHalf:' = {f} · half in a pack',getInkBody:'Ink buys hints and extra guesses. Hints are marked on the share, so bought ink never fakes a result.',inkN:'{n} ink',inkPackD:'Added to your balance right away',inkAdded:'+{n} ink',reminder:'Daily reminder',reminderD:"A nudge when the new squiggles land, and one in the evening if the day isn't finished.",remindBody:'Three new squiggles are ready.',streakBody:"Today's squiggles are still waiting. The streak ends at midnight.",reminderOn:'Reminder on',reminderOff:'Reminder off',reminderDenied:'Notifications are off for Squiggle in iOS Settings.',subSentence:'Draw each word, score at the end',wordsN:'{n} words',challengeTitle:'Challenge',challengeBody:'No ink here, just bragging rights.',beatTrace:'Beat a trace',beatTraceSub:'Draw one word, then send it to a friend to beat',drawSentence:'Draw a sentence',drawSentenceSub:'Three to five words, blind. The score comes at the end.',stSentence:'<b>Word {i} of {n}</b> · one stroke, then lift',stSentenceDone:'Tap a word to compare its traces',drawSentenceEyebrow:'Draw this sentence, one word at a time',sentenceHelp:'Nothing is scored until the last word. Finger down on the first letter, glide through the rest, lift.',sentenceBody:'You traced <b>{n} words</b> at <b>{a}%</b> on average. Best: <b>{bw}</b> at {ba}%. Roughest: <b>{ww}</b> at {wa}%.',anotherSentence:'Another sentence',results:'Results',sentenceBodyEven:'You traced <b>{n} words</b> at <b>{a}%</b>, every one of them about the same.',avgOf:'average over {n} words',learnStep:'Learn · step {i} of {n}',letters:'{n} letters',skip:'Skip',home:'Home',now:'now',missed:'missed',finishFirst:'Finish the current squiggle first',
-  stDrawDone:'<b>Blue</b> is the real trace, <b>pink</b> is yours',stDraw:'Draw it in <b>one stroke</b>, then lift',hard:'hard',inkPlus:' · +{n} ink',solvedIn:'Solved in <b>{n}</b>',wordWas:'The word was <b>{w}</b>.',outOf:'<b>Out of guesses.</b> Buy one more, or reveal.',guessOf:'<b>{n} letters</b> · guess {g} of {a}',
+  stDrawDone:'<i class="ln"></i><b>Real trace</b> <i class="ln you"></i><b>yours</b>',stDraw:'Draw it in <b>one stroke</b>, then lift',hard:'hard',inkPlus:' · +{n} ink',solvedIn:'Solved in <b>{n}</b>',wordWas:'The word was <b>{w}</b>.',outOf:'<b>Out of guesses.</b> Buy one more, or reveal.',guessOf:'<b>{n} letters</b> · guess {g} of {a}',
   oneMore:'One more?',hints:'Hints',subPractice:'Practice · as many as you like',subDuel:'Beat their trace · they scored {a}%',subTutorial:'Two quick ones to learn the trick',subFriend:'Someone traced this one for you',
   drawReject:'Draw the whole word in one stroke, finger down to finger up',drawThis:'Draw this word',drifted:'Drifted: {list}',drawHelp:'The blank keyboard at the bottom is where you draw. Finger down on the first letter, glide through the rest, lift on the last.',drawHelpHard:' No key grid on hard: the keys are where you remember them.',onKey:'{on} of {n} letters on the key',
   needs:'Needs {n} letters',notInList:'Not in the word list',extraTitle:'Out of guesses',extraBody:"The squiggle's still there. One more guess costs <b>{p} ink</b>; you have <b>{i}</b>.",extraBuy:'One more guess · {p}',giveUp:'Give up and reveal',notEnough:'Not enough ink',
   hCat:'Category',hCatD:'What kind of word it is: an animal, a place, a feeling, a food…',hFirst:'First letter',hFirstD:'Marks where the finger landed and which key it was.',hLast:'Last letter',hLastD:'Marks where the finger lifted.',hMid:'A middle letter',hMidD:"Reveals one of the letters between the ends: pinned on the squiggle and filled into the row you're typing.",hPlace:'Place it on the keys',hPlaceD:'Drops the squiggle onto the real keyboard grid. The big one.',hPlaceLocked:'Locked in hard mode.',used:'Used',found:'Found',locked:'Locked',earnHow:'Earn ink by solving: longer words and fewer guesses pay more, hard mode pays 1.5×, finishing the day adds a bonus.',
-  d95:'Pixel perfect.',d85:'Clean trace.',d70:'Close. Readable.',d50:"Rough, but it's in there.",d0:"That's a different word.",drawBody:'You drew <b>{w}</b> at <b>{a}%</b>: {on} of {n} letters landed on the key{hard}. Blue is the real trace.',onHard:', on hard',earnDraw:'{n} letters × 2 × {a}%',perfectBonus:' + 5 perfect',hardMult:' × 1.5 hard',
+  d95:'Pixel perfect.',d85:'Clean trace.',d70:'Close. Readable.',d50:"Rough, but it's in there.",d0:"That's a different word.",drawBody:'You drew <b>{w}</b> at <b>{a}%</b>: {on} of {n} letters landed on the key{hard}. <i class="ln"></i>is the real trace.',onHard:', on hard',earnDraw:'{n} letters × 2 × {a}%',perfectBonus:' + 5 perfect',hardMult:' × 1.5 hard',
   win1:'Read it in one.',win2:'Two. Sharp.',win3:'Three. Nice trace.',win4:'Four. Just made it.',winX:'Got there, with a little ink.',lost:'That one got away.',readBody:'You traced <b>{w}</b> in {g} {gw}{h}{hard}.',guess1:'guess',guessN:'guesses',withHints:' with {h} {hw}',hint1:'hint',hintN:'hints',onHard2:' on hard',lostBody:"It was <b>{w}</b>. Here's where it really sat on the keys.",earnRead:'{n} letters × {m} for solving in {g}',dayBonus:'day bonus',allThree:' · all three solved',streakN:' · streak {s}',
   nextDrawBtn:'Next: draw one',nextBtn:'Next squiggle · {n} letters',another:'Another one',makeOne:'Make one for them',
   tutIdea:"That's the idea.",tutReady:"You're ready.",tutWas:'It was {w}.',tutBody1:'The squiggle sat right on the keys that time. In the real game you only get the shape, so the next one floats free.',tutBody2:'Three squiggles a day to read, one word to draw. Solving earns ink, ink buys hints. Settings has practice, hard mode and a way to send squiggles to friends.',tutPlaySent:'Play the one you were sent',tutPlayToday:"Play today's squiggles",next:'Next',
   tut1:'This is the line a finger drew swipe-typing a 3-letter word. The dot is where it landed: on <b>{a}</b>. It slid to <b>{b}</b>, then to <b>{c}</b>. Type <b>{w}</b> and press Enter.',tut1b:'Green means on the key, amber means next door, grey means cold. Try <b>{w}</b>.',tut2:'Now the real thing. Same idea, but you only see the <b>shape</b>, not where it sat. Slide it around the keyboard in your head: which three keys make this shape?',tut2b:'Each corner reports how far it landed from the real key. Look at the keyboard and try again.',
-  duelWin:'You win.',duelLose:'They win.',duelTie:'Dead heat.',duelBody:'You traced <b>{w}</b> at <b>{me}%</b>, they traced it at <b>{them}%</b>. Blue is the real trace, pink is yours, amber is theirs.',sendBack:'Send your trace back',
+  duelWin:'You win.',duelLose:'They win.',duelTie:'Dead heat.',duelBody:'You traced <b>{w}</b> at <b>{me}%</b>, they traced it at <b>{them}%</b>. <i class="ln"></i>real trace, <i class="ln you"></i>yours, <i class="ln rival"></i>theirs.',sendBack:'Send your trace back',
   friendWin:'You read it.',friendBodyWin:'A friend traced <b>{w}</b> for you and you got it in {g}. Send one back.',friendBodyLose:'They traced <b>{w}</b>. Send one back and even the score.',sendOneBack:'Send one back',challengeFriend:'Challenge a friend',
   recap:'<b>{s} of 3</b> solved in {t} guesses{d}, <b>{ink} ink</b> earned.',recapTime:'{t} on the clock.',timeOn:'on this squiggle',fastest:'Fastest solve: {t}.',recapDraw:', <b>{w}</b> drawn at <b>{a}%</b>',ink:'ink',
   shareTitle:"Share today's trace",shareAlt:"Share card: today's three squiggles and your results",sharePic:'Share the picture',shareText:'Share text',copyText:'Copy text',longPress:'Long-press the picture to save it',copied:'Copied',selectCopy:'Select and copy the text',
   beatTitle:'Beat my trace',beatBody:"They get the word <b>{w}</b>, draw it blind, and see both traces side by side with the real one. Winner is whoever's line runs closer.",beatMsg:'I drew {w} at {a}%. Beat my trace: {link}',sendChallenge:'Send the challenge',copy:'Copy',
   canRead:'Can you read them?',lettersUp:'{n} LETTERS',drew:'Drew {w} at {a}%',
-  howTitle:'How to play',how1:'Each squiggle is the line a finger draws when it <b>swipe-types a word</b> on a phone keyboard. The dot is where the finger lands; the arrowhead is where it lifts.',how2:"You see the shape at <b>true size</b> but not where it sat. A sweep that's five keys wide on the keyboard below is five keys wide here. Slide it around the keyboard in your head until the corners land on letters that make a word.",how3:'Type a word of the right length. As you type, your trace draws across the keys in pink, so you can compare its shape to the squiggle before you commit.',how4:'Feedback is <b>distance, not letters</b>. Each corner of your guess reports how far it landed from the real key. Nothing tells you whether a letter is "in the word somewhere". Only the shape does.',how5:"<b>Round four flips it.</b> You get the word and draw its squiggle from memory, one stroke on the blank keys. You're scored on how close your line runs to the real trace.",howP1:'Three squiggles to read (4, 6 and 8 letters, <b>four guesses</b> each) and one to draw. Solving earns <b>ink</b>: more for longer words and fewer guesses, 1.5× on hard, plus a bonus for finishing the day.',howP2:'Ink buys hints (first letter, last letter, a middle letter, or <b>Place it</b>, which drops the squiggle onto the real keys) and one more guess when you run out. Hints show on your share.',howP3:'<b>Hard mode</b> (in Settings): three guesses, no start or end marker, and Place it is locked.',startTracing:'Start tracing',legendOn:'On the key',legendNear:'Next door (a touching key)',legendCold:'Cold',
+  howTitle:'How to play',how1:'Each squiggle is the line a finger draws when it <b>swipe-types a word</b> on a phone keyboard. The dot is where the finger lands; the arrowhead is where it lifts.',how2:"You see the shape at <b>true size</b> but not where it sat. A sweep that's five keys wide on the keyboard below is five keys wide here. Slide it around the keyboard in your head until the corners land on letters that make a word.",how3:'Type a word of the right length. As you type, your own trace draws across the keys, so you can compare its shape to the squiggle before you commit.',how4:'Feedback is <b>distance, not letters</b>. Each corner of your guess reports how far it landed from the real key. Nothing tells you whether a letter is "in the word somewhere". Only the shape does. The keyboard and the squiggle show what you know about <b>the box you\'re on</b>; tap any box to look at that one.',how5:"<b>Round four flips it.</b> You get the word and draw its squiggle from memory, one stroke on the blank keys. You're scored on how close your line runs to the real trace.",howP1:'Three squiggles to read (4, 6 and 8 letters, <b>four guesses</b> each) and one to draw. Solving earns <b>ink</b>: more for longer words and fewer guesses, 1.5× on hard, plus a bonus for finishing the day.',howP2:'Ink buys hints (first letter, last letter, a middle letter, or <b>Place it</b>, which drops the squiggle onto the real keys) and one more guess when you run out. Hints show on your share.',howP3:'<b>Hard mode</b> (in Settings): three guesses, no start or end marker, and Place it is locked.',startTracing:'Start tracing',legendOn:'On the key',legendNear:'Next door (a touching key)',legendCold:'Cold',
   statsTitle:'Your traces',inkAll:'{n} ink earned all time',days:'Days',solvePct:'Solved',streakL:'Streak',best:'Best',guessesPer:'Guesses per squiggle',drawnTitle:'Drawn squiggles',traces:'Traces',avg:'Average',bestPct:'Best',perfectDays:'{n} perfect {dw} (all three read). Streak counts days you finished the ladder, draw included.',day1:'day',dayN:'days',
   settingsTitle:'Settings',settingsBody:'Practice from the word pool, trace a word for a friend, or change how the game plays.',appearance:'Appearance',system:'System',light:'Light',dark:'Dark',language:'Language',sound:'Sound',soundD:'Taps, reveals and a little fanfare. Haptics stay on either way.',hardMode:'Hard mode',hardD:"Three guesses, no start or end marker, no pins on the trace, no Place it; the draw round loses its key grid. Pays 1.5× ink. Applies to rounds you haven't started.",hardOn:'Hard mode on',hardOff:'Hard mode off',soundOn:'Sound on',soundOff:'Sound off',
   practiceTitle:'Practice',practiceBody:"Practice doesn't touch your streak and doesn't pay ink. Ink comes from the daily game.",whichWay:'Which way round?',readOne:'Read a squiggle',drawOne:'Draw a squiggle',howLong:'How long?',mix:'Mix',go:'Go',
@@ -609,23 +621,23 @@ es:{
   practice:'Practicar',practiceSub:'Leer o dibujar',challenge:'Reto',challengeSub:'Trazo o frase',send:'Enviar un garabato',sendSub:'Traza una palabra o nombre y manda el enlace',
   stats:'Estadísticas',how:'Cómo jugar',settings:'Ajustes',chipDone:'Listo · nuevos garabatos en ',chipProgress:'{d} de {n} hechos',
   mPractice:'Práctica',mFriend:'De un amigo',mDuel:'Duelo',mLearn:'Aprender',mSentence:'Frase',packs:'Packs',packsSub:'Palabras y estilos',packsTitle:'Packs',packsBody:'Un pack es un conjunto de palabras y un estilo. Gánalo con tinta o cómpralo. Al tenerlo se abre una escalera diaria propia, práctica con sus palabras, títulos para dibujar y sus colores en toda la app.',packPlay:'Escalera de hoy',packContinue:'Continuar · {d} de 4',packReview:'Repasar hoy',packTitles:'Dibujar un título',packLook:'Usar este estilo',packLookD:'Sus colores y fondo en toda la app',unlockFor:'Desbloquear por {n} de tinta',buyFor:'Comprar · {p}',inSeason:'De temporada',packCount:'{w} palabras, {p} títulos',restore:'Restaurar compras',restored:'{n} pack(s) restaurados',restoredNone:'Nada que restaurar',packsEnglish:'Los packs están en inglés por ahora.',getInk:'Conseguir tinta',packHalf:' = {f} · la mitad en un pack',getInkBody:'La tinta compra pistas e intentos extra. Las pistas se marcan al compartir, así que la tinta comprada nunca falsea un resultado.',inkN:'{n} de tinta',inkPackD:'Se añade a tu saldo al momento',inkAdded:'+{n} de tinta',reminder:'Recordatorio diario',reminderD:'Un aviso cuando llegan los garabatos nuevos y otro por la tarde si el día no está terminado.',remindBody:'Hay tres garabatos nuevos.',streakBody:'Los garabatos de hoy siguen esperando. La racha termina a medianoche.',reminderOn:'Recordatorio activado',reminderOff:'Recordatorio desactivado',reminderDenied:'Las notificaciones de Squiggle están desactivadas en Ajustes de iOS.',subSentence:'Dibuja cada palabra; la puntuación, al final',wordsN:'{n} palabras',challengeTitle:'Reto',challengeBody:'Aquí no hay tinta, solo presumir.',beatTrace:'Supera un trazo',beatTraceSub:'Dibuja una palabra y mándasela a un amigo para que la supere',drawSentence:'Dibuja una frase',drawSentenceSub:'De tres a cinco palabras, a ciegas. La puntuación llega al final.',stSentence:'<b>Palabra {i} de {n}</b> · un trazo y levanta',stSentenceDone:'Toca una palabra para comparar sus trazos',drawSentenceEyebrow:'Dibuja esta frase, palabra por palabra',sentenceHelp:'No se puntúa nada hasta la última palabra. Dedo en la primera letra, desliza por el resto, levanta.',sentenceBody:'Trazaste <b>{n} palabras</b> con un <b>{a}%</b> de media. Mejor: <b>{bw}</b> al {ba}%. Peor: <b>{ww}</b> al {wa}%.',anotherSentence:'Otra frase',results:'Resultado',sentenceBodyEven:'Trazaste <b>{n} palabras</b> al <b>{a}%</b>, todas más o menos igual.',avgOf:'media de {n} palabras',learnStep:'Aprender · paso {i} de {n}',letters:'{n} letras',skip:'Saltar',home:'Inicio',now:'ahora',missed:'fallado',finishFirst:'Termina primero el garabato actual',
-  stDrawDone:'<b>Azul</b> es el trazo real, <b>rosa</b> es el tuyo',stDraw:'Dibújalo de <b>un solo trazo</b> y levanta el dedo',hard:'difícil',inkPlus:' · +{n} de tinta',solvedIn:'Resuelto en <b>{n}</b>',wordWas:'La palabra era <b>{w}</b>.',outOf:'<b>Sin intentos.</b> Compra uno más o revela.',guessOf:'<b>{n} letras</b> · intento {g} de {a}',
+  stDrawDone:'<i class="ln"></i><b>Trazo real</b> <i class="ln you"></i><b>el tuyo</b>',stDraw:'Dibújalo de <b>un solo trazo</b> y levanta el dedo',hard:'difícil',inkPlus:' · +{n} de tinta',solvedIn:'Resuelto en <b>{n}</b>',wordWas:'La palabra era <b>{w}</b>.',outOf:'<b>Sin intentos.</b> Compra uno más o revela.',guessOf:'<b>{n} letras</b> · intento {g} de {a}',
   oneMore:'¿Uno más?',hints:'Pistas',subPractice:'Práctica · todas las que quieras',subDuel:'Supera su trazo · sacó {a}%',subTutorial:'Dos rápidos para pillarle el truco',subFriend:'Alguien trazó este para ti',
   drawReject:'Dibuja toda la palabra de un solo trazo, sin levantar el dedo',drawThis:'Dibuja esta palabra',drifted:'Se desviaron: {list}',drawHelp:'El teclado en blanco de abajo es donde dibujas. Apoya el dedo en la primera letra, deslízalo por las demás y levántalo en la última.',drawHelpHard:' En difícil no hay cuadrícula: las teclas están donde las recuerdes.',onKey:'{on} de {n} letras sobre la tecla',
   needs:'Necesita {n} letras',notInList:'No está en la lista de palabras',extraTitle:'Sin intentos',extraBody:'El garabato sigue ahí. Un intento más cuesta <b>{p} de tinta</b>; tienes <b>{i}</b>.',extraBuy:'Un intento más · {p}',giveUp:'Rendirse y revelar',notEnough:'No hay tinta suficiente',
   hCat:'Categoría',hCatD:'Qué tipo de palabra es: un animal, un lugar, un sentimiento, una comida…',hFirst:'Primera letra',hFirstD:'Marca dónde apoyó el dedo y qué tecla era.',hLast:'Última letra',hLastD:'Marca dónde levantó el dedo.',hMid:'Una letra del medio',hMidD:'Revela una de las letras intermedias: fijada en el garabato y puesta en la fila que escribes.',hPlace:'Colocar sobre las teclas',hPlaceD:'Pone el garabato sobre el teclado real. La grande.',hPlaceLocked:'Bloqueada en modo difícil.',used:'Usada',found:'Ya la tienes',locked:'Bloqueada',earnHow:'Gana tinta resolviendo: las palabras largas y los pocos intentos pagan más, el modo difícil paga 1,5× y terminar el día da un bono.',
-  d95:'Perfecto.',d85:'Trazo limpio.',d70:'Cerca. Se lee.',d50:'Tosco, pero ahí está.',d0:'Eso es otra palabra.',drawBody:'Dibujaste <b>{w}</b> al <b>{a}%</b>: {on} de {n} letras cayeron sobre la tecla{hard}. El azul es el trazo real.',onHard:', en difícil',earnDraw:'{n} letras × 2 × {a}%',perfectBonus:' + 5 perfecto',hardMult:' × 1,5 difícil',
+  d95:'Perfecto.',d85:'Trazo limpio.',d70:'Cerca. Se lee.',d50:'Tosco, pero ahí está.',d0:'Eso es otra palabra.',drawBody:'Dibujaste <b>{w}</b> al <b>{a}%</b>: {on} de {n} letras cayeron sobre la tecla{hard}. <i class="ln"></i>es el trazo real.',onHard:', en difícil',earnDraw:'{n} letras × 2 × {a}%',perfectBonus:' + 5 perfecto',hardMult:' × 1,5 difícil',
   win1:'A la primera.',win2:'Dos. Fino.',win3:'Tres. Buen trazo.',win4:'Cuatro. Por los pelos.',winX:'Llegaste, con algo de tinta.',lost:'Ese se escapó.',readBody:'Trazaste <b>{w}</b> en {g} {gw}{h}{hard}.',guess1:'intento',guessN:'intentos',withHints:' con {h} {hw}',hint1:'pista',hintN:'pistas',onHard2:' en difícil',lostBody:'Era <b>{w}</b>. Así estaba sobre las teclas.',earnRead:'{n} letras × {m} por resolver en {g}',dayBonus:'bono del día',allThree:' · los tres resueltos',streakN:' · racha {s}',
   nextDrawBtn:'Siguiente: dibuja uno',nextBtn:'Siguiente garabato · {n} letras',another:'Otro',makeOne:'Hazle uno',
   tutIdea:'Esa es la idea.',tutReady:'Ya estás listo.',tutWas:'Era {w}.',tutBody1:'Esa vez el garabato estaba justo sobre las teclas. En el juego real solo tienes la forma, así que el siguiente flota libre.',tutBody2:'Tres garabatos al día para leer y una palabra para dibujar. Resolver da tinta y la tinta compra pistas. En Ajustes hay práctica, modo difícil y una forma de enviar garabatos a tus amigos.',tutPlaySent:'Jugar el que te enviaron',tutPlayToday:'Jugar los de hoy',next:'Siguiente',
   tut1:'Esta es la línea que dibujó un dedo al escribir deslizando una palabra de 3 letras. El punto es donde apoyó: en la <b>{a}</b>. Se deslizó a la <b>{b}</b> y luego a la <b>{c}</b>. Escribe <b>{w}</b> y pulsa Intro.',tut1b:'Verde es sobre la tecla, ámbar es la de al lado, gris es frío. Prueba <b>{w}</b>.',tut2:'Ahora en serio. La misma idea, pero solo ves la <b>forma</b>, no dónde estaba. Muévela por el teclado en tu cabeza: ¿qué tres teclas forman esta figura?',tut2b:'Cada esquina te dice a qué distancia cayó de la tecla real. Mira el teclado e inténtalo otra vez.',
-  duelWin:'Ganas tú.',duelLose:'Gana el otro.',duelTie:'Empate.',duelBody:'Trazaste <b>{w}</b> al <b>{me}%</b>; el otro al <b>{them}%</b>. Azul es el trazo real, rosa el tuyo, ámbar el suyo.',sendBack:'Devolver tu trazo',
+  duelWin:'Ganas tú.',duelLose:'Gana el otro.',duelTie:'Empate.',duelBody:'Trazaste <b>{w}</b> al <b>{me}%</b>; el otro al <b>{them}%</b>. <i class="ln"></i>trazo real, <i class="ln you"></i>el tuyo, <i class="ln rival"></i>el suyo.',sendBack:'Devolver tu trazo',
   friendWin:'Lo leíste.',friendBodyWin:'Un amigo trazó <b>{w}</b> para ti y lo sacaste en {g}. Devuélvele uno.',friendBodyLose:'Trazaron <b>{w}</b>. Devuelve uno y empata.',sendOneBack:'Devolver uno',challengeFriend:'Retar a un amigo',
   recap:'<b>{s} de 3</b> resueltos en {t} intentos{d}, <b>{ink} de tinta</b> ganada.',recapTime:'{t} de reloj.',timeOn:'en este garabato',fastest:'El más rápido: {t}.',recapDraw:', <b>{w}</b> dibujado al <b>{a}%</b>',ink:'tinta',
   shareTitle:'Compartir el trazo de hoy',shareAlt:'Tarjeta para compartir: los tres garabatos de hoy y tus resultados',sharePic:'Compartir la imagen',shareText:'Compartir texto',copyText:'Copiar texto',longPress:'Mantén pulsada la imagen para guardarla',copied:'Copiado',selectCopy:'Selecciona y copia el texto',
   beatTitle:'Supera mi trazo',beatBody:'Recibe la palabra <b>{w}</b>, la dibuja a ciegas y ve los dos trazos junto al real. Gana quien pase más cerca.',beatMsg:'Dibujé {w} al {a}%. Supera mi trazo: {link}',sendChallenge:'Enviar el reto',copy:'Copiar',
   canRead:'¿Puedes leerlos?',lettersUp:'{n} LETRAS',drew:'Dibujé {w} al {a}%',
-  howTitle:'Cómo jugar',how1:'Cada garabato es la línea que dibuja un dedo al <b>escribir deslizando</b> una palabra en el teclado del móvil. El punto es donde apoya; la flecha, donde levanta.',how2:'Ves la forma a <b>tamaño real</b> pero no dónde estaba. Un barrido de cinco teclas en el teclado de abajo mide cinco teclas aquí. Muévela por el teclado en tu cabeza hasta que las esquinas caigan en letras que formen una palabra.',how3:'Escribe una palabra del largo correcto. Mientras escribes, tu trazo se dibuja en rosa sobre las teclas para comparar la forma antes de confirmar.',how4:'La pista es <b>distancia, no letras</b>. Cada esquina de tu intento dice a qué distancia cayó de la tecla real. Nada te dice si una letra está "en algún sitio de la palabra". Solo la forma.',how5:'<b>La cuarta ronda lo invierte.</b> Recibes la palabra y dibujas su garabato de memoria, de un trazo, sobre las teclas en blanco. Se puntúa lo cerca que pasa tu línea del trazo real.',howP1:'Tres garabatos para leer (4, 6 y 8 letras, <b>cuatro intentos</b> cada uno) y uno para dibujar. Resolver da <b>tinta</b>: más por palabras largas y pocos intentos, 1,5× en difícil, y un bono por terminar el día.',howP2:'La tinta compra pistas (primera letra, última letra, una del medio o <b>Colocar</b>, que pone el garabato sobre las teclas reales) y un intento más cuando se acaban. Las pistas se ven al compartir.',howP3:'<b>Modo difícil</b> (en Ajustes): tres intentos, sin marcas de inicio ni fin, y Colocar bloqueado.',startTracing:'Empezar',legendOn:'Sobre la tecla',legendNear:'Al lado (una tecla que la toca)',legendCold:'Frío',
+  howTitle:'Cómo jugar',how1:'Cada garabato es la línea que dibuja un dedo al <b>escribir deslizando</b> una palabra en el teclado del móvil. El punto es donde apoya; la flecha, donde levanta.',how2:'Ves la forma a <b>tamaño real</b> pero no dónde estaba. Un barrido de cinco teclas en el teclado de abajo mide cinco teclas aquí. Muévela por el teclado en tu cabeza hasta que las esquinas caigan en letras que formen una palabra.',how3:'Escribe una palabra del largo correcto. Mientras escribes, tu propio trazo se dibuja sobre las teclas para comparar la forma antes de confirmar.',how4:'La pista es <b>distancia, no letras</b>. Cada esquina de tu intento dice a qué distancia cayó de la tecla real. Nada te dice si una letra está "en algún sitio de la palabra". Solo la forma. El teclado y el garabato muestran lo que sabes de <b>la casilla en la que estás</b>; toca cualquier casilla para verla.',how5:'<b>La cuarta ronda lo invierte.</b> Recibes la palabra y dibujas su garabato de memoria, de un trazo, sobre las teclas en blanco. Se puntúa lo cerca que pasa tu línea del trazo real.',howP1:'Tres garabatos para leer (4, 6 y 8 letras, <b>cuatro intentos</b> cada uno) y uno para dibujar. Resolver da <b>tinta</b>: más por palabras largas y pocos intentos, 1,5× en difícil, y un bono por terminar el día.',howP2:'La tinta compra pistas (primera letra, última letra, una del medio o <b>Colocar</b>, que pone el garabato sobre las teclas reales) y un intento más cuando se acaban. Las pistas se ven al compartir.',howP3:'<b>Modo difícil</b> (en Ajustes): tres intentos, sin marcas de inicio ni fin, y Colocar bloqueado.',startTracing:'Empezar',legendOn:'Sobre la tecla',legendNear:'Al lado (una tecla que la toca)',legendCold:'Frío',
   statsTitle:'Tus trazos',inkAll:'{n} de tinta ganada en total',days:'Días',solvePct:'Resueltos',streakL:'Racha',best:'Mejor',guessesPer:'Intentos por garabato',drawnTitle:'Garabatos dibujados',traces:'Trazos',avg:'Media',bestPct:'Mejor',perfectDays:'{n} {dw} perfectos (los tres leídos). La racha cuenta los días que terminaste todo, dibujo incluido.',day1:'día',dayN:'días',
   settingsTitle:'Ajustes',settingsBody:'Practica con el banco de palabras, traza una palabra para un amigo o cambia cómo se juega.',appearance:'Aspecto',system:'Sistema',light:'Claro',dark:'Oscuro',language:'Idioma',sound:'Sonido',soundD:'Toques, revelaciones y una pequeña fanfarria. La vibración sigue igual.',hardMode:'Modo difícil',hardD:'Tres intentos, sin marcas de inicio ni fin, sin chinchetas en el trazo, sin Colocar; la ronda de dibujo pierde la cuadrícula. Paga 1,5× de tinta. Se aplica a las rondas que no hayas empezado.',hardOn:'Modo difícil activado',hardOff:'Modo difícil desactivado',soundOn:'Sonido activado',soundOff:'Sonido desactivado',
   practiceTitle:'Práctica',practiceBody:'La práctica no toca tu racha ni da tinta. La tinta se gana en el juego del día.',whichWay:'¿En qué sentido?',readOne:'Leer un garabato',drawOne:'Dibujar un garabato',howLong:'¿Qué largo?',mix:'Mezcla',go:'Vamos',
@@ -638,23 +650,23 @@ pt:{
   practice:'Praticar',practiceSub:'Ler ou desenhar',challenge:'Desafio',challengeSub:'Traço ou frase',send:'Enviar um rabisco',sendSub:'Trace uma palavra ou nome e mande o link',
   stats:'Estatísticas',how:'Como jogar',settings:'Ajustes',chipDone:'Feito · novos rabiscos em ',chipProgress:'{d} de {n} feitos',
   mPractice:'Prática',mFriend:'De um amigo',mDuel:'Duelo',mLearn:'Aprender',mSentence:'Frase',packs:'Pacotes',packsSub:'Palavras e visuais',packsTitle:'Pacotes',packsBody:'Um pacote é um conjunto de palavras e um visual. Ganhe com tinta ou compre. Tendo um, abre uma escada diária própria, prática com as palavras dele, títulos para desenhar e as cores dele no app inteiro.',packPlay:'Escada de hoje',packContinue:'Continuar · {d} de 4',packReview:'Rever hoje',packTitles:'Desenhar um título',packLook:'Usar este visual',packLookD:'As cores e o fundo dele no app inteiro',unlockFor:'Desbloquear por {n} de tinta',buyFor:'Comprar · {p}',inSeason:'Da estação',packCount:'{w} palavras, {p} títulos',restore:'Restaurar compras',restored:'{n} pacote(s) restaurados',restoredNone:'Nada para restaurar',packsEnglish:'Os pacotes estão em inglês por enquanto.',getInk:'Obter tinta',packHalf:' = {f} · metade num pacote',getInkBody:'Tinta compra dicas e palpites extras. As dicas aparecem no compartilhamento, então tinta comprada nunca falsifica um resultado.',inkN:'{n} de tinta',inkPackD:'Entra no seu saldo na hora',inkAdded:'+{n} de tinta',reminder:'Lembrete diário',reminderD:'Um aviso quando os rabiscos novos chegam e outro à noite se o dia não terminou.',remindBody:'Três rabiscos novos estão prontos.',streakBody:'Os rabiscos de hoje ainda esperam. A sequência termina à meia-noite.',reminderOn:'Lembrete ligado',reminderOff:'Lembrete desligado',reminderDenied:'As notificações do Squiggle estão desligadas nos Ajustes do iOS.',subSentence:'Desenhe cada palavra; a nota vem no fim',wordsN:'{n} palavras',challengeTitle:'Desafio',challengeBody:'Aqui não tem tinta, só direito de se gabar.',beatTrace:'Supere um traço',beatTraceSub:'Desenhe uma palavra e mande para um amigo superar',drawSentence:'Desenhe uma frase',drawSentenceSub:'De três a cinco palavras, às cegas. A nota vem no fim.',stSentence:'<b>Palavra {i} de {n}</b> · um traço e levante',stSentenceDone:'Toque numa palavra para comparar os traços',drawSentenceEyebrow:'Desenhe esta frase, uma palavra por vez',sentenceHelp:'Nada é pontuado até a última palavra. Dedo na primeira letra, deslize pelo resto, levante.',sentenceBody:'Você traçou <b>{n} palavras</b> com <b>{a}%</b> de média. Melhor: <b>{bw}</b> em {ba}%. Pior: <b>{ww}</b> em {wa}%.',anotherSentence:'Outra frase',results:'Resultado',sentenceBodyEven:'Você traçou <b>{n} palavras</b> em <b>{a}%</b>, todas mais ou menos iguais.',avgOf:'média de {n} palavras',learnStep:'Aprender · passo {i} de {n}',letters:'{n} letras',skip:'Pular',home:'Início',now:'agora',missed:'errou',finishFirst:'Termine o rabisco atual primeiro',
-  stDrawDone:'<b>Azul</b> é o traço real, <b>rosa</b> é o seu',stDraw:'Desenhe em <b>um traço só</b> e levante o dedo',hard:'difícil',inkPlus:' · +{n} de tinta',solvedIn:'Resolvido em <b>{n}</b>',wordWas:'A palavra era <b>{w}</b>.',outOf:'<b>Sem palpites.</b> Compre mais um ou revele.',guessOf:'<b>{n} letras</b> · palpite {g} de {a}',
+  stDrawDone:'<i class="ln"></i><b>Traço real</b> <i class="ln you"></i><b>o seu</b>',stDraw:'Desenhe em <b>um traço só</b> e levante o dedo',hard:'difícil',inkPlus:' · +{n} de tinta',solvedIn:'Resolvido em <b>{n}</b>',wordWas:'A palavra era <b>{w}</b>.',outOf:'<b>Sem palpites.</b> Compre mais um ou revele.',guessOf:'<b>{n} letras</b> · palpite {g} de {a}',
   oneMore:'Mais um?',hints:'Dicas',subPractice:'Prática · quantas quiser',subDuel:'Supere o traço · fizeram {a}%',subTutorial:'Dois rápidos para pegar o jeito',subFriend:'Alguém traçou este para você',
   drawReject:'Desenhe a palavra inteira em um traço só, sem levantar o dedo',drawThis:'Desenhe esta palavra',drifted:'Desviaram: {list}',drawHelp:'O teclado em branco embaixo é onde você desenha. Encoste o dedo na primeira letra, deslize pelas outras e levante na última.',drawHelpHard:' No difícil não há grade: as teclas ficam onde você lembra.',onKey:'{on} de {n} letras na tecla',
   needs:'Precisa de {n} letras',notInList:'Não está na lista de palavras',extraTitle:'Sem palpites',extraBody:'O rabisco ainda está aí. Mais um palpite custa <b>{p} de tinta</b>; você tem <b>{i}</b>.',extraBuy:'Mais um palpite · {p}',giveUp:'Desistir e revelar',notEnough:'Tinta insuficiente',
   hCat:'Categoria',hCatD:'Que tipo de palavra é: um animal, um lugar, um sentimento, uma comida…',hFirst:'Primeira letra',hFirstD:'Marca onde o dedo encostou e qual tecla era.',hLast:'Última letra',hLastD:'Marca onde o dedo levantou.',hMid:'Uma letra do meio',hMidD:'Revela uma das letras do meio: fixada no rabisco e colocada na linha que você digita.',hPlace:'Colocar nas teclas',hPlaceD:'Põe o rabisco sobre o teclado real. A grande.',hPlaceLocked:'Bloqueada no modo difícil.',used:'Usada',found:'Já achou',locked:'Bloqueada',earnHow:'Ganhe tinta resolvendo: palavras longas e poucos palpites pagam mais, o modo difícil paga 1,5× e terminar o dia dá um bônus.',
-  d95:'Perfeito.',d85:'Traço limpo.',d70:'Perto. Dá para ler.',d50:'Tosco, mas está aí.',d0:'Isso é outra palavra.',drawBody:'Você desenhou <b>{w}</b> em <b>{a}%</b>: {on} de {n} letras caíram na tecla{hard}. O azul é o traço real.',onHard:', no difícil',earnDraw:'{n} letras × 2 × {a}%',perfectBonus:' + 5 perfeito',hardMult:' × 1,5 difícil',
+  d95:'Perfeito.',d85:'Traço limpo.',d70:'Perto. Dá para ler.',d50:'Tosco, mas está aí.',d0:'Isso é outra palavra.',drawBody:'Você desenhou <b>{w}</b> em <b>{a}%</b>: {on} de {n} letras caíram na tecla{hard}. <i class="ln"></i>é o traço real.',onHard:', no difícil',earnDraw:'{n} letras × 2 × {a}%',perfectBonus:' + 5 perfeito',hardMult:' × 1,5 difícil',
   win1:'De primeira.',win2:'Dois. Afiado.',win3:'Três. Belo traço.',win4:'Quatro. Por pouco.',winX:'Chegou lá, com um pouco de tinta.',lost:'Esse escapou.',readBody:'Você traçou <b>{w}</b> em {g} {gw}{h}{hard}.',guess1:'palpite',guessN:'palpites',withHints:' com {h} {hw}',hint1:'dica',hintN:'dicas',onHard2:' no difícil',lostBody:'Era <b>{w}</b>. Veja onde estava nas teclas.',earnRead:'{n} letras × {m} por resolver em {g}',dayBonus:'bônus do dia',allThree:' · os três resolvidos',streakN:' · sequência {s}',
   nextDrawBtn:'Próximo: desenhe um',nextBtn:'Próximo rabisco · {n} letras',another:'Outro',makeOne:'Faça um para ele',
   tutIdea:'É essa a ideia.',tutReady:'Você está pronto.',tutWas:'Era {w}.',tutBody1:'Dessa vez o rabisco estava bem em cima das teclas. No jogo de verdade você só tem a forma, então o próximo flutua solto.',tutBody2:'Três rabiscos por dia para ler e uma palavra para desenhar. Resolver dá tinta e a tinta compra dicas. Em Ajustes há prática, modo difícil e um jeito de enviar rabiscos aos amigos.',tutPlaySent:'Jogar o que te enviaram',tutPlayToday:'Jogar os de hoje',next:'Próximo',
   tut1:'Esta é a linha que um dedo desenhou digitando por deslize uma palavra de 3 letras. O ponto é onde encostou: no <b>{a}</b>. Deslizou até o <b>{b}</b> e depois até o <b>{c}</b>. Digite <b>{w}</b> e aperte Enter.',tut1b:'Verde é na tecla, âmbar é a do lado, cinza é frio. Tente <b>{w}</b>.',tut2:'Agora pra valer. A mesma ideia, mas você só vê a <b>forma</b>, não onde estava. Mova-a pelo teclado na sua cabeça: que três teclas formam este desenho?',tut2b:'Cada canto diz a que distância caiu da tecla real. Olhe o teclado e tente de novo.',
-  duelWin:'Você venceu.',duelLose:'Venceram você.',duelTie:'Empate.',duelBody:'Você traçou <b>{w}</b> em <b>{me}%</b>; o outro em <b>{them}%</b>. Azul é o traço real, rosa o seu, âmbar o dele.',sendBack:'Devolver seu traço',
+  duelWin:'Você venceu.',duelLose:'Venceram você.',duelTie:'Empate.',duelBody:'Você traçou <b>{w}</b> em <b>{me}%</b>; o outro em <b>{them}%</b>. <i class="ln"></i>traço real, <i class="ln you"></i>o seu, <i class="ln rival"></i>o dele.',sendBack:'Devolver seu traço',
   friendWin:'Você leu.',friendBodyWin:'Um amigo traçou <b>{w}</b> para você e você acertou em {g}. Devolva um.',friendBodyLose:'Traçaram <b>{w}</b>. Devolva um e empate.',sendOneBack:'Devolver um',challengeFriend:'Desafiar um amigo',
   recap:'<b>{s} de 3</b> resolvidos em {t} palpites{d}, <b>{ink} de tinta</b> ganha.',recapTime:'{t} no relógio.',timeOn:'neste rabisco',fastest:'Mais rápido: {t}.',recapDraw:', <b>{w}</b> desenhado em <b>{a}%</b>',ink:'tinta',
   shareTitle:'Compartilhar o traço de hoje',shareAlt:'Cartão de compartilhamento: os três rabiscos de hoje e seus resultados',sharePic:'Compartilhar a imagem',shareText:'Compartilhar texto',copyText:'Copiar texto',longPress:'Segure a imagem para salvar',copied:'Copiado',selectCopy:'Selecione e copie o texto',
   beatTitle:'Supere meu traço',beatBody:'Ele recebe a palavra <b>{w}</b>, desenha às cegas e vê os dois traços lado a lado com o real. Ganha quem passar mais perto.',beatMsg:'Desenhei {w} em {a}%. Supere meu traço: {link}',sendChallenge:'Enviar o desafio',copy:'Copiar',
   canRead:'Consegue ler?',lettersUp:'{n} LETRAS',drew:'Desenhei {w} em {a}%',
-  howTitle:'Como jogar',how1:'Cada rabisco é a linha que um dedo desenha ao <b>digitar por deslize</b> uma palavra no teclado do celular. O ponto é onde encosta; a seta, onde levanta.',how2:'Você vê a forma em <b>tamanho real</b>, mas não onde estava. Um movimento de cinco teclas no teclado abaixo mede cinco teclas aqui. Mova-a pelo teclado na sua cabeça até os cantos caírem em letras que formem uma palavra.',how3:'Digite uma palavra do tamanho certo. Enquanto digita, seu traço aparece em rosa sobre as teclas para comparar a forma antes de confirmar.',how4:'A resposta é <b>distância, não letras</b>. Cada canto do seu palpite diz a que distância caiu da tecla real. Nada diz se uma letra está "em algum lugar da palavra". Só a forma.',how5:'<b>A quarta rodada inverte tudo.</b> Você recebe a palavra e desenha o rabisco de memória, em um traço, sobre as teclas em branco. A nota é o quanto sua linha passa perto do traço real.',howP1:'Três rabiscos para ler (4, 6 e 8 letras, <b>quatro palpites</b> cada) e um para desenhar. Resolver dá <b>tinta</b>: mais por palavras longas e poucos palpites, 1,5× no difícil, e um bônus por terminar o dia.',howP2:'A tinta compra dicas (primeira letra, última letra, uma do meio ou <b>Colocar</b>, que põe o rabisco sobre as teclas reais) e mais um palpite quando acabam. As dicas aparecem ao compartilhar.',howP3:'<b>Modo difícil</b> (em Ajustes): três palpites, sem marcas de início e fim, e Colocar bloqueado.',startTracing:'Começar',legendOn:'Na tecla',legendNear:'Ao lado (uma tecla encostada)',legendCold:'Frio',
+  howTitle:'Como jogar',how1:'Cada rabisco é a linha que um dedo desenha ao <b>digitar por deslize</b> uma palavra no teclado do celular. O ponto é onde encosta; a seta, onde levanta.',how2:'Você vê a forma em <b>tamanho real</b>, mas não onde estava. Um movimento de cinco teclas no teclado abaixo mede cinco teclas aqui. Mova-a pelo teclado na sua cabeça até os cantos caírem em letras que formem uma palavra.',how3:'Digite uma palavra do tamanho certo. Enquanto digita, seu próprio traço aparece sobre as teclas para comparar a forma antes de confirmar.',how4:'A resposta é <b>distância, não letras</b>. Cada canto do seu palpite diz a que distância caiu da tecla real. Nada diz se uma letra está "em algum lugar da palavra". Só a forma. O teclado e o rabisco mostram o que você sabe sobre <b>a casa em que você está</b>; toque em qualquer casa para vê-la.',how5:'<b>A quarta rodada inverte tudo.</b> Você recebe a palavra e desenha o rabisco de memória, em um traço, sobre as teclas em branco. A nota é o quanto sua linha passa perto do traço real.',howP1:'Três rabiscos para ler (4, 6 e 8 letras, <b>quatro palpites</b> cada) e um para desenhar. Resolver dá <b>tinta</b>: mais por palavras longas e poucos palpites, 1,5× no difícil, e um bônus por terminar o dia.',howP2:'A tinta compra dicas (primeira letra, última letra, uma do meio ou <b>Colocar</b>, que põe o rabisco sobre as teclas reais) e mais um palpite quando acabam. As dicas aparecem ao compartilhar.',howP3:'<b>Modo difícil</b> (em Ajustes): três palpites, sem marcas de início e fim, e Colocar bloqueado.',startTracing:'Começar',legendOn:'Na tecla',legendNear:'Ao lado (uma tecla encostada)',legendCold:'Frio',
   statsTitle:'Seus traços',inkAll:'{n} de tinta ganha no total',days:'Dias',solvePct:'Resolvidos',streakL:'Sequência',best:'Melhor',guessesPer:'Palpites por rabisco',drawnTitle:'Rabiscos desenhados',traces:'Traços',avg:'Média',bestPct:'Melhor',perfectDays:'{n} {dw} perfeitos (os três lidos). A sequência conta os dias em que você terminou tudo, desenho incluído.',day1:'dia',dayN:'dias',
   settingsTitle:'Ajustes',settingsBody:'Pratique com o banco de palavras, trace uma palavra para um amigo ou mude como o jogo funciona.',appearance:'Aparência',system:'Sistema',light:'Claro',dark:'Escuro',language:'Idioma',sound:'Som',soundD:'Toques, revelações e uma pequena fanfarra. A vibração continua igual.',hardMode:'Modo difícil',hardD:'Três palpites, sem marcas de início e fim, sem pinos no traço, sem Colocar; a rodada de desenho perde a grade. Paga 1,5× de tinta. Vale para rodadas que você ainda não começou.',hardOn:'Modo difícil ligado',hardOff:'Modo difícil desligado',soundOn:'Som ligado',soundOff:'Som desligado',
   practiceTitle:'Prática',practiceBody:'A prática não mexe na sua sequência nem rende tinta. Tinta vem do jogo do dia.',whichWay:'Em que sentido?',readOne:'Ler um rabisco',drawOne:'Desenhar um rabisco',howLong:'Que tamanho?',mix:'Misto',go:'Vamos',
@@ -862,18 +874,24 @@ function pinMarkup(p,st,txt,delay){
   return `<g class="pin ${st}${delay!==undefined?' anim':''}"${style}>${shape}<text x="${x}" y="${(p.y+2).toFixed(1)}">${txt.toUpperCase()}</text></g>`;
 }
 /* The pins sit on the trace's own corners, inside its floating transform, so they never give away where the key grid is */
-function targetGlyph(word,seed,placed,hard,marks,animG){
+function targetGlyph(word,seed,placed,hard,marks,animG,sel){
   const {pts,loops}=points(word,seed,0.27);
   let inner=traceMarkup(pts,loops,!hard);
+  const at={};pts.forEach(p=>{at[p.i]=p;});
+  for(let i=1;i<word.length;i++) if(!at[i]) at[i]=at[i-1];
+  /* Every corner a guess has told you about gets a small dot in its colour; only the corner for the box you're on
+     carries its letters, so the trace stays readable and you can see which corner the box belongs to. */
   if(marks&&marks.some(Boolean)){
-    const at={};pts.forEach(p=>{at[p.i]=p;});
-    for(let i=1;i<word.length;i++) if(!at[i]) at[i]=at[i-1];
     const byPt=new Map();
-    marks.forEach((m,i)=>{const p=at[i];if(!m||!p)return;let e=byPt.get(p);if(!e){e={ok:null,near:[],i,fresh:false};byPt.set(p,e);}
-      if(m.ok)e.ok=m.ok;else m.near.forEach(c=>{if(!e.near.includes(c))e.near.push(c);});
-      if(animG!==undefined&&m.g===animG)e.fresh=true;});
-    byPt.forEach((e,p)=>{const d=e.fresh?.1+e.i*.07:undefined;inner+=e.ok?pinMarkup(p,'ok',e.ok,d):pinMarkup(p,'near',e.near.slice(-3).join(''),d);});
+    marks.forEach((m,i)=>{const p=at[i];if(!m||!p)return;let e=byPt.get(p);if(!e){e={ok:false,i,fresh:false};byPt.set(p,e);}
+      if(m.ok)e.ok=true;if(animG!==undefined&&m.g===animG)e.fresh=true;});
+    byPt.forEach((e,p)=>{const d=e.fresh?` style="animation-delay:${(.1+e.i*.07).toFixed(2)}s"`:'';
+      inner+=`<circle class="cdot ${e.ok?'ok':'near'}${e.fresh?' anim':''}"${d} cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="15"/>`;});
   }
+  if(sel!==undefined&&at[sel]){const p=at[sel],m=marks&&marks[sel];
+    if(m&&m.ok)inner+=pinMarkup(p,'ok',m.ok);
+    else if(m&&m.near)inner+=pinMarkup(p,'near',m.near.slice(-3).join(''));
+    else inner+=`<circle class="selring" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="30"/>`;}
   return placed?inner:`<g transform="${centerTransform(pts,loops)}">${inner}</g>`;
 }
 function cleanGlyph(word,anim){
@@ -988,7 +1006,7 @@ function renderGlyph(fresh){
   else{
     /* Hard mode keeps the trace unmarked (pins would give away which end is the start); reveal hints still show */
     const marks=r.hard?glyphMarks({g:[],ev:[],rev:r.rev,word:r.word}):glyphMarks(r);
-    s+=targetGlyph(r.word,seedFor(r),r.placed,r.hard,marks,fresh?r.g.length-1:undefined);
+    const si=selIdx(r);s+=targetGlyph(r.word,seedFor(r),r.placed,r.hard,marks,fresh?r.g.length-1:undefined,(r.hard||si>=r.word.length)?undefined:si);
   }
   el('glyph').innerHTML=s;
   el('glyph').classList.remove('draw');el('glyph').setAttribute('viewBox','-20 -20 1040 340');
@@ -1013,7 +1031,7 @@ function renderStatus(msg,err){
   else{m.classList.remove('err');
     const hardTag=r.hard?` · <b>${t('hard')}</b>`:'';
     if(isSentence(r)) m.innerHTML=r.done?t('stSentenceDone'):t('stSentence',{i:r.idx+1,n:r.words.length})+hardTag;
-    else if(isDraw(r)) m.innerHTML=r.done?t('stDrawDone')+(r.ink?t('inkPlus',{n:r.ink}):'')+'.':t('stDraw')+hardTag;
+    else if(isDraw(r)) m.innerHTML=r.done?t('stDrawDone')+(r.ink?t('inkPlus',{n:r.ink})+'.':''):t('stDraw')+hardTag;
     else if(r.done) m.innerHTML=r.won?t('solvedIn',{n:r.g.length})+(r.ink?t('inkPlus',{n:r.ink}):'')+'.':t('wordWas',{w:disp(r.word).toUpperCase()});
     else if(limbo(r)) m.innerHTML=t('outOf');
     else m.innerHTML=t('guessOf',{n:r.word.length,g:r.g.length+1,a:allowed(r)})+hardTag;}
@@ -1034,47 +1052,59 @@ function renderGuesses(fresh,shake){
   if(!r.done)fillKnown(r); /* a revealed first letter is in place before you type, so the cursor visibly sits after it */
   for(let gi=0;gi<allowed(r);gi++){
     if(gi<r.g.length){s+=`<div class="row${fresh&&gi===r.g.length-1?' fresh':''}" style="--n:${n}">`+[...r.g[gi]].map((c,i)=>`<div class="tile ${r.ev[gi][i]}" style="--i:${i}">${c}</div>`).join('')+'</div>';}
-    else if(gi===r.g.length&&!r.done){s+=`<div class="row${shake?' shake':''}" style="--n:${n}">`+Array.from({length:n},(_,i)=>{const known=r.rev.includes(i);
-      if(i<S.cur.length)return `<div class="tile typed${known?' given':''}">${S.cur[i]}</div>`;
-      return known?`<div class="tile ghost" aria-label="Revealed letter">${r.word[i]}</div>`:'<div class="tile empty"></div>';}).join('')+'</div>';}
+    else if(gi===r.g.length&&!r.done){const si=selIdx(r);s+=`<div class="row live${shake?' shake':''}" style="--n:${n}">`+Array.from({length:n},(_,i)=>{const known=r.rev.includes(i),sl=i===si?' sel':'',ch=S.cur[i];
+      if(ch&&ch!==' ')return `<div class="tile typed${known?' given':''}${sl}" data-s="${i}">${ch}</div>`;
+      return known?`<div class="tile ghost" aria-label="Revealed letter">${r.word[i]}</div>`:`<div class="tile empty${sl}" data-s="${i}"></div>`;}).join('')+'</div>';}
     else{s+=`<div class="row" style="--n:${n}">`+Array.from({length:n},()=>`<div class="tile empty"></div>`).join('')+'</div>';}
   }
   host.innerHTML=s;
+  host.onclick=e=>{const b=e.target.closest('.row.live .tile[data-s]');if(!b)return;const r=cur(),i=+b.dataset.s;
+    if(r.done||isDraw(r)||r.rev.includes(i))return;r.sel=i;refreshTyping();haptic('light');};
 }
-/* Keyboard marks are geometric: a key goes green once a corner landed on it; a key gets an amber halo when a corner
-   landed next door to it (the real key is one of its neighbours). Cold keys are left alone, because a cold corner says
-   nothing about that key at other positions. */
+/* Keyboard marks are geometric and belong to one box: the box you're on. Green = a guess landed on this key in this box;
+   amber halo = a guess here was next door (the real key touches it); dimmed = a guess here was cold (not this key, not
+   its neighbours). Marks from other boxes stay off the keyboard, so a green key never means "somewhere in the word". */
 function renderKeyboard(){
-  const r=cur(),hit=new Set(),warm=new Set();
-  r.g.forEach((g,gi)=>[...g].forEach((c,i)=>{const e=r.ev[gi][i];if(e==='ok')hit.add(c);else if(e==='near')warm.add(c);}));
-  const kb=el('kb');
+  const r=cur(),kb=el('kb');
   if(!kb.dataset.built){
     kb.innerHTML=ROWS.map((row,ri)=>`<div class="kbrow r${ri}"${ri===1&&row.length>=10?' style="padding:0 2px"':''}>`+(ri===2?`<button class="key wide" data-k="enter">${t('enter')}</button>`:'')+[...row].map(c=>`<button class="key" data-k="${c}">${c}</button>`).join('')+(ri===2?`<button class="key wide" data-k="back" aria-label="${t('del')}"><svg viewBox="0 0 24 24"><path d="M10 5a2 2 0 0 0-1.344.519l-6.328 5.74a1 1 0 0 0 0 1.481l6.328 5.741A2 2 0 0 0 10 19h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" /><path d="m12 9 6 6" /><path d="m18 9-6 6" /></svg></button>`:'')+'</div>').join('')+`<svg class="kbtrace" id="kbtrace" aria-hidden="true"></svg>`;
     kb.dataset.built='1';
     kb.onclick=e=>{const b=e.target.closest('.key');if(b)onKey(b.dataset.k);};
   }
   kb.hidden=isDraw(r);
-  r.rev.forEach(i=>hit.add(r.word[i]));
-  kb.querySelectorAll('.key').forEach(b=>{const c=b.dataset.k;b.className='key'+(c==='enter'||c==='back'?' wide':'')+(hit.has(c)?' ok':(warm.has(c)&&!r.done?' near':''));});
+  paintKeys(r);
   renderTrace();
+}
+function slotMarks(r,i){
+  const m={ok:null,near:new Set(),cold:new Set()};if(r.done||isDraw(r)||i>=r.word.length)return m;
+  if(r.rev.includes(i))m.ok=r.word[i];
+  r.g.forEach((g,gi)=>{const e=r.ev[gi][i],c=g[i];if(e==='ok')m.ok=c;else if(e==='near')m.near.add(c);else m.cold.add(c);});
+  return m;
+}
+function paintKeys(r){
+  const kb=el('kb');if(!kb||!kb.dataset.built)return;
+  const m=slotMarks(r,selIdx(r));
+  kb.querySelectorAll('.key').forEach(b=>{const c=b.dataset.k,wide=c==='enter'||c==='back';
+    b.className='key'+(wide?' wide':'')+(wide?'':m.ok?(m.ok===c?' ok':''):(m.near.has(c)?' near':m.cold.has(c)?' cold':''));});
 }
 /* Live trace: the word being typed is drawn across the real keys, so you can compare its shape to the squiggle before you commit. */
 function renderTrace(){
   const svg=el('kbtrace'),kb=el('kb');if(!svg)return;
-  const r=cur(),typed=r&&!r.done&&[...S.cur].some((c,i)=>!r.rev.includes(i)),last=(r&&!r.done&&!typed&&r.g.length)?r.g[r.g.length-1]:'',w=(r&&!r.done)?(typed?S.cur:(last||S.cur)):'';
+  const r=cur(),typed=r&&!r.done&&[...S.cur].some((c,i)=>c!==' '&&!r.rev.includes(i)),last=(r&&!r.done&&!typed&&r.g.length)?r.g[r.g.length-1]:'',w=(r&&!r.done)?(typed?S.cur:(last||S.cur)):'';
   svg.classList.remove('last');if(last&&!typed){void svg.getBoundingClientRect();svg.classList.add('last');}
-  if(w.length<1){svg.innerHTML='';return;}
+  if(!w.trim()){svg.innerHTML='';return;}
   const R=kb.getBoundingClientRect();if(!R.width){svg.innerHTML='';return;}
   svg.setAttribute('viewBox',`0 0 ${R.width} ${R.height}`);
-  const pts=[],loops=[];
+  const pts=[],loops=[],runs=[[]];
   for(let i=0;i<w.length;i++){
+    if(w[i]===' '){if(runs[runs.length-1].length)runs.push([]);continue;}
     const b=kb.querySelector(`.key[data-k="${w[i]}"]`);if(!b)continue;
     const k=b.getBoundingClientRect(),x=k.left-R.left+k.width/2,y=k.top-R.top+k.height/2;
     if(i>0&&w[i-1]===w[i]){loops.push(pts.length-1);continue;}
-    pts.push({x,y,ch:w[i],i});
+    const p={x,y,ch:w[i],i};pts.push(p);runs[runs.length-1].push(p);
   }
   const kw=pts.length?kb.querySelector('.key').getBoundingClientRect().width:40;
-  let s=`<path class="tr" d="${curve(pts)}"/>`;
+  let s=runs.filter(x=>x.length).map(x=>`<path class="tr" d="${curve(x)}"/>`).join('');
   loops.forEach(i=>{const p=pts[i];s+=`<circle class="trloop" cx="${(p.x+kw*.18).toFixed(1)}" cy="${(p.y-kw*.2).toFixed(1)}" r="${(kw*.22).toFixed(1)}"/>`;});
   if(pts.length) s+=`<circle class="trstart" cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="${(kw*.14).toFixed(1)}"/>`;
   svg.innerHTML=s;
@@ -1277,13 +1307,29 @@ const viewItem=r=>{const it=r.items[r.view]||r.items[0];return {word:it.word,str
 
 /* ---------- Input ---------- */
 /* Revealed letters live in the row being typed: a ghost until the cursor reaches them, then they snap in and you type on past */
-function fillKnown(r){while(S.cur.length<r.word.length&&r.rev.includes(S.cur.length))S.cur+=r.word[S.cur.length];}
+/* The word being typed is S.cur; a space marks a box you skipped. Revealed letters sit in their boxes from the start. */
+function fillKnown(r){const n=r.word.length;let a=[...S.cur.padEnd(n,' ')].slice(0,n);r.rev.forEach(i=>{a[i]=r.word[i];});S.cur=a.join('').replace(/ +$/,'');}
+const blank=i=>!S.cur[i]||S.cur[i]===' ';
+function firstBlank(r,from){const n=r.word.length;for(let k=0;k<n;k++){const i=((from||0)+k)%n;if(blank(i)&&!r.rev.includes(i))return i;}return n;}
+/* The box you're on: the one you tapped, or else the first empty box */
+function selIdx(r){if(!r||isDraw(r))return 0;const n=r.word.length;
+  if(r.sel!=null&&r.sel<n&&!r.rev.includes(r.sel))return r.sel;return firstBlank(r,0);}
+function setAt(i,ch){const a=[...S.cur.padEnd(i+1,' ')];a[i]=ch;S.cur=a.join('').replace(/ +$/,'');}
+function refreshTyping(){const r=cur();renderGuesses();paintKeys(r);renderGlyph();renderTrace();}
 function onKey(k){
   const r=cur(); if(r.done||isDraw(r)) return;
   if(limbo(r)) return resolveLimbo(r);
   if(k==='enter') return submit();
-  if(k==='back'){while(S.cur.length&&r.rev.includes(S.cur.length-1))S.cur=S.cur.slice(0,-1);S.cur=S.cur.slice(0,-1);renderGuesses();renderTrace();haptic('light');sfx('back');return;}
-  if(k.length===1&&L.alpha.includes(k)&&S.cur.length<r.word.length){fillKnown(r);if(S.cur.length<r.word.length)S.cur+=k;fillKnown(r);renderGuesses();renderTrace();haptic('light');sfx('tap');}
+  const n=r.word.length;fillKnown(r);
+  if(k==='back'){
+    let i=selIdx(r);
+    if(i>=n||blank(i)){i=-1;for(let j=Math.min(selIdx(r),n)-1;j>=0;j--)if(!blank(j)&&!r.rev.includes(j)){i=j;break;}}
+    if(i<0){for(let j=n-1;j>=0;j--)if(!blank(j)&&!r.rev.includes(j)){i=j;break;}}
+    if(i>=0){setAt(i,' ');r.sel=i;}
+    refreshTyping();haptic('light');sfx('back');return;}
+  if(k.length===1&&L.alpha.includes(k)){const i=selIdx(r);if(i>=n)return;
+    setAt(i,k);fillKnown(r);const nx=firstBlank(r,i+1);r.sel=nx<n?nx:null;
+    refreshTyping();haptic('light');sfx('tap');}
 }
 document.addEventListener('keydown',e=>{
   if(e.metaKey||e.ctrlKey||e.altKey) return;
@@ -1292,10 +1338,10 @@ document.addEventListener('keydown',e=>{
 });
 function submit(){
   const r=cur(),n=r.word.length;
-  if(S.cur.length<n){renderStatus(t('needs',{n}),true);renderGuesses(false,true);sfx('bad');return;}
+  fillKnown(r);if(S.cur.length<n||S.cur.includes(' ')){r.sel=null;renderStatus(t('needs',{n}),true);renderGuesses(false,true);paintKeys(r);renderGlyph();sfx('bad');return;}
   if(S.mode!=='custom'&&!validGuess(S.cur)){renderStatus(t('notInList'),true);renderGuesses(false,true);haptic('error');sfx('bad');return;}
   const ev=evaluate(S.cur,r.word);
-  r.g.push(S.cur);r.ev.push(ev);S.cur='';
+  r.g.push(S.cur);r.ev.push(ev);S.cur='';r.sel=null;
   const won=ev.every(e=>e==='ok');
   if(won){finishRound(r,true);return;}
   if(r.g.length>=allowed(r)){
