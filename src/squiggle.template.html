@@ -183,7 +183,6 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .glyph .pin text{fill:var(--onstatus);font-family:var(--display);font-weight:700;font-size:38px;text-anchor:middle;dominant-baseline:central}
 .glyph .cdot{stroke:var(--surface);stroke-width:5} .glyph .cdot.ok{fill:var(--ok)} .glyph .cdot.near{fill:var(--near)}
 .glyph .cdot.anim{transform-box:fill-box;transform-origin:center;animation:pop .36s cubic-bezier(.2,1.4,.4,1) both}
-.glyph .selring{fill:none;stroke:var(--guess);stroke-width:6}
 .glyph .pin.anim{transform-box:fill-box;transform-origin:center;animation:pop .36s cubic-bezier(.2,1.4,.4,1) both}
 .glyph .clean{fill:none;stroke:var(--ink);stroke-width:9;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
 .glyph .lab circle{fill:var(--surface);stroke:var(--ink);stroke-width:5}
@@ -890,8 +889,8 @@ function targetGlyph(word,seed,placed,hard,marks,animG,sel){
   }
   if(sel!==undefined&&at[sel]){const p=at[sel],m=marks&&marks[sel];
     if(m&&m.ok)inner+=pinMarkup(p,'ok',m.ok);
-    else if(m&&m.near)inner+=pinMarkup(p,'near',m.near.slice(-3).join(''));
-    else inner+=`<circle class="selring" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="30"/>`;}
+    else if(m&&m.near)inner+=pinMarkup(p,'near',m.near.slice(-3).join(''));}
+  /* No marker for a box nothing is known about yet: pointing at its spot on the line would give away where that letter sits */
   return placed?inner:`<g transform="${centerTransform(pts,loops)}">${inner}</g>`;
 }
 function cleanGlyph(word,anim){
