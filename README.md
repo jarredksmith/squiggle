@@ -116,3 +116,6 @@ The web copy also carries a Smart App Banner (`apple-itunes-app` meta, web build
 ## Word pools
 
 Daily words walk a fixed shuffle of each pool (`cycle()` in the template), so a word can't come back until every other word of that length has had its day: with today's English pools that is about 290 days for 4 letters, 250 for 6 and 210 for 8. Practice deals from a shuffled deck saved on the device, skips today's daily words, and only reshuffles once the whole pool has been played. Adding words to a pool changes the daily sequence from that day on, which is fine; removing or reordering words in the first week's `week` list is not, since those are already in people's history.
+
+### Answer overviews
+Every pack word and title has a one-line overview (`PACK_ABOUT` in the template: name, line, Wikipedia article). It shows on the result sheet with a "Read more on Wikipedia" link, and after you close the sheet the clue pill turns into the answer's name; tap it to see the overview again. `scripts/check-data.mjs` fails if a pack word has no overview, so new pack words need one.
