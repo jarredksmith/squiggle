@@ -34,6 +34,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - name: Run it on a phone emulator and take screenshots
+        timeout-minutes: 15
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -41,6 +42,8 @@ jobs:
           arch: x86_64
           profile: pixel_7
           disable-animations: true
+          ram-size: 4096M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
           script: bash ios-app/android/emulator-check.sh
       - uses: actions/upload-artifact@v4
         if: always()
