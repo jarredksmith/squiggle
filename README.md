@@ -119,3 +119,11 @@ Daily words walk a fixed shuffle of each pool (`cycle()` in the template), so a 
 
 ### Answer overviews
 Every pack word and title has a one-line overview (`PACK_ABOUT` in the template: name, line, Wikipedia article). It shows on the result sheet with a "Read more on Wikipedia" link, and after you close the sheet the clue pill turns into the answer's name; tap it to see the overview again. `scripts/check-data.mjs` fails if a pack word has no overview, so new pack words need one.
+
+## Android app
+The Capacitor project in `ios-app/` also holds the Android app (`ios-app/android`), built from the same web game.
+- **Every push** runs `.github/workflows/android.yml`, which makes an installable debug APK (Actions > Android app > a run > Artifacts > `squiggle-apk`).
+- **Google Play** needs a signed bundle: add the repository secrets `ANDROID_KEYSTORE_B64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD` (your upload key) and the same workflow also makes `squiggle-play-bundle`. Add `PLAY_SERVICE_ACCOUNT_JSON` to push each bundle to Internal testing automatically (the first upload must be done by hand in Play Console).
+- Icons and splash: `node scripts/android-icons.mjs` redraws them from `brand/`.
+- Shared-squiggle links open the app once `https://jarredksmith.github.io/.well-known/assetlinks.json` lists the app's Play signing certificate (Play Console > Test and release > App integrity).
+- `.github/workflows/android-check.yml` (run by hand) boots an emulator and saves screenshots; GitHub's emulators are flaky, so a failed run there doesn't by itself mean the app is broken.
