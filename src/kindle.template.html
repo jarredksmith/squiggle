@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Squiggle for Kindle</title>
+<!--
+  Squiggle, e-ink edition. Built from src/kindle.template.html by scripts/build-kindle.mjs.
+  Written for the Kindle browser: ES5 only (no arrow functions, let/const, template strings or spread),
+  no animation or transitions (every repaint is a flash on e-ink), black and white only, big tap targets.
+  The daily words and traces use the same seed maths as the phone game, so both show the same puzzle.
+-->
+<style>
+html,body{margin:0;padding:0;background:#fff;color:#000}
+body{font-family:Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:rgba(0,0,0,0)}
+#app{max-width:980px;margin:0 auto;padding:12px 16px 20px;box-sizing:border-box}
+button{font-family:inherit;color:#000;background:#fff;border:3px solid #000;border-radius:12px;margin:0;padding:0;cursor:pointer;-webkit-appearance:none}
+.top{display:table;width:100%;border-bottom:3px solid #000;padding-bottom:8px}
+.top>div{display:table-cell;vertical-align:middle}
+.brand{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:bold;font-size:44px;letter-spacing:-1px}
+.brand small{font-family:Helvetica,Arial,sans-serif;font-style:normal;font-weight:normal;font-size:18px;letter-spacing:0;margin-left:10px}
+.topbtns{text-align:right;white-space:nowrap}
+.topbtns button{font-size:20px;padding:10px 16px;margin-left:8px}
+.sub{font-size:20px;margin:10px 0 6px}
+.tabs{margin:6px 0 10px}
+.tab{display:inline-block;font-size:20px;padding:8px 14px;margin-right:8px;border:2px solid #000;border-radius:10px}
+.tab.on{background:#000;color:#fff}
+.tab.done{border-style:dashed}
+.board{border:3px solid #000;border-radius:16px;padding:6px;position:relative}
+.board svg{display:block;width:100%;height:auto}
+.pill{font-size:20px;margin:8px 0 0;min-height:26px}
+.pill span{display:inline-block;border:2px solid #000;border-radius:20px;padding:4px 14px;margin-right:8px}
+.grid{margin:12px auto 0;text-align:center}
+.row{white-space:nowrap;margin-bottom:8px}
+.t{display:inline-block;vertical-align:top;box-sizing:border-box;width:74px;height:74px;line-height:68px;margin:0 3px;font-size:40px;font-weight:bold;text-transform:uppercase;border:2px solid #000;border-radius:10px;background:#fff;text-align:center}
+.t.ok{background:#000;color:#fff;border-color:#000}
+.t.near{background:#c8c8c8;border:4px dashed #000;line-height:64px}
+.t.no{color:#555;border-color:#888}
+.t.cur{border-width:4px;line-height:64px}
+.t.ghost{color:#aaa}
+.t.next{border-width:5px;line-height:62px}
+.n8 .t{width:62px;height:66px;line-height:60px;font-size:34px;margin:0 2px}
+.n8 .t.near,.n8 .t.cur{line-height:56px}
+.n8 .t.next{line-height:54px}
+.msg{font-size:24px;text-align:center;min-height:34px;margin:8px 0;font-weight:bold}
+.kb{margin-top:6px}
+.kr{text-align:center;white-space:nowrap;margin-bottom:8px}
+.k{display:inline-block;vertical-align:top;width:8.6%;height:78px;margin:0 0.5%;font-size:34px;font-weight:bold;text-transform:uppercase;box-sizing:border-box}
+.k.wide{width:13.6%;font-size:22px}
+.k.used{background:#e2e2e2}
+.acts{text-align:center;margin-top:10px}
+.acts button{font-size:24px;padding:16px 22px;margin:6px}
+.acts button.primary{background:#000;color:#fff}
+.sheet{border:3px solid #000;border-radius:16px;padding:18px 20px;margin-top:12px}
+.sheet h2{margin:0 0 10px;font-size:30px}
+.sheet p{font-size:22px;line-height:1.4;margin:0 0 12px}
+.hint{display:block;width:100%;text-align:left;font-size:24px;padding:16px 18px;margin:0 0 10px}
+.hint b{float:right;font-weight:normal;font-size:20px}
+.hint.used{background:#e2e2e2;border-style:dashed}
+.res{font-size:24px;margin:0 0 10px;line-height:1.4}
+.res b{text-transform:uppercase}
+.legend .t{width:46px;height:46px;line-height:40px;font-size:24px;vertical-align:middle}
+.legend .t.near{line-height:36px}
+.big{font-size:56px;font-weight:bold;text-align:center;margin:14px 0;letter-spacing:4px;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ---------- Data injected by the build ---------- */
+var DATA = __KINDLE_DATA__;
+var DICT = "|" + __KINDLE_DICT__ + "|";
+
+/* ---------- Old-engine safety ---------- */
+if (!Math.imul) Math.imul = function (a, b) { var ah = (a >>> 16) & 0xffff, al = a & 0xffff, bh = (b >>> 16) & 0xffff, bl = b & 0xffff; return ((al * bl) + (((ah * bl + al * bh) << 16) >>> 0) | 0); };
+function store(k, v) {
+  try {
+    if (v === undefined) { var s = window.localStorage.getItem(k); return s ? JSON.parse(s) : null; }
+    window.localStorage.setItem(k, JSON.stringify(v));
+  } catch (e) { return null; }
+  return null;
+}
+function el(id) { return document.getElementById(id); }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function inArr(a, x) { for (var i = 0; i < a.length; i++) if (a[i] === x) return true; return false; }
+
+/* ---------- Keyboard geometry (same as the phone game) ---------- */
+var U = 100, POS = {}, ROWS = DATA.rows, OFF = DATA.off;
+for (var ri = 0; ri < ROWS.length; ri++) for (var ci = 0; ci < ROWS[ri].length; ci++) POS[ROWS[ri].charAt(ci)] = { x: (ci + OFF[ri] + 0.5) * U, y: (ri + 0.5) * U };
+
+/* ---------- Seeds and daily words (must match src/squiggle.template.html exactly) ---------- */
+function hash(str) { var h = 1779033703 ^ str.length; for (var i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; } return h >>> 0; }
+function rng(seed) { var a = seed >>> 0; return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+var EPOCH = new Date(2026, 9, 15);
+function todayIndex() { var n = new Date(); var d0 = new Date(n.getFullYear(), n.getMonth(), n.getDate()); return Math.max(0, Math.round((d0 - EPOCH) / 864e5)); }
+var cycCache = {};
+function cycle(len, salt) {
+  var key = len + ':' + salt; if (cycCache[key]) return cycCache[key];
+  var p = DATA.pool[len], r = rng(hash('cycle:en:' + len + ':' + salt)), o = [], i, j, tmp, out = [];
+  for (i = 0; i < p.length; i++) o.push(i);
+  for (i = o.length - 1; i > 0; i--) { j = Math.floor(r() * (i + 1)); tmp = o[i]; o[i] = o[j]; o[j] = tmp; }
+  for (i = 0; i < o.length; i++) out.push(p[o[i]]);
+  cycCache[key] = out; return out;
+}
+function dailyWords(day) {
+  if (day < DATA.week.length) return DATA.week[day].slice();
+  var d = day - DATA.week.length, out = [], lens = [4, 6, 8];
+  for (var i = 0; i < 3; i++) { var c = cycle(lens[i], 'read'); out.push(c[d % c.length]); }
+  return out;
+}
+function dailyDrawWord(day) {
+  if (day < DATA.drawWeek.length) return DATA.drawWeek[day];
+  var d = day - DATA.drawWeek.length, c = cycle(6, 'draw'), read = dailyWords(day)[1], w = c[d % c.length];
+  if (w === read) w = c[(d + 1) % c.length];
+  return w;
+}
+
+/* ---------- Trace geometry (same as the phone game) ---------- */
+function points(word, seed, jit) {
+  var r = rng(hash(seed)), pts = [], loops = [];
+  for (var i = 0; i < word.length; i++) {
+    var ch = word.charAt(i), p = POS[ch]; if (!p) continue;
+    var jx = (r() * 2 - 1) * jit * U, jy = (r() * 2 - 1) * jit * U;
+    if (i > 0 && word.charAt(i - 1) === ch) { loops.push(pts.length - 1); continue; }
+    pts.push({ x: p.x + jx, y: p.y + jy, ch: ch, i: i });
+  }
+  return { pts: pts, loops: loops };
+}
+function f1(n) { return Math.round(n * 10) / 10; }
+function curve(pts) {
+  if (!pts.length) return '';
+  if (pts.length === 1) return 'M' + f1(pts[0].x) + ' ' + f1(pts[0].y);
+  if (pts.length === 2) return 'M' + f1(pts[0].x) + ' ' + f1(pts[0].y) + 'L' + f1(pts[1].x) + ' ' + f1(pts[1].y);
+  var P = [pts[0]].concat(pts, [pts[pts.length - 1]]), d = 'M' + f1(pts[0].x) + ' ' + f1(pts[0].y);
+  for (var i = 1; i < P.length - 2; i++) {
+    var p0 = P[i - 1], p1 = P[i], p2 = P[i + 1], p3 = P[i + 2];
+    d += 'C' + f1(p1.x + (p2.x - p0.x) / 6) + ' ' + f1(p1.y + (p2.y - p0.y) / 6) + ' ' + f1(p2.x - (p3.x - p1.x) / 6) + ' ' + f1(p2.y - (p3.y - p1.y) / 6) + ' ' + f1(p2.x) + ' ' + f1(p2.y);
+  }
+  return d;
+}
+function endChevron(pts) {
+  if (pts.length < 2) return '';
+  var a = pts[pts.length - 2], b = pts[pts.length - 1], ang = Math.atan2(b.y - a.y, b.x - a.x), L = 34, w = 0.7;
+  return 'M' + f1(b.x - L * Math.cos(ang - w)) + ' ' + f1(b.y - L * Math.sin(ang - w)) + 'L' + f1(b.x) + ' ' + f1(b.y) + 'L' + f1(b.x - L * Math.cos(ang + w)) + ' ' + f1(b.y - L * Math.sin(ang + w));
+}
+function bbox(pts, loops) {
+  var xs = [], ys = [], i, k;
+  if (pts.length <= 2) { for (i = 0; i < pts.length; i++) { xs.push(pts[i].x); ys.push(pts[i].y); } }
+  else {
+    var P = [pts[0]].concat(pts, [pts[pts.length - 1]]); xs.push(pts[0].x); ys.push(pts[0].y);
+    for (i = 1; i < P.length - 2; i++) {
+      var p0 = P[i - 1], p1 = P[i], p2 = P[i + 1], p3 = P[i + 2];
+      var c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6, c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
+      for (k = 1; k <= 10; k++) { var t = k / 10, m = 1 - t; xs.push(m * m * m * p1.x + 3 * m * m * t * c1x + 3 * m * t * t * c2x + t * t * t * p2.x); ys.push(m * m * m * p1.y + 3 * m * m * t * c1y + 3 * m * t * t * c2y + t * t * t * p2.y); }
+    }
+  }
+  for (i = 0; i < loops.length; i++) { var q = pts[loops[i]]; xs.push(q.x - 8, q.x + 36); ys.push(q.y - 34, q.y + 10); }
+  return { x0: Math.min.apply(null, xs), y0: Math.min.apply(null, ys), x1: Math.max.apply(null, xs), y1: Math.max.apply(null, ys) };
+}
+
+/* ---------- Drawing in black and white ---------- */
+var SVG_OPEN = '<svg viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg">';
+function keyCells(letters) {
+  var s = '';
+  for (var ch in POS) {
+    var p = POS[ch];
+    s += '<rect x="' + (p.x - 44) + '" y="' + (p.y - 44) + '" width="88" height="88" rx="14" fill="none" stroke="#999" stroke-width="3"/>';
+    if (letters) s += '<text x="' + p.x + '" y="' + (p.y + 13) + '" font-size="38" text-anchor="middle" fill="#888" font-family="Helvetica,Arial,sans-serif">' + ch.toUpperCase() + '</text>';
+  }
+  return s;
+}
+function pin(p, kind, txt) {
+  var x = f1(p.x), y = f1(p.y), w = txt.length <= 1 ? 0 : txt.length * 26 + 24, shape;
+  var fill = kind === 'ok' ? '#000' : '#fff', tc = kind === 'ok' ? '#fff' : '#000', dash = kind === 'ok' ? '' : ' stroke-dasharray="10 7"';
+  if (!w) shape = '<circle cx="' + x + '" cy="' + y + '" r="30" fill="' + fill + '" stroke="#000" stroke-width="5"' + dash + '/>';
+  else shape = '<rect x="' + f1(p.x - w / 2) + '" y="' + f1(p.y - 30) + '" width="' + w + '" height="60" rx="30" fill="' + fill + '" stroke="#000" stroke-width="5"' + dash + '/>';
+  return shape + '<text x="' + x + '" y="' + f1(p.y + 12) + '" font-size="34" font-weight="bold" text-anchor="middle" fill="' + tc + '" font-family="Helvetica,Arial,sans-serif">' + esc(txt.toUpperCase()) + '</text>';
+}
+/* What the guesses have pinned to each corner of the trace: a black pin once a guess landed on the key,
+   a dashed pin listing the letters that were one key away. */
+function marksFor(r) {
+  var m = [], gi, i;
+  for (gi = 0; gi < r.g.length; gi++) for (i = 0; i < r.g[gi].length; i++) {
+    var c = r.g[gi].charAt(i), e = r.ev[gi][i];
+    if (e === 'ok') m[i] = { ok: c };
+    else if (e === 'near' && !(m[i] && m[i].ok)) { if (!m[i]) m[i] = { near: [] }; if (!inArr(m[i].near, c)) m[i].near.push(c); }
+  }
+  for (i = 0; i < r.rev.length; i++) m[r.rev[i]] = { ok: r.word.charAt(r.rev[i]) };
+  return m;
+}
+function traceSvg(r, seed) {
+  var tp = points(r.word, seed, 0.27), pts = tp.pts, loops = tp.loops, d = curve(pts), s = '', i;
+  s += '<path d="' + d + '" fill="none" stroke="#000" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>';
+  for (i = 0; i < loops.length; i++) { var lp = pts[loops[i]]; s += '<circle cx="' + f1(lp.x + 14) + '" cy="' + f1(lp.y - 12) + '" r="22" fill="none" stroke="#000" stroke-width="7"/>'; }
+  if (!r.hard) {
+    s += '<circle cx="' + f1(pts[0].x) + '" cy="' + f1(pts[0].y) + '" r="20" fill="#fff" stroke="#000" stroke-width="8"/>';
+    s += '<path d="' + endChevron(pts) + '" fill="none" stroke="#000" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+  var at = {}, m = marksFor(r), drawn = {};
+  for (i = 0; i < pts.length; i++) at[pts[i].i] = pts[i];
+  for (i = 1; i < r.word.length; i++) if (!at[i]) at[i] = at[i - 1];
+  for (i = 0; i < r.word.length; i++) {
+    var mk = m[i], p = at[i]; if (!mk || !p) continue;
+    var key = p.i; if (drawn[key] && drawn[key] === 'ok') continue;
+    if (mk.ok) { s += pin(p, 'ok', mk.ok); drawn[key] = 'ok'; }
+    else if (!drawn[key]) { s += pin(p, 'near', mk.near.slice(-3).join('')); drawn[key] = 'near'; }
+  }
+  if (r.placed) return SVG_OPEN + keyCells(true) + s + '</svg>';
+  var b = bbox(pts, loops);
+  return SVG_OPEN + '<g transform="translate(' + f1(500 - (b.x0 + b.x1) / 2) + ' ' + f1(150 - (b.y0 + b.y1) / 2) + ')">' + s + '</g></svg>';
+}
+/* After a round ends: the word on the real keys, with its clean trace */
+function revealSvg(word) {
+  var tp = points(word, 'x', 0), s = keyCells(false), i;
+  s += '<path d="' + curve(tp.pts) + '" fill="none" stroke="#000" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>';
+  for (i = 0; i < word.length; i++) { var p = POS[word.charAt(i)]; s += '<circle cx="' + p.x + '" cy="' + p.y + '" r="32" fill="#fff" stroke="#000" stroke-width="5"/><text x="' + p.x + '" y="' + (p.y + 12) + '" font-size="34" font-weight="bold" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">' + word.charAt(i).toUpperCase() + '</text>'; }
+  return SVG_OPEN + s + '</svg>';
+}
+
+/* ---------- Scoring: distance on the keyboard, not letter presence ---------- */
+var TOUCH = 118, GUESSES = 4, HARD_GUESSES = 3;
+function evaluate(guess, target) {
+  var res = [];
+  for (var i = 0; i < target.length; i++) {
+    var p = POS[guess.charAt(i)], q = POS[target.charAt(i)], d = Math.sqrt((p.x - q.x) * (p.x - q.x) + (p.y - q.y) * (p.y - q.y));
+    res.push(d === 0 ? 'ok' : (d <= TOUCH ? 'near' : 'no'));
+  }
+  return res;
+}
+function validGuess(w) { return DICT.indexOf('|' + w + '|') >= 0; }
+function catOf(w) { return DATA.catOf[w] || ''; }
+
+/* ---------- State ---------- */
+var S = { mode: 'daily', day: todayIndex(), rounds: [], round: 0, cur: '', view: 'game', msg: '', hard: !!store('sqk.hard') };
+function makeRound(word) { return { word: word, g: [], ev: [], rev: [], placed: false, cat: false, hints: [], hard: S.hard, done: false, won: false }; }
+function cur() { return S.rounds[S.round]; }
+function allowed(r) { return r.hard ? HARD_GUESSES : GUESSES; }
+function seedFor(r) { return S.mode === 'daily' ? 'd' + S.day + ':' + r.word : 'practice:' + r.word + ':' + S.rounds.length; }
+function loadDaily() {
+  S.mode = 'daily'; S.day = todayIndex(); S.cur = ''; S.msg = '';
+  var sv = store('sqk.daily.v1');
+  if (sv && sv.day === S.day && sv.rounds && sv.rounds.length === 3) { S.rounds = sv.rounds; S.round = sv.round || 0; }
+  else { var w = dailyWords(S.day); S.rounds = [makeRound(w[0]), makeRound(w[1]), makeRound(w[2])]; S.round = 0; }
+  S.view = allDone() ? 'done' : 'game';
+}
+function saveDaily() { if (S.mode === 'daily') store('sqk.daily.v1', { day: S.day, round: S.round, rounds: S.rounds }); }
+function allDone() { for (var i = 0; i < S.rounds.length; i++) if (!S.rounds[i].done) return false; return true; }
+function getStats() { return store('sqk.stats.v1') || { days: 0, streak: 0, best: 0, lastDay: null, solved: 0, played: 0 }; }
+function recordDay() {
+  var st = getStats(); if (st.lastDay === S.day) return;
+  st.days++; st.streak = (st.lastDay === S.day - 1) ? st.streak + 1 : 1; st.best = Math.max(st.best, st.streak); st.lastDay = S.day;
+  for (var i = 0; i < S.rounds.length; i++) { st.played++; if (S.rounds[i].won) st.solved++; }
+  store('sqk.stats.v1', st);
+}
+function startPractice(len) {
+  var lens = len ? [len] : [4, 6, 8], L = lens[Math.floor(Math.random() * lens.length)], p = DATA.pool[L], today = dailyWords(todayIndex()), w;
+  do { w = p[Math.floor(Math.random() * p.length)]; } while (inArr(today, w) || w === dailyDrawWord(todayIndex()));
+  S.mode = 'practice'; S.practiceLen = len; S.rounds = [makeRound(w)]; S.round = 0; S.cur = ''; S.msg = ''; S.view = 'game'; render();
+}
+
+/* ---------- Rendering ---------- */
+function fmtDate(day) { var d = new Date(EPOCH.getTime()); d.setDate(d.getDate() + day); var W = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; return W[d.getDay()] + ' ' + M[d.getMonth()] + ' ' + d.getDate(); }
+function header() {
+  return '<div class="top"><div class="brand">Squiggle<small>for Kindle</small></div><div class="topbtns">' +
+    '<button onclick="go(\'daily\')">Today</button><button onclick="go(\'practice\')">Practice</button><button onclick="go(\'help\')">?</button></div></div>';
+}
+function tabs() {
+  if (S.mode !== 'daily') return '<div class="sub">Practice · ' + cur().word.length + ' letters · doesn\'t touch your streak</div>';
+  var s = '<div class="sub">#' + (S.day + 1) + ' · ' + fmtDate(S.day) + (S.hard ? ' · hard mode' : '') + '</div><div class="tabs">';
+  for (var i = 0; i < S.rounds.length; i++) {
+    var r = S.rounds[i], st = r.done ? (r.won ? ' solved' : ' missed') : '';
+    s += '<span class="tab' + (i === S.round ? ' on' : '') + (r.done ? ' done' : '') + '" onclick="pick(' + i + ')">' + r.word.length + ' letters' + st + '</span>';
+  }
+  return s + '</div>';
+}
+function rowHtml(r, gi) {
+  var s = '<div class="row">', n = r.word.length, i;
+  if (gi < r.g.length) { for (i = 0; i < n; i++) s += '<span class="t ' + r.ev[gi][i] + '">' + esc(r.g[gi].charAt(i)) + '</span>'; return s + '</div>'; }
+  if (gi === r.g.length && !r.done) {
+    var m = marksFor(r);
+    for (i = 0; i < n; i++) {
+      var c = S.cur.charAt(i);
+      if (c) s += '<span class="t cur">' + esc(c) + '</span>';
+      else if (m[i] && m[i].ok) s += '<span class="t ghost' + (i === S.cur.length ? ' next' : '') + '">' + m[i].ok + '</span>';
+      else s += '<span class="t' + (i === S.cur.length ? ' next' : '') + '">&nbsp;</span>';
+    }
+    return s + '</div>';
+  }
+  for (i = 0; i < n; i++) s += '<span class="t no">&nbsp;</span>';
+  return s + '</div>';
+}
+function gridHtml(r) { var s = '<div class="grid' + (r.word.length >= 7 ? ' n8' : '') + '" id="grid">'; for (var gi = 0; gi < allowed(r); gi++) s += rowHtml(r, gi); return s + '</div>'; }
+function keyboardHtml(r) {
+  var used = {}, i, j, s = '<div class="kb">';
+  for (i = 0; i < r.g.length; i++) for (j = 0; j < r.g[i].length; j++) used[r.g[i].charAt(j)] = 1;
+  for (i = 0; i < ROWS.length; i++) {
+    s += '<div class="kr">';
+    if (i === 2) s += '<button class="k wide" onclick="submitGuess()">Enter</button>';
+    for (j = 0; j < ROWS[i].length; j++) { var ch = ROWS[i].charAt(j); s += '<button class="k' + (used[ch] ? ' used' : '') + '" onclick="press(\'' + ch + '\')">' + ch + '</button>'; }
+    if (i === 2) s += '<button class="k wide" onclick="back()">Delete</button>';
+    s += '</div>';
+  }
+  return s + '</div>';
+}
+function hintPills(r) {
+  var s = '';
+  if (r.cat && catOf(r.word)) s += '<span>' + esc(catOf(r.word)) + '</span>';
+  if (r.placed) s += '<span>On the keys</span>';
+  return '<div class="pill">' + s + '</div>';
+}
+function renderGame() {
+  var r = cur(), s = header() + tabs();
+  if (r.done) {
+    s += '<div class="board">' + revealSvg(r.word) + '</div>';
+    s += '<div class="big">' + esc(r.word) + '</div>';
+    s += '<div class="msg">' + (r.won ? 'Solved in ' + r.g.length + (r.g.length === 1 ? ' guess' : ' guesses') : 'Out of guesses') + (r.hints.length ? ' · hints: ' + r.hints.length : '') + '</div>';
+    s += gridHtml(r);
+    s += '<div class="acts">';
+    if (S.mode === 'daily') {
+      var nx = nextOpen();
+      if (nx >= 0) s += '<button class="primary" onclick="pick(' + nx + ')">Next squiggle</button>';
+      else s += '<button class="primary" onclick="go(\'done\')">See today\'s results</button>';
+    } else s += '<button class="primary" onclick="startPractice(S.practiceLen)">Another one</button>';
+    s += '</div>';
+  } else {
+    s += '<div class="board" id="board">' + traceSvg(r, seedFor(r)) + '</div>';
+    s += hintPills(r) + gridHtml(r);
+    s += '<div class="msg" id="msg">' + esc(S.msg) + '</div>';
+    s += keyboardHtml(r);
+    s += '<div class="acts"><button onclick="go(\'hints\')">Hints</button></div>';
+  }
+  el('app').innerHTML = s;
+}
+function nextOpen() { for (var k = 1; k <= S.rounds.length; k++) { var i = (S.round + k) % S.rounds.length; if (!S.rounds[i].done) return i; } return -1; }
+function renderHints() {
+  var r = cur(), s = header() + tabs() + '<div class="board">' + traceSvg(r, seedFor(r)) + '</div><div class="sheet"><h2>Hints</h2>' +
+    '<p>No ink on the Kindle: hints are free, but each one shows on your results.</p>';
+  var opts = [
+    ['cat', 'What kind of word', r.cat || !catOf(r.word)],
+    ['first', 'First letter', inArr(r.rev, 0)],
+    ['last', 'Last letter', inArr(r.rev, r.word.length - 1)],
+    ['mid', 'A middle letter', middleLeft(r) < 0],
+    ['place', 'Place it on the keys', r.placed || r.hard]
+  ];
+  for (var i = 0; i < opts.length; i++) s += '<button class="hint' + (opts[i][2] ? ' used' : '') + '" onclick="useHint(\'' + opts[i][0] + '\')">' + opts[i][1] + '<b>' + (opts[i][2] ? (opts[i][0] === 'place' && r.hard ? 'off in hard mode' : 'used') : 'tap') + '</b></button>';
+  s += '<div class="acts"><button class="primary" onclick="go(\'game\')">Back to the squiggle</button></div></div>';
+  el('app').innerHTML = s;
+}
+function middleLeft(r) {
+  var m = marksFor(r);
+  for (var i = 1; i < r.word.length - 1; i++) if (!(m[i] && m[i].ok)) return i;
+  return -1;
+}
+function useHint(kind) {
+  var r = cur(); if (r.done) return;
+  if (kind === 'cat' && !r.cat && catOf(r.word)) { r.cat = true; r.hints.push('category'); }
+  else if (kind === 'first' && !inArr(r.rev, 0)) { r.rev.push(0); r.hints.push('first'); }
+  else if (kind === 'last' && !inArr(r.rev, r.word.length - 1)) { r.rev.push(r.word.length - 1); r.hints.push('last'); }
+  else if (kind === 'mid') { var i = middleLeft(r); if (i >= 0) { r.rev.push(i); r.hints.push('middle'); } }
+  else if (kind === 'place' && !r.placed && !r.hard) { r.placed = true; r.hints.push('place'); }
+  saveDaily(); S.view = 'game'; render();
+}
+function renderDone() {
+  var st = getStats(), s = header() + '<div class="sub">#' + (S.day + 1) + ' · ' + fmtDate(S.day) + '</div><div class="sheet"><h2>Today\'s squiggles</h2>', solved = 0;
+  for (var i = 0; i < S.rounds.length; i++) {
+    var r = S.rounds[i]; if (r.won) solved++;
+    s += '<div class="res">' + r.word.length + ' letters: <b>' + esc(r.word) + '</b> · ' + (r.won ? 'solved in ' + r.g.length : 'missed') + (r.hints.length ? ' · ' + r.hints.length + (r.hints.length === 1 ? ' hint' : ' hints') : '') + '</div>';
+  }
+  s += '<p style="margin-top:16px">' + solved + ' of 3 read. Streak on this Kindle: ' + st.streak + ' day' + (st.streak === 1 ? '' : 's') + ' (best ' + st.best + ').</p>';
+  s += '<p>Today\'s draw word is waiting in the phone app.</p>';
+  s += '<div class="acts"><button onclick="pick(0)">Review</button><button class="primary" onclick="go(\'practice\')">Practice</button></div></div>';
+  el('app').innerHTML = s;
+}
+function renderPracticeMenu() {
+  var s = header() + '<div class="sheet"><h2>Practice</h2><p>Unlimited squiggles from the same word pool. Today\'s words are skipped, and nothing here touches your streak.</p><div class="acts">' +
+    '<button onclick="startPractice(4)">4 letters</button><button onclick="startPractice(6)">6 letters</button><button onclick="startPractice(8)">8 letters</button><button class="primary" onclick="startPractice(0)">Mixed</button></div></div>';
+  el('app').innerHTML = s;
+}
+function renderHelp() {
+  var s = header() + '<div class="sheet"><h2>How to play</h2>' +
+    '<p>Each squiggle is the line a finger draws when it swipe-types a word on a phone keyboard. The circle is where the finger lands, the arrow is where it lifts. A small loop means a double letter.</p>' +
+    '<p>The keyboard is hidden, so read the shape. Guess a real word of the right length. Every letter of your guess is scored by how far it landed from the real key:</p>' +
+    '<p class="legend"><span class="t ok">Q</span> on the key &nbsp; <span class="t near">W</span> one key away &nbsp; <span class="t no">P</span> cold</p>' +
+    '<p>Black pins on the squiggle show letters you have found; dashed pins show letters that were one key off. Four guesses each (three in hard mode). Three squiggles a day: 4, 6 and 8 letters, the same ones as the phone app.</p>' +
+    '<p>Hard mode hides the start circle and end arrow and gives three guesses.</p>' +
+    '<div class="acts"><button onclick="toggleHard()">Hard mode: ' + (S.hard ? 'on' : 'off') + '</button><button class="primary" onclick="go(\'game\')">Play</button></div></div>';
+  el('app').innerHTML = s;
+}
+function render() {
+  if (S.view === 'help') return renderHelp();
+  if (S.view === 'hints') return renderHints();
+  if (S.view === 'done') return renderDone();
+  if (S.view === 'practiceMenu') return renderPracticeMenu();
+  renderGame();
+}
+/* Typing only repaints the guess grid and the message, so the e-ink screen doesn't flash the whole page per key */
+function paintRow() { var r = cur(), g = el('grid'), m = el('msg'); if (g) g.outerHTML = gridHtml(r); if (m) m.innerHTML = esc(S.msg); }
+
+/* ---------- Input ---------- */
+function press(ch) { var r = cur(); if (S.view !== 'game' || r.done || S.cur.length >= r.word.length) return; S.cur += ch; S.msg = ''; paintRow(); }
+function back() { if (S.view !== 'game' || !S.cur) return; S.cur = S.cur.slice(0, -1); S.msg = ''; paintRow(); }
+function submitGuess() {
+  var r = cur(); if (S.view !== 'game' || r.done) return;
+  if (S.cur.length < r.word.length) { S.msg = 'Needs ' + r.word.length + ' letters'; paintRow(); return; }
+  if (S.cur !== r.word && !validGuess(S.cur)) { S.msg = 'Not in the word list'; paintRow(); return; }
+  r.g.push(S.cur); r.ev.push(evaluate(S.cur, r.word)); S.cur = '';
+  if (r.g[r.g.length - 1] === r.word) { r.done = true; r.won = true; }
+  else if (r.g.length >= allowed(r)) { r.done = true; r.won = false; }
+  S.msg = r.done ? '' : (allowed(r) - r.g.length) + ' left';
+  if (S.mode === 'daily') { if (allDone()) recordDay(); saveDaily(); }
+  render();
+}
+function pick(i) { if (S.mode !== 'daily') loadDaily(); S.round = i; S.cur = ''; S.msg = ''; S.view = 'game'; saveDaily(); render(); }
+function go(v) {
+  if (v === 'daily') { loadDaily(); render(); return; }
+  if (v === 'practice') { S.view = 'practiceMenu'; render(); return; }
+  if (v === 'game' && (!S.rounds.length)) loadDaily();
+  else if (v === 'game' && S.mode === 'daily' && allDone() && S.view === 'help') { S.view = 'done'; render(); return; }
+  S.view = v; render();
+}
+function toggleHard() {
+  S.hard = !S.hard; store('sqk.hard', S.hard);
+  for (var i = 0; i < S.rounds.length; i++) if (!S.rounds[i].done && S.rounds[i].g.length === 0) S.rounds[i].hard = S.hard;
+  saveDaily(); render();
+}
+/* A physical or Bluetooth keyboard works too (and makes desktop testing easy) */
+document.onkeydown = function (e) {
+  e = e || window.event; var k = e.key || '';
+  if (k === 'Enter') submitGuess(); else if (k === 'Backspace') back(); else if (/^[a-zA-Z]$/.test(k)) press(k.toLowerCase());
+};
+
+loadDaily();
+render();
+</script>
+</body>
+</html>

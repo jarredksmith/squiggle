@@ -14,6 +14,7 @@ The whole game is one HTML file. It runs as a web page, as a home-screen app, an
 | `src/words.txt`, `src/words-es.txt`, `src/words-pt.txt` | Guess dictionaries: 32,000 English, 20,000 Spanish and 20,000 Brazilian Portuguese words, one per line, from the hermitdave/FrequencyWords lists |
 | `scripts/build.mjs` | Builds `index.html` (web + app) and `dist/artifact.html` (for a Claude artifact) from `src/` |
 | `index.html` | The built game. GitHub Pages serves it; the iPhone app bundles it |
+| `kindle.html` | E-ink edition for the Kindle browser, built from `src/kindle.template.html` by `scripts/build-kindle.mjs` |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Make the web copy installable and playable offline |
 | `privacy.html` | Privacy policy page (App Store Connect asks for a URL) |
 | `brand/` | `logo.svg` (the wordmark), app icon and splash sources |
@@ -61,6 +62,16 @@ The look is the slate-blue style guide: navy text `#0F2749` on `#F5F8FC`, primar
 The wordmark is `brand/logo.svg`, inlined once as SVG `<defs>` and reused by `<use href="#sq-logo">` (home) and `#sq-swoosh` (the in-game header mark); the share card draws the same paths on canvas. The brush strokes behind the home screen are two SVG paths roughened by the `#sq-brush` filter (turbulence displacement for the edges, a streaky alpha mask for the dry-brush texture); their colour and opacity are the `--brush` / `--brushop` tokens. The app icon is `brand/icon.svg`: the wordmark's own script S in white on navy with the coral dot (rendered to `brand/icon-1024.png`); the splash is the wordmark on `#F5F8FC`.
 
 Type is IBM Plex Sans, one family at four weights, with tabular figures where numbers line up; nothing is set in a monospace. The web and app copies load the woff2 files from `fonts/`; the Claude artifact copy loads the same face from Google Fonts. Interface icons are Squiggle's own: every action glyph is drawn with the game's trace (a round-capped curve, the coral dot where the finger lands, the arrowhead where it lifts), so Play, Practice, Challenge, Packs, Send, Review, Share, the draw tab and the four hints read as one family. They live in `ICONS` in the template and render through `sq(name)`. Universal glyphs with no Squiggle meaning (home, help, stats, close, copy, delete, timer, streak) stay Lucide (ISC), inlined at the same 2px stroke.
+
+## Kindle edition
+
+`https://jarredksmith.github.io/squiggle/kindle.html` is Squiggle for the Kindle Scribe's web browser: the same three daily squiggles as the app (same words, same traces), plus unlimited practice. It is written for e-ink: old-style JavaScript the Kindle browser can run, no animation, black and white only (on the key = solid black, one key away = grey with a dashed border, cold = plain), and typing repaints only the guess grid so the screen doesn't flash on every key. There's no ink on the Kindle, so hints are free but listed on the day's results, and the draw round stays in the app. Progress and the streak are kept in the Kindle browser, separate from the phone.
+
+```
+node scripts/build-kindle.mjs
+```
+
+Run it after changing word pools or categories in the main template; it rebuilds `kindle.html` and fails if the Kindle page's daily words ever drift from the app's. The Kindle files don't trigger the iPhone or Android builds.
 
 ## 3. Later
 
