@@ -10,6 +10,8 @@ launch(){ adb shell am force-stop $PKG; adb shell monkey -p $PKG -c android.inte
 play(){ adb shell input tap 540 1080; }
 adb install -r "$APK"
 adb logcat -c
+# Stream the log to the runner as it happens, so it survives even if the emulator dies
+(adb logcat -v time > "$OUT/logcat-live.txt" 2>&1 &)
 adb shell cmd uimode night no; launch; shot 1-home-light 12
 play; shot 2-game-light 4
 adb shell input keyevent 4; shot 3-back-to-home 3
