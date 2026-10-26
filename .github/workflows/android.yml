@@ -1,0 +1,108 @@
+# Builds the Squiggle Android app on a GitHub Linux machine.
+# Every run makes a debug APK you can install straight onto a phone (Actions > this run > Artifacts > squiggle-apk).
+# For Google Play it also makes a signed release bundle (.aab) once these four repository secrets exist:
+#   ANDROID_KEYSTORE_B64      the upload keystore file, base64-encoded
+#   ANDROID_KEYSTORE_PASSWORD its password
+#   ANDROID_KEY_ALIAS         the key's alias inside it
+#   ANDROID_KEY_PASSWORD      the key's password
+# and, optionally, PLAY_SERVICE_ACCOUNT_JSON (a Google Play service account) to push each bundle to the
+# Internal testing track. Google requires the very first bundle to be uploaded by hand in Play Console.
+name: Android app
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - manifest.webmanifest
+      - icons/**
+      - fonts/**
+      - packs/**
+      - ios-app/package*.json
+      - ios-app/capacitor.config.json
+      - ios-app/scripts/**
+      - ios-app/android/**
+      - .github/workflows/android.yml
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SIGNING: ${{ secrets.ANDROID_KEYSTORE_B64 != '' && secrets.ANDROID_KEYSTORE_PASSWORD != '' && secrets.ANDROID_KEY_ALIAS != '' }}
+      PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
+      VERSION_CODE: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ios-app/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Bundle the web game into the Android project
+        working-directory: ios-app
+        run: |
+          npm ci
+          node scripts/copy-web.mjs
+          npx cap sync android
+
+      - name: Build the installable debug APK
+        working-directory: ios-app/android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/squiggle-debug.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: squiggle-apk
+          path: squiggle-debug.apk
+          retention-days: 30
+
+      - name: Build the signed release bundle for Google Play
+        if: env.SIGNING == 'true'
+        working-directory: ios-app/android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/upload.jks"
+          ./gradlew --no-daemon bundleRelease
+          cp app/build/outputs/bundle/release/app-release.aab "$GITHUB_WORKSPACE/squiggle-${{ github.run_number }}.aab"
+          rm -f "$RUNNER_TEMP/upload.jks"
+
+      - name: No upload key yet
+        if: env.SIGNING != 'true'
+        run: echo "::notice::Upload key secrets not set, so this run made the debug APK only. See the comments at the top of android.yml."
+
+      - uses: actions/upload-artifact@v4
+        if: env.SIGNING == 'true'
+        with:
+          name: squiggle-play-bundle
+          path: squiggle-*.aab
+          retention-days: 30
+
+      - name: Send the bundle to Google Play internal testing
+        if: env.SIGNING == 'true' && env.PLAY == 'true'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.jarredsmith.squiggle
+          releaseFiles: squiggle-${{ github.run_number }}.aab
+          track: internal
+          status: completed

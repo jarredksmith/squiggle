@@ -74,7 +74,7 @@ body{margin:0;background:var(--bg);background-image:linear-gradient(180deg,var(-
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .app{max-width:540px;margin:0 auto;height:100%;display:flex;flex-direction:column;overflow:hidden;position:relative;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-left:max(16px,max(env(safe-area-inset-left,0px),var(--safe-area-inset-left,0px)));padding-right:max(16px,max(env(safe-area-inset-right,0px),var(--safe-area-inset-right,0px)));
   padding-block:10px 12px;gap:10px}
 
 /* Brush marks: two loose strokes behind the home screen, roughened by an SVG filter so they read as paint, not vector */
@@ -298,8 +298,8 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 
 /* Sheet + modals */
 .scrim{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:50;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
-  padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));padding-top:calc(16px + env(safe-area-inset-top,0px))}
+  padding-left:max(16px,max(env(safe-area-inset-left,0px),var(--safe-area-inset-left,0px)));padding-right:max(16px,max(env(safe-area-inset-right,0px),var(--safe-area-inset-right,0px)));
+  padding-bottom:calc(16px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)));padding-top:calc(16px + max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px)))}
 .scrim.center{align-items:center}
 .sheet{width:100%;max-width:520px;background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:20px 18px 18px;max-height:100%;overflow:auto;
   display:flex;flex-direction:column;gap:14px}
@@ -390,14 +390,14 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .inkfloat{position:fixed;transform:translateX(-50%);font-family:var(--display);font-weight:700;font-size:18px;color:var(--gold);text-shadow:0 1px 0 var(--surface);pointer-events:none;z-index:71;animation:inkrise 1.2s ease-out forwards}
 @keyframes inkrise{0%{opacity:0;transform:translate(-50%,0) scale(.8)}20%{opacity:1;transform:translate(-50%,-6px) scale(1.1)}100%{opacity:0;transform:translate(-50%,-44px) scale(1)}}
 @media (prefers-reduced-motion: reduce){.inkfloat{animation:none;opacity:0}}
-.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;
+.toast{position:fixed;left:50%;top:calc(14px + max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px)));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;
   font-weight:700;font-size:14px;z-index:60;box-shadow:var(--shadow);max-width:calc(100% - 32px);text-align:center}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 
 <style>
 /* Things the Claude artifact frame provides on its own; the standalone page and the iPhone app need them here. */
-.app{padding-top:calc(env(safe-area-inset-top,0px) + 10px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px)}
+.app{padding-top:calc(max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px)) + 10px);padding-bottom:calc(max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)) + 12px)}
 img{max-width:100%}
 body{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;overscroll-behavior:none}
 .share,.field input{-webkit-user-select:text;user-select:text}
@@ -480,6 +480,7 @@ window.SQUIGGLE_SHARE_URL='https://jarredksmith.github.io/squiggle/';window.SQUI
    these two flags are the only difference it ever checks. */
 const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
 const NP=NATIVE?(window.Capacitor.Plugins||{}):{};
+const ANDROID=NATIVE&&window.Capacitor.getPlatform&&window.Capacitor.getPlatform()==='android';
 const SHARE_URL=window.SQUIGGLE_SHARE_URL||(location.origin+location.pathname);
 /* ---------- Sound: a tiny synth, no audio files. Unlocked by the first tap, muted from Settings. ---------- */
 const SFX={on:store('sq.sound')!==false,ctx:null};
@@ -525,6 +526,8 @@ function applyTheme(){
   if(THEME.mode==='system')root.removeAttribute('data-theme');else root.setAttribute('data-theme',THEME.mode);
   const dark=THEME.mode==='dark'||(THEME.mode==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);
   if(NATIVE&&NP.StatusBar){try{NP.StatusBar.setStyle({style:dark?'DARK':'LIGHT'});}catch(e){}}
+  /* Android draws edge to edge: the status bar and the gesture/navigation bar both sit over the page, so both need the right icon colour */
+  if(ANDROID&&NP.SystemBars){try{NP.SystemBars.setStyle({style:dark?'DARK':'LIGHT'});}catch(e){}}
   const bg=(getComputedStyle(root).getPropertyValue('--bg')||'').trim()||(dark?'#0B1426':'#F5F8FC');
   document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{m.content=bg;});
 }
@@ -1759,6 +1762,11 @@ window.addEventListener('hashchange',()=>{openLink(location.hash||'');});
 /* Universal Links (iOS app): a friend's link opens the app instead of the web page; the URL arrives here, not in location.hash */
 function openAppUrl(url){try{const h=new URL(url).hash;if(!openLinkable(h))return;if(S.mode==='tutorial'){S.after=h;return;}openLink(h);}catch(e){}}
 if(NATIVE&&NP.App){NP.App.addListener('appUrlOpen',e=>{if(e&&e.url)openAppUrl(e.url);});}
+/* Android's back gesture: close an open sheet, then leave a game for the home screen, then leave the app */
+if(ANDROID&&NP.App){NP.App.addListener('backButton',()=>{
+  if(document.querySelector('#overlay .scrim')){closeSheet();return;}
+  if(S.view==='game'){goHome();return;}
+  try{NP.App.minimizeApp?NP.App.minimizeApp():NP.App.exitApp();}catch(e){}});}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){window.claude.hot.snapshot(()=>({cur:S.cur}));}
 const boot=()=>{start();try{const d=window.claude&&window.claude.hot&&window.claude.hot.data;if(d&&d.cur){S.cur=d.cur;renderGuesses();}}catch(e){}};
 if(window.claude&&window.claude.hot&&window.claude.hot.ready) window.claude.hot.ready(boot); else boot();
