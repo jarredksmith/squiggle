@@ -1,0 +1,12 @@
+# Only needed if you deploy from a terminal with wrangler; the dashboard steps in the README don't use it.
+name = "kindle-chat"
+main = "chat-worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://jarredksmith.github.io"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "kindle-chat"
+database_id = "local-dev"

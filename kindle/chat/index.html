@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Chat">
+<meta name="theme-color" content="#f7f7f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Chat</title>
+<style>
+:root{--bg:#fff;--bar:rgba(247,247,247,.86);--hair:rgba(60,60,67,.29);--text:#000;--sub:#8e8e93;--blue:#0b84fe;--them:#e9e9eb;--themtext:#000;--field:#fff;--fieldborder:#c6c6c8;--row:#fff;--grouped:#f2f2f7;--av1:#a5abb6;--av2:#848a96}
+@media (prefers-color-scheme:dark){:root{--bg:#000;--bar:rgba(22,22,24,.86);--hair:rgba(84,84,88,.6);--text:#fff;--sub:#8e8e93;--them:#262628;--themtext:#fff;--field:#1c1c1e;--fieldborder:#3a3a3c;--row:#000;--grouped:#000;--av1:#6d6d72;--av2:#4f4f54}}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;font-size:17px;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+#app{max-width:720px;margin:0 auto}
+a{color:var(--blue);cursor:pointer;text-decoration:none}
+/* Bar */
+.bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;min-height:52px;padding:calc(env(safe-area-inset-top) + 4px) 8px 6px;background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--hair)}
+.bl,.br{flex:1;display:flex;align-items:center;min-width:0}
+.br{justify-content:flex-end}
+.bt{flex:0 1 auto;font-weight:600;font-size:17px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+.bl a,.br a{display:flex;align-items:center;padding:6px 8px;font-size:17px}
+.back{font-size:34px;line-height:24px;font-weight:300;margin-top:-4px;margin-right:4px}
+.v-page .bt{opacity:1}
+.compose{color:var(--blue)}
+/* Chat header: avatar over the name, like Messages */
+.v-chat .bar{min-height:80px;padding-top:calc(env(safe-area-inset-top) + 8px)}
+.v-chat .bt{overflow:visible}
+.ttl{display:flex;flex-direction:column;align-items:center;cursor:pointer;color:var(--text)}
+.ttl .tn{font-size:11.5px;font-weight:500;margin-top:4px;display:flex;align-items:center;gap:2px}
+.chev{color:var(--sub);font-size:14px}
+.av{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:linear-gradient(180deg,var(--av1),var(--av2));color:#fff;font-weight:500;font-size:19px;flex:none}
+.av.sm{width:40px;height:40px;font-size:16px}
+/* Pages */
+.page{padding:8px 16px 40px}
+.page p{line-height:1.4}
+.large{font-size:34px;font-weight:700;margin:4px 0 10px;letter-spacing:.3px}
+.list{padding:0 0 40px}
+.list .large{padding:0 16px}
+.empty{color:var(--sub);text-align:center;margin:40px 16px}
+.row{display:flex;align-items:center;gap:12px;padding:10px 16px 0;color:var(--text)}
+.rt{flex:1;min-width:0;display:grid;grid-template-columns:1fr auto;column-gap:8px;padding-bottom:10px;border-bottom:.5px solid var(--hair)}
+.rn{font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rw{color:var(--sub);font-size:15px;white-space:nowrap}
+.rp{grid-column:1/3;color:var(--sub);font-size:15px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.acts{display:flex;flex-direction:column;gap:10px;padding:24px 16px 0}
+.btn{font:inherit;font-size:17px;font-weight:600;border:0;border-radius:12px;padding:14px;background:var(--grouped);color:var(--blue);-webkit-appearance:none}
+@media (prefers-color-scheme:dark){.btn{background:#1c1c1e}}
+.btn.primary{background:var(--blue);color:#fff}
+form .btn{display:block;width:100%;margin-top:18px}
+label{display:block;font-size:13px;text-transform:uppercase;color:var(--sub);margin:22px 4px 6px;letter-spacing:.2px}
+.field{display:block;width:100%;font:inherit;font-size:17px;padding:12px 14px;border:.5px solid var(--fieldborder);border-radius:10px;background:var(--field);color:var(--text);-webkit-appearance:none}
+.note{font-size:13px;color:var(--sub)}
+.center{text-align:center}
+.err{color:#ff3b30;font-size:15px}
+.invite p{font-size:15px}
+.qr{display:flex;justify-content:center;margin:12px 0}
+.qr svg{width:220px;height:220px;background:#fff;border-radius:12px;padding:6px}
+.label{font-size:13px;text-transform:uppercase;color:var(--sub);margin:18px 0 4px}
+.mono{font-family:ui-monospace,Menlo,monospace;word-break:break-all;margin:0;font-size:14px}
+.mono.big{font-size:22px;font-weight:600}
+/* Thread */
+.thread{padding:8px 12px calc(76px + env(safe-area-inset-bottom))}
+.when{text-align:center;font-size:11.5px;color:var(--sub);margin:16px 0 6px;font-weight:500}
+.who{font-size:11.5px;color:var(--sub);margin:6px 0 1px 14px}
+.msg{display:flex;margin:1px 0}
+.msg.tail{margin-bottom:6px}
+.msg.me{justify-content:flex-end}
+.msg .b{position:relative;max-width:75%;padding:7px 13px 8px;border-radius:18px;font-size:17px;line-height:1.3;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.me .b{background:var(--blue);color:#fff}
+.msg.me .b a{color:#fff;text-decoration:underline}
+.msg.them .b{background:var(--them);color:var(--themtext)}
+/* Bubble tails, the iMessage way: a curved piece plus a cut-out the colour of the page */
+.msg.tail .b::before,.msg.tail .b::after{content:"";position:absolute;bottom:0;height:18px}
+.msg.me.tail .b::before{right:-7px;width:20px;background:var(--blue);border-bottom-left-radius:16px 14px}
+.msg.me.tail .b::after{right:-26px;width:26px;background:var(--bg);border-bottom-left-radius:10px}
+.msg.them.tail .b::before{left:-7px;width:20px;background:var(--them);border-bottom-right-radius:16px 14px}
+.msg.them.tail .b::after{left:-26px;width:26px;background:var(--bg);border-bottom-right-radius:10px}
+.msg.failed .b{opacity:.55}
+.rcpt{text-align:right;font-size:11.5px;color:var(--sub);margin:-2px 4px 6px;font-weight:500}
+.msg.failed+.rcpt{color:#ff3b30}
+.older{text-align:center;margin:6px 0}
+.older a{font-size:13px}
+/* Composer pinned to the bottom */
+.composer{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;align-items:flex-end;gap:8px;padding:8px 12px calc(8px + env(safe-area-inset-bottom));background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);max-width:720px;margin:0 auto}
+.msgin{flex:1;font:inherit;font-size:17px;padding:7px 14px;min-height:36px;border:1px solid var(--fieldborder);border-radius:18px;background:var(--field);color:var(--text);-webkit-appearance:none;outline:none}
+.send{flex:none;width:32px;height:32px;margin-bottom:2px;border:0;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;padding:0;-webkit-appearance:none}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="config.js"></script>
+<script src="qrcode.js"></script>
+<script src="chat.js"></script>
+</body>
+</html>
