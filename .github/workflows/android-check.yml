@@ -1,0 +1,49 @@
+# Manual check: builds the debug APK, runs it on an Android emulator and saves screenshots and the app's log
+# (Actions > Android emulator check > Run workflow). Useful without an Android phone to hand.
+name: Android emulator check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ios-app/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - name: Build the debug APK
+        working-directory: ios-app
+        run: |
+          npm ci
+          node scripts/copy-web.mjs
+          npx cap sync android
+          cd android && chmod +x gradlew && ./gradlew --no-daemon assembleDebug
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run it on a phone emulator and take screenshots
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7
+          disable-animations: true
+          script: bash ios-app/android/emulator-check.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: emulator-check
+          path: emulator-out/
