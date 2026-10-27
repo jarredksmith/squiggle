@@ -1,0 +1,40 @@
+# Manual, read-only: asks App Store Connect for the review status of each Squiggle version, using the same
+# API key secrets the TestFlight upload uses (ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8). Nothing is changed.
+name: App Store status
+
+on:
+  workflow_dispatch:
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask App Store Connect
+        env:
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+          P8: ${{ secrets.ASC_KEY_P8 }}
+          APP: '6823700861'
+        run: |
+          pip install -q pyjwt cryptography
+          python3 - <<'PY'
+          import os, time, json, urllib.request, jwt
+          tok = jwt.encode({"iss": os.environ["ISSUER"], "iat": int(time.time()), "exp": int(time.time()) + 600, "aud": "appstoreconnect-v1"},
+                           os.environ["P8"], algorithm="ES256", headers={"kid": os.environ["KEY_ID"], "typ": "JWT"})
+          def get(path):
+              req = urllib.request.Request("https://api.appstoreconnect.apple.com" + path, headers={"Authorization": "Bearer " + tok})
+              return json.load(urllib.request.urlopen(req))
+          app = os.environ["APP"]
+          vs = get(f"/v1/apps/{app}/appStoreVersions?fields[appStoreVersions]=versionString,appStoreState,appVersionState,releaseType,createdDate&limit=10")
+          print("App Store versions:")
+          for v in vs["data"]:
+              a = v["attributes"]
+              print(f"  {a.get('versionString')}: state={a.get('appVersionState') or a.get('appStoreState')} (appStoreState={a.get('appStoreState')}), release={a.get('releaseType')}, created={a.get('createdDate')}")
+          try:
+              subs = get(f"/v1/reviewSubmissions?filter[app]={app}&fields[reviewSubmissions]=state,submittedDate&limit=10")
+              print("Review submissions:")
+              for s in subs["data"]:
+                  print(f"  {s['attributes'].get('submittedDate')}: {s['attributes'].get('state')}")
+          except Exception as e:
+              print("Review submissions: unavailable", e)
+          PY
