@@ -1,0 +1,114 @@
+# Manual: creates (or tops up) the pack in-app purchases in App Store Connect from store/iap.json:
+# non-consumable, $0.99 in the US (Apple converts other countries), every territory, English name and
+# description, review note and review screenshot (store/iap-review.png). Safe to re-run; existing parts are left alone.
+# With submit=true it also queues each one for review with the next app version.
+name: App Store in-app purchases
+
+on:
+  workflow_dispatch:
+    inputs:
+      price: { description: 'US price', default: '0.99' }
+      submit: { description: 'Queue for review with the next version', type: boolean, default: false }
+
+jobs:
+  iap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create the products
+        env:
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+          P8: ${{ secrets.ASC_KEY_P8 }}
+          APP: '6823700861'
+          PRICE: ${{ inputs.price }}
+          SUBMIT: ${{ inputs.submit }}
+        run: |
+          pip install -q pyjwt cryptography
+          python3 - <<'PY'
+          import os, time, json, hashlib, urllib.request, urllib.error, jwt
+          E = os.environ; app = E["APP"]
+          tok = jwt.encode({"iss": E["ISSUER"], "iat": int(time.time()), "exp": int(time.time()) + 1200, "aud": "appstoreconnect-v1"},
+                           E["P8"], algorithm="ES256", headers={"kid": E["KEY_ID"], "typ": "JWT"})
+          def call(method, path, body=None, ok404=False):
+              data = json.dumps(body).encode() if body is not None else None
+              req = urllib.request.Request("https://api.appstoreconnect.apple.com" + path, data=data, method=method,
+                    headers={"Authorization": "Bearer " + tok, "Content-Type": "application/json"})
+              for attempt in range(4):
+                  try:
+                      with urllib.request.urlopen(req) as r:
+                          t = r.read(); return json.loads(t) if t else {}
+                  except urllib.error.HTTPError as e:
+                      msg = e.read().decode()[:1500]
+                      if e.code == 409 and "ENTITY_ERROR" not in msg and attempt < 3: time.sleep(2); continue
+                      raise SystemExit(f"{method} {path} -> {e.code}: {msg}")
+                  except Exception:
+                      if attempt == 3: raise
+                      time.sleep(3)
+          def pages(path):
+              out = []
+              while path:
+                  r = call("GET", path); out += r["data"]; nxt = r.get("links", {}).get("next")
+                  path = nxt.replace("https://api.appstoreconnect.apple.com", "") if nxt else None
+              return out
+          products = json.load(open("store/iap.json"))
+          have = {x["attributes"]["productId"]: x for x in pages(f"/v1/apps/{app}/inAppPurchasesV2?limit=200")}
+          territories = [t["id"] for t in pages("/v1/territories?limit=200")]
+          shot = open("store/iap-review.png", "rb").read()
+          for p in products:
+              pid = p["productId"]; print("==", pid)
+              iap = have.get(pid)
+              if not iap:
+                  iap = call("POST", "/v2/inAppPurchases", {"data": {"type": "inAppPurchases", "attributes": {
+                      "name": p["ref"], "productId": pid, "inAppPurchaseType": "NON_CONSUMABLE", "reviewNote": p["note"], "familySharable": False},
+                      "relationships": {"app": {"data": {"type": "apps", "id": app}}}}})["data"]
+                  print("  created")
+              iid = iap["id"]
+              # English name and description
+              locs = call("GET", f"/v2/inAppPurchases/{iid}/inAppPurchaseLocalizations")["data"]
+              if not any(l["attributes"]["locale"] == "en-US" for l in locs):
+                  call("POST", "/v1/inAppPurchaseLocalizations", {"data": {"type": "inAppPurchaseLocalizations",
+                      "attributes": {"locale": "en-US", "name": p["name"], "description": p["desc"]},
+                      "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": iid}}}}})
+                  print("  name and description set")
+              # Price (US base; Apple sets the rest of the world)
+              pts = pages(f"/v2/inAppPurchases/{iid}/pricePoints?filter[territory]=USA&limit=200")
+              pt = next((x for x in pts if x["attributes"]["customerPrice"] in (E["PRICE"], E["PRICE"] + "0")), None)
+              if not pt: raise SystemExit("No US price point for " + E["PRICE"])
+              try:
+                  call("POST", "/v1/inAppPurchasePriceSchedules", {"data": {"type": "inAppPurchasePriceSchedules",
+                      "relationships": {"inAppPurchase": {"data": {"type": "inAppPurchases", "id": iid}},
+                                        "baseTerritory": {"data": {"type": "territories", "id": "USA"}},
+                                        "manualPrices": {"data": [{"type": "inAppPurchasePrices", "id": "${p1}"}]}}},
+                      "included": [{"type": "inAppPurchasePrices", "id": "${p1}", "attributes": {"startDate": None},
+                                    "relationships": {"inAppPurchasePricePoint": {"data": {"type": "inAppPurchasePricePoints", "id": pt["id"]}}}}]})
+                  print("  price", E["PRICE"])
+              except SystemExit as e: print("  price:", str(e)[:300])
+              # Every territory
+              try:
+                  call("POST", "/v1/inAppPurchaseAvailabilities", {"data": {"type": "inAppPurchaseAvailabilities",
+                      "attributes": {"availableInNewTerritories": True},
+                      "relationships": {"inAppPurchase": {"data": {"type": "inAppPurchases", "id": iid}},
+                                        "availableTerritories": {"data": [{"type": "territories", "id": t} for t in territories]}}}})
+                  print("  available in", len(territories), "territories")
+              except SystemExit as e: print("  availability:", str(e)[:300])
+              # Review screenshot
+              cur = call("GET", f"/v2/inAppPurchases/{iid}/appStoreReviewScreenshot")
+              if not (cur.get("data")):
+                  r = call("POST", "/v1/inAppPurchaseAppStoreReviewScreenshots", {"data": {"type": "inAppPurchaseAppStoreReviewScreenshots",
+                      "attributes": {"fileName": "squiggle-packs.png", "fileSize": len(shot)},
+                      "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": iid}}}}})["data"]
+                  for op in r["attributes"]["uploadOperations"]:
+                      part = shot[op["offset"]:op["offset"] + op["length"]]
+                      req = urllib.request.Request(op["url"], data=part, method=op["method"], headers={h["name"]: h["value"] for h in op["requestHeaders"]})
+                      urllib.request.urlopen(req).read()
+                  call("PATCH", f"/v1/inAppPurchaseAppStoreReviewScreenshots/{r['id']}", {"data": {"type": "inAppPurchaseAppStoreReviewScreenshots", "id": r["id"],
+                      "attributes": {"uploaded": True, "sourceFileChecksum": hashlib.md5(shot).hexdigest()}}})
+                  print("  review screenshot uploaded")
+              state = call("GET", f"/v2/inAppPurchases/{iid}")["data"]["attributes"]["state"]
+              print("  state:", state)
+              if E["SUBMIT"] == "true" and state == "READY_TO_SUBMIT":
+                  call("POST", "/v1/inAppPurchaseSubmissions", {"data": {"type": "inAppPurchaseSubmissions",
+                      "relationships": {"inAppPurchaseV2": {"data": {"type": "inAppPurchases", "id": iid}}}}})
+                  print("  queued for review")
+          PY

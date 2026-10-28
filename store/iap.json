@@ -1,0 +1,8 @@
+[
+  {"productId": "squiggle.pack.movies", "ref": "Movies Pack", "name": "Movies Pack", "desc": "450+ film titles to trace, plus a new look.",
+   "note": "Unlocks the Movies word pack: its own daily puzzles, practice, titles to draw and a color theme. Open Squiggle > Packs to see it. The pack can also be unlocked with ink earned in the game."},
+  {"productId": "squiggle.pack.music", "ref": "Music Pack", "name": "Music Pack", "desc": "440+ bands and artists to trace, plus a look.",
+   "note": "Unlocks the Music word pack: its own daily puzzles, practice, names to draw and a color theme. Open Squiggle > Packs to see it. The pack can also be unlocked with ink earned in the game."},
+  {"productId": "squiggle.pack.halloween", "ref": "Halloween Pack", "name": "Halloween Pack", "desc": "270+ spooky words to trace, plus a new look.",
+   "note": "Unlocks the Halloween word pack: its own daily puzzles, practice, phrases to draw and a color theme. Open Squiggle > Packs to see it. The pack can also be unlocked with ink earned in the game."}
+]
