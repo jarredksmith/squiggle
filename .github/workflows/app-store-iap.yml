@@ -9,6 +9,7 @@ on:
     inputs:
       price: { description: 'US price', default: '0.99' }
       submit: { description: 'Queue for review with the next version', type: boolean, default: false }
+      reshot: { description: 'Replace the review screenshot', type: boolean, default: false }
 
 jobs:
   iap:
@@ -23,6 +24,7 @@ jobs:
           APP: '6823700861'
           PRICE: ${{ inputs.price }}
           SUBMIT: ${{ inputs.submit }}
+          RESHOT: ${{ inputs.reshot }}
         run: |
           pip install -q pyjwt cryptography
           python3 - <<'PY'
@@ -94,6 +96,8 @@ jobs:
               except SystemExit as e: print("  availability:", str(e)[:300])
               # Review screenshot
               cur = call("GET", f"/v2/inAppPurchases/{iid}/appStoreReviewScreenshot")
+              if cur.get("data") and E.get("RESHOT") == "true":
+                  call("DELETE", f"/v1/inAppPurchaseAppStoreReviewScreenshots/{cur['data']['id']}"); cur = {}; print("  old review screenshot removed")
               if not (cur.get("data")):
                   r = call("POST", "/v1/inAppPurchaseAppStoreReviewScreenshots", {"data": {"type": "inAppPurchaseAppStoreReviewScreenshots",
                       "attributes": {"fileName": "squiggle-packs.png", "fileSize": len(shot)},
