@@ -15,3 +15,4 @@ cpSync(join(root, 'icons'), join(out, 'icons'), { recursive: true });
 cpSync(join(root, 'fonts'), join(out, 'fonts'), { recursive: true });
 cpSync(join(root, 'packs'), join(out, 'packs'), { recursive: true });
 console.log('Copied the web game into', out);
+await import('./patch-plugins.mjs');
