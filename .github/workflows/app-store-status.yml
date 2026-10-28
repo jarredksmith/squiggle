@@ -37,4 +37,10 @@ jobs:
                   print(f"  {s['attributes'].get('submittedDate')}: {s['attributes'].get('state')}")
           except Exception as e:
               print("Review submissions: unavailable", e)
+          bs = get(f"/v1/builds?filter[app]={app}&sort=-uploadedDate&limit=8&include=preReleaseVersion&fields[builds]=version,processingState,uploadedDate,expired,usesNonExemptEncryption,preReleaseVersion")
+          pre = {x["id"]: x["attributes"].get("version") for x in bs.get("included", [])}
+          print("Latest builds:")
+          for b in bs["data"]:
+              a = b["attributes"]; pv = pre.get(((b.get("relationships") or {}).get("preReleaseVersion") or {}).get("data", {}).get("id"))
+              print(f"  {pv} ({a.get('version')}): {a.get('processingState')}, uploaded {a.get('uploadedDate')}, expired={a.get('expired')}, encryption={a.get('usesNonExemptEncryption')}")
           PY
