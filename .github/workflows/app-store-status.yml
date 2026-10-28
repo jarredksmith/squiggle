@@ -37,6 +37,16 @@ jobs:
                   print(f"  {s['attributes'].get('submittedDate')}: {s['attributes'].get('state')}")
           except Exception as e:
               print("Review submissions: unavailable", e)
+          try:
+              av = get(f"/v1/apps/{app}/appAvailabilityV2")
+              aid = av["data"]["id"]; print("Availability:", av["data"]["attributes"])
+              ts = get(f"/v2/appAvailabilities/{aid}/territoryAvailabilities?limit=200&include=territory")
+              on = [t for t in ts["data"] if t["attributes"].get("available")]
+              print(f"Territories available: {len(on)} of {len(ts['data'])}")
+              usa = [t for t in ts["data"] if t["relationships"]["territory"]["data"]["id"] == "USA"]
+              print("USA:", usa[0]["attributes"] if usa else "not listed")
+          except Exception as e:
+              print("Availability: unavailable", e)
           bs = get(f"/v1/builds?filter[app]={app}&sort=-uploadedDate&limit=8&include=preReleaseVersion&fields[builds]=version,processingState,uploadedDate,expired,usesNonExemptEncryption,preReleaseVersion")
           pre = {x["id"]: x["attributes"].get("version") for x in bs.get("included", [])}
           print("Latest builds:")
