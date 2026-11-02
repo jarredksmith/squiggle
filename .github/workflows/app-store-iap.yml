@@ -10,6 +10,7 @@ on:
       price: { description: 'US price', default: '0.99' }
       submit: { description: 'Queue for review with the next version', type: boolean, default: false }
       reshot: { description: 'Replace the review screenshot', type: boolean, default: false }
+      only: { description: 'Only this product id (blank = all)', default: '' }
 
 jobs:
   iap:
@@ -25,6 +26,7 @@ jobs:
           PRICE: ${{ inputs.price }}
           SUBMIT: ${{ inputs.submit }}
           RESHOT: ${{ inputs.reshot }}
+          ONLY: ${{ inputs.only }}
         run: |
           pip install -q pyjwt cryptography
           python3 - <<'PY'
@@ -58,7 +60,9 @@ jobs:
           territories = [t["id"] for t in pages("/v1/territories?limit=200")]
           shot = open("store/iap-review.png", "rb").read()
           for p in products:
-              pid = p["productId"]; print("==", pid)
+              pid = p["productId"]
+              if E.get("ONLY") and pid != E["ONLY"]: continue
+              print("==", pid)
               iap = have.get(pid)
               if not iap:
                   iap = call("POST", "/v2/inAppPurchases", {"data": {"type": "inAppPurchases", "attributes": {
